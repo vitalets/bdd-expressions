@@ -1,0 +1,6 @@
+#!/bin/sh
+set -eu
+
+if [ -n "${SKIP_GIT_HOOKS-}" ]; then exit 0; fi
+
+npm exec --no -- lint-staged --relative

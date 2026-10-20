@@ -1,0 +1,86 @@
+import { validTypeName } from './parser.js';
+import { normalizePattern } from './regexp.js';
+
+export interface ParameterType<T = unknown> {
+  readonly name: string | undefined;
+  readonly regexpStrings: readonly string[];
+  // Method syntax intentionally allows structural upstream types whose typings
+  // omit undefined, although unmatched native capture values can be undefined.
+  transform(world: unknown, values: (string | undefined)[] | null): T | PromiseLike<T>;
+}
+export interface ParameterTypeRegistry {
+  lookupByTypeName(name: string): ParameterType | undefined;
+}
+export interface MutableParameterTypeRegistry extends ParameterTypeRegistry {
+  defineParameterType(type: ParameterType): void;
+}
+export interface ParameterTypeOptions<T, World = unknown> {
+  name: string;
+  regexp: string | RegExp | readonly (string | RegExp)[];
+  transformer?: (this: World, ...captures: (string | undefined)[]) => T | PromiseLike<T>;
+}
+export function createParameterType<T = string | undefined, World = unknown>(
+  options: ParameterTypeOptions<T, World>,
+): ParameterType<T> {
+  if (!validTypeName(options.name) || options.name === 'inline-choice') {
+    throw new Error(`Invalid or reserved parameter type name "${options.name}"`);
+  }
+  const patterns = Array.isArray(options.regexp)
+    ? options.regexp
+    : [options.regexp as string | RegExp];
+  if (!patterns.length) throw new Error('A parameter type needs at least one regexp');
+  const regexpStrings = Object.freeze(patterns.map(normalizePattern));
+  return {
+    name: options.name,
+    regexpStrings,
+    transform(world, values) {
+      return options.transformer
+        ? options.transformer.apply(world as World, values ?? [])
+        : (values?.[0] as T);
+    },
+  };
+}
+
+export function createParameterTypeRegistry(): MutableParameterTypeRegistry {
+  const types = new Map<string, ParameterType>();
+  const registry: MutableParameterTypeRegistry = {
+    lookupByTypeName: (name) => types.get(name),
+    defineParameterType(type) {
+      const name = type.name;
+      if (name === undefined || !validTypeName(name) || name === 'inline-choice') {
+        throw new Error(`Invalid or reserved parameter type name "${name}"`);
+      }
+      if (types.has(name)) throw new Error(`Duplicate parameter type "${name}"`);
+      if (!type.regexpStrings.length) throw new Error('A parameter type needs at least one regexp');
+      type.regexpStrings.forEach(normalizePattern);
+      types.set(name, type);
+    },
+  };
+  defineBuiltins(registry);
+  return registry;
+}
+
+// Patterns and conversions ported from @cucumber/cucumber-expressions 20.1.0.
+// Copyright (c) 2016 Cucumber Ltd and contributors (MIT).
+// See THIRD_PARTY_NOTICES.md.
+function defineBuiltins(registry: MutableParameterTypeRegistry): void {
+  const integers = [/-?\d+/, /\d+/];
+  const float = /[-+]?(?:\d+(?:\.\d+)?|\.\d+)(?:[E][+-]?\d+)?/;
+  const add = (
+    name: string,
+    regexp: ParameterTypeOptions<unknown>['regexp'],
+    transformer: NonNullable<ParameterTypeOptions<unknown>['transformer']>,
+  ) => registry.defineParameterType(createParameterType({ name, regexp, transformer }));
+  for (const name of ['int', 'byte', 'short', 'long']) {
+    add(name, integers, (s) => (s === undefined ? null : Number(s)));
+  }
+  for (const name of ['float', 'double'])
+    add(name, float, (s) => (s === undefined ? null : parseFloat(s)));
+  add('bigdecimal', float, (s) => (s === undefined ? null : s));
+  add('biginteger', integers, (s) => (s === undefined ? null : BigInt(s)));
+  add('word', /[^\s]+/, (s) => s);
+  add('string', /"([^"\\]*(\\.[^"\\]*)*)"|'([^'\\]*(\\.[^'\\]*)*)'/, (s1, s2) =>
+    (s1 || s2 || '').replace(/\\"/g, '"').replace(/\\'/g, "'"),
+  );
+  add('', /.*/, (s) => s);
+}

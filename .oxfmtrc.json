@@ -1,0 +1,17 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "tabWidth": 2,
+  "useTabs": false,
+  "singleQuote": true,
+  "printWidth": 100,
+  "semi": true,
+  "trailingComma": "all",
+  "bracketSpacing": true,
+  "ignorePatterns": [
+    "dist/**",
+    "node_modules/**",
+    "package-lock.json",
+    ".github/workflows/release.yaml",
+    "docs/specification.md"
+  ]
+}
