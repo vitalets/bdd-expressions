@@ -136,7 +136,8 @@ npm run lint:fix      # apply Oxlint fixes
 npm run test:example  # test a packed installation and its TypeScript declarations
 ```
 
-CI runs on Node 24 and Ubuntu 24.04. The package runtime minimum remains Node 22.
+Development and CI use Node 24; tests use Node's native TypeScript support.
+CI runs on Ubuntu 24.04. The package runtime minimum remains Node 22.
 The root TypeScript config checks source and tests; `tsconfig.build.json` emits
 ESM, declarations, and source maps after cleaning `dist`. Source files are
 included in the npm package for navigation from those maps.

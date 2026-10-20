@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { createParameterType, createParameterTypeRegistry } from '../src/parameter-types.js';
+import { createParameterType, createParameterTypeRegistry } from '../src/parameter-types.ts';
 
 void test('all builtins and deliberate conversions are available', () => {
   const registry = createParameterTypeRegistry();

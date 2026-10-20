@@ -64,6 +64,9 @@ These require a separate scope decision. See the specification for exact behavio
 
 ## Infrastructure follow-up
 
+Tests now run directly with Node 24's native TypeScript support; the tsx
+dependency has been removed. Earlier verification commands above are historical.
+
 Applied the requested playwright-webext conventions with Oxc tooling:
 
 - Oxlint type-aware linting, Oxfmt formatting, editor defaults, lint-staged hooks.

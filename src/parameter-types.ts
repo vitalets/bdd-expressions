@@ -1,5 +1,5 @@
-import { validTypeName } from './parser.js';
-import { normalizePattern } from './regexp.js';
+import { validTypeName } from './parser.ts';
+import { normalizePattern } from './regexp.ts';
 
 export interface ParameterType<T = unknown> {
   readonly name: string | undefined;

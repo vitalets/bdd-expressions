@@ -4,7 +4,7 @@ import {
   createExpression,
   createParameterType,
   createParameterTypeRegistry,
-} from '../src/index.js';
+} from '../src/index.ts';
 
 void test('README examples execute with documented results', async () => {
   const expression = createExpression('I create :item( as :owner( in :workspace))');

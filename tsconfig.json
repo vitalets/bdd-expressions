@@ -10,7 +10,9 @@
     "verbatimModuleSyntax": true,
     "types": ["node"],
     "noUncheckedIndexedAccess": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "rewriteRelativeImportExtensions": true,
+    "erasableSyntaxOnly": true
   },
   "include": ["src/**/*.ts", "test/**/*.ts"]
 }

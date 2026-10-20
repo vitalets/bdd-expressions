@@ -17,13 +17,15 @@ export type Node = SourceRange &
   );
 
 export class ExpressionError extends Error {
-  constructor(
-    message: string,
-    public readonly source: string,
-    public readonly start: number,
-    public readonly end = start + 1,
-  ) {
+  public readonly source: string;
+  public readonly start: number;
+  public readonly end: number;
+
+  constructor(message: string, source: string, start: number, end = start + 1) {
     super(`${message} at offset ${start} in ${JSON.stringify(source)}`);
+    this.source = source;
+    this.start = start;
+    this.end = end;
     this.name = 'ExpressionError';
   }
 }

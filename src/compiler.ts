@@ -1,17 +1,17 @@
-import { parseExpression, ExpressionError, type Node } from './parser.js';
+import { parseExpression, ExpressionError, type Node } from './parser.ts';
 import {
   createParameterTypeRegistry,
   type ParameterType,
   type ParameterTypeRegistry,
-} from './parameter-types.js';
-import { captureTree, escapeRegexp, normalizePattern, type Capture } from './regexp.js';
+} from './parameter-types.ts';
+import { captureTree, escapeRegexp, normalizePattern, type Capture } from './regexp.ts';
 import {
   buildArgument,
   buildGroup,
   transformArguments,
   type Argument,
   type Values,
-} from './matching.js';
+} from './matching.ts';
 
 export interface Expression {
   readonly source: string;

@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { parseExpression, ExpressionError, type Node } from '../src/parser.js';
+import { parseExpression, ExpressionError, type Node } from '../src/parser.ts';
 
 function flatten(node: Node): Node[] {
   return [

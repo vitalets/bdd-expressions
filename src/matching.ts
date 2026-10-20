@@ -1,5 +1,5 @@
-import type { ParameterType } from './parameter-types.js';
-import type { Capture } from './regexp.js';
+import type { ParameterType } from './parameter-types.ts';
+import type { Capture } from './regexp.ts';
 
 export interface Group {
   readonly value: string | undefined;

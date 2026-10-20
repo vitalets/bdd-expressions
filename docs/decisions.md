@@ -23,7 +23,7 @@ Resolve these before implementing the affected behavior.
 
 ## Resolutions for 0.1
 
-- ESM, Node >=22, ES2022, TypeScript + tsx + node:test: a small modern baseline
+- ESM, Node >=22, ES2022, TypeScript + node:test: a small modern baseline
   with native indices and ordinary TypeScript tests, without a bundler.
 - ASCII variable names and deterministic colon recognition keep the scanner
   independent of registry state. Literal URL slashes require escapes as they do
@@ -65,8 +65,10 @@ Resolve these before implementing the affected behavior.
   declarations understate this runtime possibility. The registry interface
   accepts upstream registries without casts; complete assignment compatibility
   with every upstream class/interface is not promised.
-- The tsx loader is invoked with `node --import tsx` rather than its CLI, avoiding
-  an unnecessary IPC listener in restricted environments.
+- Development uses Node 24's native TypeScript support without a tsx loader.
+  Relative source imports use `.ts`; TypeScript rewrites them to `.js` for builds.
+  `erasableSyntaxOnly` prevents syntax that native type stripping cannot handle.
+  Constructor properties are declared explicitly to preserve the public API.
 
 ## Infrastructure alignment with playwright-webext
 
@@ -80,7 +82,7 @@ Resolve these before implementing the affected behavior.
   dedicated build config emits declarations and source/declaration maps, with
   source files included in the package. Builds remove stale dist files first.
 - Copy release.yaml byte-for-byte as requested. Retain its script names via
-  aliases (`prettier` runs Oxfmt, `tsc` runs typecheck). Provide its three named
+  compatible tasks (`prettier` runs Oxfmt, `tsc` checks types). Provide its three named
   validation workflows; test-example checks a real packed installation without
   introducing a browser runner or an additional package in the repository.
 - The copied release workflow still checks the latest runs on its branch, not

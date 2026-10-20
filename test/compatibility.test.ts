@@ -9,7 +9,7 @@ import {
   createExpression,
   createParameterType,
   createParameterTypeRegistry,
-} from '../src/index.js';
+} from '../src/index.ts';
 
 // Compare every capture, not just transformed user values. Normalize class
 // instances into data while preserving undefined vs empty and child structure.

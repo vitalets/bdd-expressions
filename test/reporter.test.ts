@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { createExpression, type Group, type Argument } from '../src/index.js';
+import { createExpression, type Group, type Argument } from '../src/index.ts';
 
 // Contract inspected in playwright-bdd@9.2.1:
 // src/steps/matchedStepDefinition.ts, getStepMatchArguments/mapArgumentGroup.

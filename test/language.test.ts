@@ -5,7 +5,7 @@ import {
   createParameterType,
   createParameterTypeRegistry,
   ExpressionError,
-} from '../src/index.js';
+} from '../src/index.ts';
 
 async function values(source: string, text: string) {
   const result = await createExpression(source).matchValues(text);
