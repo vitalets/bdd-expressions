@@ -133,7 +133,7 @@ void test('choice branches keep stable source-order slots', async () => {
   assert.deepEqual([...(await expression.matchValues('nothing'))!], [undefined, undefined]);
   assert.throws(() => createExpression('(:x/:x)'), /Duplicate/);
 });
-void test('structural and captured alternatives, optional first branch, overlap', async () => {
+void test('structural and inline choices, optional first branch, overlap', async () => {
   for (const action of ['click', 'tap on', 'press and hold']) {
     assert.deepEqual(await values('I (click/tap on/press and hold) :target', `I ${action} "x"`), [
       'x',
@@ -286,4 +286,57 @@ void test('transformer errors propagate and unknown type errors identify express
       error.end === 11 &&
       /Unknown/.test(error.message),
   );
+});
+
+void test('parenthesized alternatives allow empty branches anywhere', async () => {
+  for (const source of [
+    '(/again/once more)',
+    '(again//once more)',
+    '(again/once more/)',
+    '(/again///once more/)',
+  ]) {
+    for (const input of ['', 'again', 'once more']) {
+      assert.deepEqual(await values(source, input), [], `${source}: ${input}`);
+    }
+    assert.equal(createExpression(source).match('other'), null);
+  }
+  for (const source of ['()', '(/)', '(//)', '(()/())']) {
+    assert.deepEqual(await values(source, ''), []);
+    assert.equal(createExpression(source).match('x'), null);
+    assert.deepEqual(await values(`before${source}after`, 'beforeafter'), []);
+  }
+});
+
+void test('empty branches preserve parameter slots, positions and transformation behavior', async () => {
+  const calls: string[] = [];
+  const registry = createParameterTypeRegistry();
+  registry.defineParameterType(
+    createParameterType({
+      name: 'Tracked',
+      regexp: /[a-z]+/,
+      transformer(value) {
+        calls.push(value!);
+        return value;
+      },
+    }),
+  );
+  const expression = createExpression('(:first{Tracked}//:second{int}/)', registry);
+  for (const [input, expected] of [
+    ['', [undefined, undefined]],
+    ['abc', ['abc', undefined]],
+    ['2', [undefined, 2]],
+  ] as const) {
+    const result = (await expression.matchValues(input))!;
+    assert.deepEqual([...result], expected);
+    assert.deepEqual({ ...result.params }, { first: expected[0], second: expected[1] });
+    const args = expression.match(input)!;
+    for (const [index, value] of expected.entries()) {
+      assert.equal(args[index]!.group.start, value === undefined ? undefined : 0);
+      assert.equal(args[index]!.group.end, value === undefined ? undefined : input.length);
+    }
+  }
+  assert.deepEqual(calls, ['abc']);
+  assert.deepEqual(await values('(a/)(:value{word}/)', 'a'), [undefined]);
+  assert.deepEqual(await values('(/a)(:value{word}/)', 'a'), ['a']);
+  assert.deepEqual(await values('(a/)(/:value{word})', 'a'), [undefined]);
 });

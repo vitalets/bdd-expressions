@@ -89,3 +89,10 @@ Hosted CI and releases were not run.
 Simplified the infrastructure to match playwright-webext: build cleanup and Git
 hook configuration are inline package commands. Removed the standalone packed
 consumer test and its `test:example` task; the verification above is historical.
+
+## Empty structural branches
+
+Removed restrictions on empty branches in parenthesized alternatives and empty
+optional groups. Regression tests cover branch placement, repetition, nesting,
+source ranges, ordered matching, stable slots, capture positions, and skipped
+transformers. Inline choices and bare alternatives retain their existing rules.

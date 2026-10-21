@@ -30,7 +30,7 @@ Resolve these before implementing the affected behavior.
   in Cucumber. Type names additionally allow dot and hyphen.
 - Globally reject duplicate names, including across branches: no ambiguous
   `params` overwrite rule. Slots follow source order on every path.
-- Only structural choices accept an empty first branch. Inline choices require
+- Initially, structural choices accepted only an empty first branch (superseded below). Inline choices require
   nonempty branches so absence remains explicit in an enclosing optional.
 - Explicit whole-input end assertion documents our intent. Differential testing
   verified that JavaScript `$` without `m` also rejects final newlines; an early
@@ -111,3 +111,11 @@ Resolve these before implementing the affected behavior.
   documentation-writing skill, or strict function-size policy in this change.
 - Oxfmt excludes the preserved specification and copied release workflow to
   preserve their original text, as well as generated output and the lockfile.
+
+## Empty branches in parenthesized alternatives
+
+- User requested removing placement restrictions for empty structural branches.
+  Allow first, middle, trailing, repeated, and all-empty branches, plus `()`.
+- Preserve source order and native backtracking instead of reordering empty
+  branches. Empty branches consume no text and create no argument slots.
+- Inline choices and bare alternatives retain their nonempty-branch rules.

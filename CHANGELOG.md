@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+- Allow empty branches anywhere in parenthesized alternatives, including repeated
+  empty branches, all-empty choices, and empty optional groups.
+
 - Clarify consecutive optional parameter groups: native greedy matching with
   backtracking, stable absent slots, and literal text to distinguish groups.
 - Remove the tsx development dependency and run tests with Node 24's native TypeScript support.

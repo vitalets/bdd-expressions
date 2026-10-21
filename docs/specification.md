@@ -665,10 +665,11 @@ require a specification change, not registry-dependent parsing.
 | `{}` | Greedy arbitrary text, including empty text |
 | `:name` | Named quoted string |
 | `:name{Type}` | Named registered type; `:name{}` is named arbitrary text |
-| `{a/b}`, `:name{a/b}` | One captured literal choice |
+| `{a/b}`, `:name{a/b}` | One inline choice (captures the selected literal) |
 | `(text)` | Optional sequence, with nesting and parameters allowed |
 | `(a/b c)` | Required structural choice, no argument of its own |
-| `(/a/b)` | Structural choice with an empty first branch |
+| `(/a/b)`, `(a//b)`, `(a/b/)` | Structural choice with an empty branch anywhere |
+| `()`, `(/)` | Empty group or choice; matches empty text |
 | `a/b` | Bare choice bounded by whitespace, parameters, or input edges |
 | `\/`, `\:`, `\(` | Literal slash, colon, opening parenthesis |
 | `|` | Ordinary literal character |
@@ -702,11 +703,15 @@ Use an optional group around the parameter for absence. Empty `{}` retains its
 separate arbitrary-text meaning.
 
 Groups split only on unescaped slashes at their own level; nested groups and
-braces consume their contents first. With no such slash a nonempty group is
-optional. With slashes it is a choice over full sequences. Only the first
-branch may be syntactically empty, and only once; `(a/)`, `(a//b)`, `(/)` and
-`()` are errors. A nonempty branch can itself match empty (e.g. nested
-optionals); syntactic emptiness and runtime nullability are distinct.
+braces consume their contents first. With no such slash a group is optional,
+including the empty group `()`. With slashes it is a choice over full sequences.
+Any branch may be syntactically empty, including first, middle, last, repeated,
+or all branches: `(a/)`, `(a//b)`, `(/)` and `()` are valid. Empty branches
+consume no input and add no arguments. Alternatives retain source order and
+native RegExp backtracking; an empty branch may be tried before a later nonempty
+branch. Empty groups and all-empty choices match empty text. A nonempty branch
+can itself match empty (e.g. nested optionals); syntactic emptiness and runtime
+nullability are distinct.
 
 At the root, bare alternatives operate on runs separated by unescaped
 whitespace or parameters. A run can contain optional/choice groups. Each

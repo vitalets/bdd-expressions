@@ -83,8 +83,7 @@ export function parseExpression(source: string): Node {
       if (source[pos] !== '}') fail('Unclosed parameter', open);
       pos++;
       if (branches.length > 1) {
-        if (branches.some((branch) => branch === ''))
-          fail('Inline alternatives must be nonempty', open);
+        if (branches.some((branch) => branch === '')) fail('Inline choices must be nonempty', open);
         type = 'inline-choice';
         alternatives = branches;
       } else {
@@ -134,8 +133,7 @@ export function parseExpression(source: string): Node {
     let branch: Part[] = [];
     let begin = start;
     function add(finish: number) {
-      if (branch.length === 0 && !(grouped && branches.length === 0))
-        fail('Empty alternative', begin);
+      if (branch.length === 0 && !grouped) fail('Empty alternative', begin);
       if (!grouped && !branch.some((item) => item.kind === 'literal' && item.value.length > 0)) {
         fail('Bare alternatives need literal text', begin);
       }
@@ -156,7 +154,6 @@ export function parseExpression(source: string): Node {
     const items = parts(true);
     if (source[pos] !== ')') fail('Unclosed group', start);
     const endContent = pos++;
-    if (!items.length) fail('Empty group', start);
     const body = split(items, start + 1, endContent, true);
     return body.kind === 'choice'
       ? { ...body, start, end: pos }

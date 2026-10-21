@@ -40,10 +40,6 @@ void test('group and bare choices, escaped whitespace and source boundaries', ()
   }
 });
 for (const [source, offset] of [
-  ['()', 0],
-  ['(a/)', 3],
-  ['(/)', 2],
-  ['(a//b)', 3],
   ['{a/}', 0],
   ['{x', 0],
   ['(x', 0],
@@ -64,3 +60,18 @@ for (const [source, offset] of [
     );
   });
 }
+
+void test('empty grouped branches retain source ranges', () => {
+  const choices = flatten(parseExpression('(a//b/)')).filter((node) => node.kind === 'choice');
+  assert.deepEqual(
+    choices[0]!.branches.map(({ start, end }) => [start, end]),
+    [
+      [1, 2],
+      [3, 3],
+      [4, 5],
+      [6, 6],
+    ],
+  );
+  const empty = flatten(parseExpression('()')).find((node) => node.kind === 'optional')!;
+  assert.deepEqual(empty.body, { kind: 'sequence', children: [], start: 1, end: 1 });
+});
