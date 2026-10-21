@@ -1,5 +1,22 @@
 /**
  * Parses BDD expression syntax independently of parameter type registration.
+ *
+ * Grammar overview (full lexical rules: docs/specification.md, Formal grammar):
+ *   expression = { parameter | whitespace | run }
+ *   run        = rootBranch, { "/", rootBranch }
+ *   rootBranch = { rootLiteral | group }
+ *   group      = "(", sequence, { "/", sequence }, ")"
+ *   sequence   = { literal | parameter | group }
+ *   parameter  = [ ":", identifier ], braces | ":", identifier
+ *   braces     = "{", braceText, { "/", braceText }, "}"
+ *
+ * Input:  I have :count{int} cucumbers
+ * Output (abbreviated):
+ *   { kind: 'sequence', children: [
+ *     ...,
+ *     { kind: 'parameter', name: 'count', type: 'int', ... },
+ *     ...
+ *   ] }
  */
 
 export interface SourceRange {

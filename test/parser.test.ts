@@ -2,18 +2,6 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { parseExpression, ExpressionError, type Node } from '../src/parser.ts';
 
-function flatten(node: Node): Node[] {
-  return [
-    node,
-    ...('children' in node
-      ? node.children.flatMap(flatten)
-      : 'branches' in node
-        ? node.branches.flatMap(flatten)
-        : 'body' in node
-          ? flatten(node.body)
-          : []),
-  ];
-}
 void test('nested groups distinguish brace slashes and retain original ranges', () => {
   const source = String.raw`😀 I create :item( as :owner( with :status{pending/approved})) \/`;
   const nodes = flatten(parseExpression(source));
@@ -27,18 +15,46 @@ void test('nested groups distinguish brace slashes and retain original ranges', 
   const slash = nodes.find((n) => n.kind === 'literal' && n.value === '/');
   assert.equal(source.slice(slash!.start, slash!.end), '\\/');
 });
-void test('group and bare choices, escaped whitespace and source boundaries', () => {
-  for (const source of [
-    'belly/stomach',
-    '(click/tap on/press and hold)',
-    '(/ again/ once more)',
-    String.raw`a\ b/c`,
-    '(a/(b/c))',
-    '{int}st/nd',
-  ]) {
-    assert.ok(flatten(parseExpression(source)).some((n) => n.kind === 'choice'));
-  }
-});
+for (const { name, source, branches } of [
+  { name: 'bare alternatives', source: 'belly/stomach', branches: [['belly', 'stomach']] },
+  {
+    name: 'multiword grouped alternatives',
+    source: '(click/tap on/press and hold)',
+    branches: [['click', 'tap on', 'press and hold']],
+  },
+  {
+    name: 'empty first grouped branch',
+    source: '(/ again/ once more)',
+    branches: [['', ' again', ' once more']],
+  },
+  {
+    name: 'escaped whitespace in a bare branch',
+    source: String.raw`a\ b/c`,
+    branches: [[String.raw`a\ b`, 'c']],
+  },
+  {
+    name: 'nested choices',
+    source: '(a/(b/c))',
+    branches: [
+      ['a', '(b/c)'],
+      ['b', 'c'],
+    ],
+  },
+  {
+    name: 'parameter boundary before a bare choice',
+    source: '{int}st/nd',
+    branches: [['st', 'nd']],
+  },
+]) {
+  void test(`choice branches: ${name}`, () => {
+    const choices = flatten(parseExpression(source)).filter((node) => node.kind === 'choice');
+    assert.deepEqual(
+      choices.map((choice) => choice.branches.map(({ start, end }) => source.slice(start, end))),
+      branches,
+    );
+  });
+}
+
 for (const [source, offset] of [
   ['{a/}', 0],
   ['{x', 0],
@@ -72,6 +88,22 @@ void test('empty grouped branches retain source ranges', () => {
       [6, 6],
     ],
   );
+});
+
+void test('empty optional group retains its empty sequence range', () => {
   const empty = flatten(parseExpression('()')).find((node) => node.kind === 'optional')!;
   assert.deepEqual(empty.body, { kind: 'sequence', children: [], start: 1, end: 1 });
 });
+
+function flatten(node: Node): Node[] {
+  switch (node.kind) {
+    case 'sequence':
+      return [node, ...node.children.flatMap(flatten)];
+    case 'choice':
+      return [node, ...node.branches.flatMap(flatten)];
+    case 'optional':
+      return [node, ...flatten(node.body)];
+    default:
+      return [node];
+  }
+}
