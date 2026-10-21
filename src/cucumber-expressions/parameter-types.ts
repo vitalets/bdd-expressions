@@ -5,7 +5,7 @@
  */
 
 import { validTypeName } from '../parser.ts';
-import { normalizePattern } from '../regexp.ts';
+import { stripGroupNames } from '../utils/regexp.ts';
 
 export interface ParameterType<T = unknown> {
   readonly name: string | undefined;
@@ -40,7 +40,7 @@ export function createParameterType<T = string | undefined, World = unknown>(
     ? options.regexp
     : [options.regexp as string | RegExp];
   if (!patterns.length) throw new Error('A parameter type needs at least one regexp');
-  const regexpStrings = Object.freeze(patterns.map(normalizePattern));
+  const regexpStrings = Object.freeze(patterns.map(normalizeParameterPattern));
   const type: ParameterType<T> = {
     name: options.name,
     regexpStrings,
@@ -67,12 +67,26 @@ export function createParameterTypeRegistry() {
       }
       if (types.has(name)) throw new Error(`Duplicate parameter type "${name}"`);
       if (!type.regexpStrings.length) throw new Error('A parameter type needs at least one regexp');
-      type.regexpStrings.forEach(normalizePattern);
+      type.regexpStrings.forEach(normalizeParameterPattern);
       types.set(name, type);
     },
   };
   defineBuiltins(registry);
   return registry;
+}
+
+/**
+ * Validates parameter regexps before composition and removes capture names so a
+ * custom type can be repeated without duplicate-name errors.
+ */
+export function normalizeParameterPattern(pattern: string | RegExp) {
+  if (pattern instanceof RegExp && pattern.flags !== '') {
+    throw new Error('Parameter regexps must not use flags');
+  }
+  const source = typeof pattern === 'string' ? pattern : pattern.source;
+  new RegExp(source);
+  validateParameterEscapes(source);
+  return stripGroupNames(source);
 }
 
 /**
@@ -100,4 +114,29 @@ function defineBuiltins(registry: MutableParameterTypeRegistry) {
     (s1 || s2 || '').replace(/\\"/g, '"').replace(/\\'/g, "'"),
   );
   add('', /.*/, (s) => s);
+}
+
+/**
+ * Rejects references and numeric escapes whose meaning could change when captures
+ * from multiple parameter patterns are combined.
+ */
+function validateParameterEscapes(source: string) {
+  let inClass = false;
+  for (let i = 0; i < source.length; i++) {
+    const char = source[i]!;
+    if (char === '\\') {
+      const next = source[++i]!;
+      if (
+        !inClass &&
+        (/[1-9]/.test(next) ||
+          (next === '0' && /\d/.test(source[i + 1] ?? '')) ||
+          (next === 'k' && source[i + 1] === '<'))
+      ) {
+        throw new Error('Backreferences and legacy numeric escapes are not supported');
+      }
+      continue;
+    }
+    if (char === '[') inClass = true;
+    if (char === ']') inClass = false;
+  }
 }

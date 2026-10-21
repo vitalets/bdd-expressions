@@ -5,10 +5,11 @@
 import { parseExpression, ExpressionError, type Node } from './parser.ts';
 import {
   createParameterTypeRegistry,
+  normalizeParameterPattern,
   type ParameterType,
   type ParameterTypeRegistry,
 } from './cucumber-expressions/parameter-types.ts';
-import { escapeRegexp, normalizePattern } from './regexp.ts';
+import { escapeRegexp } from './utils/regexp.ts';
 import { captureTree, type Capture } from './cucumber-expressions/capture-tree.ts';
 import { buildArgument, buildGroup, type Argument } from './cucumber-expressions/matching.ts';
 import { transformArguments, type Values } from './matching.ts';
@@ -125,7 +126,7 @@ function compileParameter(
   let pattern: string;
   try {
     if (!type.regexpStrings.length) throw new Error('A parameter type needs at least one regexp');
-    pattern = `(${type.regexpStrings.map((p) => `(?:${normalizePattern(p)})`).join('|')})`;
+    pattern = `(${type.regexpStrings.map((p) => `(?:${normalizeParameterPattern(p)})`).join('|')})`;
     new RegExp(pattern);
   } catch (error) {
     throw new ExpressionError(

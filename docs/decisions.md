@@ -132,3 +132,11 @@ adapted capture-tree scanner in `src/cucumber-expressions/`. These are local
 adaptations of Cucumber Expressions 20.1.0, not unchanged upstream files. Keep
 BDD-specific value collection, compilation, parsing, and regex normalization
 outside that directory. Public exports and runtime behavior remain unchanged.
+
+## Parameter regexp validation and capture-name stripping
+
+Keep flag, syntax, and backreference validation with parameter types, shared by
+registration and compilation of external registry types. The generic
+`stripGroupNames` utility accepts validated source strings and only removes
+capture names. This refines the normalization boundary above without changing
+accepted patterns or the public API.
