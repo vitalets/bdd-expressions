@@ -7,6 +7,6 @@ export type {
   ParameterTypeRegistry,
   MutableParameterTypeRegistry,
 } from './parameter-types.ts';
-export { createExpression } from './compiler.ts';
+export { BddExpression, createExpression } from './compiler.ts';
 export type { Expression } from './compiler.ts';
 export type { Argument, Group, Values } from './matching.ts';

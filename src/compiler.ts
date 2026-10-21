@@ -26,10 +26,43 @@ interface Slot {
   capture: Capture;
 }
 
+export class BddExpression implements Expression {
+  readonly source: string;
+  readonly ast: Node;
+  readonly regexp: RegExp;
+  private readonly slots: readonly Slot[];
+  private readonly names: readonly (string | undefined)[];
+
+  constructor(pattern: string, parameterTypeRegistry: ParameterTypeRegistry) {
+    this.source = pattern;
+    const compiled = compileExpression(pattern, parameterTypeRegistry);
+    this.ast = compiled.ast;
+    this.regexp = compiled.regexp;
+    this.slots = compiled.slots;
+    this.names = this.slots.map((slot) => slot.name);
+  }
+
+  match(text: string): readonly Argument[] | null {
+    const result = this.regexp.exec(text);
+    return result
+      ? this.slots.map((slot) => buildArgument(buildGroup(slot.capture, result), slot.type))
+      : null;
+  }
+
+  async matchValues(text: string, world?: unknown): Promise<Values | null> {
+    const args = this.match(text);
+    return args === null ? null : transformArguments(args, this.names, world);
+  }
+}
+
 export function createExpression(
   source: string,
   registry: ParameterTypeRegistry = createParameterTypeRegistry(),
-): Expression {
+): BddExpression {
+  return new BddExpression(source, registry);
+}
+
+function compileExpression(source: string, registry: ParameterTypeRegistry) {
   const ast = parseExpression(source);
   const slots: Slot[] = [];
   let captureCount = 0;
@@ -80,21 +113,5 @@ export function createExpression(
     }
   }
   const regexp = new RegExp(`^(?:${compile(ast)})(?![\\s\\S])`, 'd');
-  const names = slots.map((slot) => slot.name);
-  function match(text: string): readonly Argument[] | null {
-    const result = regexp.exec(text);
-    return result
-      ? slots.map((slot) => buildArgument(buildGroup(slot.capture, result), slot.type))
-      : null;
-  }
-  return {
-    source,
-    ast,
-    regexp,
-    match,
-    async matchValues(text, world) {
-      const args = match(text);
-      return args === null ? null : transformArguments(args, names, world);
-    },
-  };
+  return { ast, regexp, slots };
 }

@@ -96,3 +96,9 @@ Removed restrictions on empty branches in parenthesized alternatives and empty
 optional groups. Regression tests cover branch placement, repetition, nesting,
 source ranges, ordered matching, stable slots, capture positions, and skipped
 transformers. Inline choices and bare alternatives retain their existing rules.
+
+## BddExpression constructor
+
+Exported `BddExpression` with the Cucumber-style explicit-registry constructor.
+README examples and differential checks exercise class construction, including
+upstream registries. The existing factory returns a BddExpression.

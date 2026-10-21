@@ -6,6 +6,7 @@ import {
   ParameterTypeRegistry as CucumberRegistry,
 } from '@cucumber/cucumber-expressions';
 import {
+  BddExpression,
   createExpression,
   createParameterType,
   createParameterTypeRegistry,
@@ -31,7 +32,7 @@ function metadata(group: ComparableGroup): unknown {
 }
 async function compare(source: string, text: string) {
   const upstream = new CucumberExpression(source, new CucumberRegistry()).match(text);
-  const local = createExpression(source).match(text);
+  const local = new BddExpression(source, new CucumberRegistry()).match(text);
   assert.equal(local === null, upstream === null, `${source}: ${JSON.stringify(text)}`);
   if (!local || !upstream) return;
   assert.equal(local.length, upstream.length);
@@ -157,7 +158,7 @@ void test('custom nested and multi-pattern captures, world, and an existing upst
   for (const text of ['😀 ab-ab', '😀 ABC', '😀 123', '😀 ABC 123', '😀 ']) {
     const a = new CucumberExpression('😀 {Custom}', upstream).match(text)!;
     const b = createExpression('😀 {Custom}', local).match(text)!;
-    const adapted = createExpression('😀 {Custom}', upstream).match(text)!;
+    const adapted = new BddExpression('😀 {Custom}', upstream).match(text)!;
     assert.deepEqual(
       b.map((arg) => metadata(arg.group)),
       a.map((arg) => metadata(arg.group)),

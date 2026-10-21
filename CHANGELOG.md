@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+- Export `BddExpression` for `new BddExpression(pattern, parameterTypeRegistry)`;
+  retain `createExpression` as a compatibility factory.
+
 - Allow empty branches anywhere in parenthesized alternatives, including repeated
   empty branches, all-empty choices, and empty optional groups.
 

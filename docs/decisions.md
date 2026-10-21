@@ -119,3 +119,8 @@ Resolve these before implementing the affected behavior.
 - Preserve source order and native backtracking instead of reordering empty
   branches. Empty branches consume no text and create no argument slots.
 - Inline choices and bare alternatives retain their nonempty-branch rules.
+
+## BddExpression constructor
+
+- User requested Cucumber-style construction: `new BddExpression(pattern, parameterTypeRegistry)`. Export a class with an explicit registry, eager compilation, synchronous `match`, and the existing async `matchValues` extension.
+- Retain `createExpression` as a compatibility factory returning the class. This supersedes the factory-only expression API decision; parameter-type factories and intentional syntax extensions remain unchanged.
