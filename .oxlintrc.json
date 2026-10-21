@@ -11,7 +11,7 @@
   "ignorePatterns": ["dist/**", "node_modules/**"],
   "overrides": [
     {
-      "files": ["test/*.test.ts"],
+      "files": ["test/*.spec.ts"],
       "rules": {
         "typescript/no-floating-promises": [
           "error",

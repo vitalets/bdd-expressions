@@ -38,7 +38,7 @@ Completed on 2026-10-20:
 Final verification:
 
 - `npm run check`: build, source/test type checks, all 47 tests passed on Node 24.
-- `npm exec --yes --package=node@22 -- node --import tsx --test test/*.test.ts`:
+- `npm exec --yes --package=node@22 -- node --import tsx --test test/*.spec.ts`:
   all 47 tests passed on the minimum supported Node major.
 - `npm pack --dry-run --json --cache /tmp/bdd-expressions-npm-cache`: passed;
   includes compiled ESM/declarations, documentation, README, and license notices,
