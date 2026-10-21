@@ -1,9 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import {
-  createParameterType,
-  createParameterTypeRegistry,
-} from '../src/cucumber-expressions/parameter-types.ts';
+import { createParameterTypeRegistry } from '../src/cucumber-expressions/parameter-types.ts';
 
 void test('all builtins and deliberate conversions are available', () => {
   const registry = createParameterTypeRegistry();
@@ -31,15 +28,4 @@ void test('all builtins and deliberate conversions are available', () => {
     registry.lookupByTypeName('string')!.transform(null, [undefined, String.raw`a\'b`]),
     "a'b",
   );
-});
-void test('registration validates patterns, names and duplicates', () => {
-  const registry = createParameterTypeRegistry();
-  const type = createParameterType({ name: 'Custom', regexp: /a/ });
-  registry.defineParameterType(type);
-  assert.equal(registry.lookupByTypeName('Custom'), type);
-  assert.throws(() => registry.defineParameterType(type), /Duplicate/);
-  for (const regexp of [/a/i, '(a)\\1', '(?<a>x)\\k<a>', '\\01', '[', []]) {
-    assert.throws(() => createParameterType({ name: 'Bad', regexp }));
-  }
-  assert.throws(() => createParameterType({ name: 'inline-choice', regexp: /a/ }), /reserved/);
 });

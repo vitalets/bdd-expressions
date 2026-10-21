@@ -102,3 +102,12 @@ transformers. Inline choices and bare alternatives retain their existing rules.
 Exported `BddExpression` with the Cucumber-style explicit-registry constructor.
 README examples and differential checks exercise class construction, including
 upstream registries. The existing factory returns a BddExpression.
+
+## Reporter differential coverage
+
+The compatibility matrix now compares JSON reporter output for BddExpression and
+CucumberExpression on identical expressions and input, using the same recursive
+playwright-bdd field projection as the reporter contract tests. This covers built-ins,
+escaping, Unicode offsets, repeated captures, custom nested captures, empty captures,
+no-argument matches, and nonmatches. Existing metadata and transformed-value checks
+remain in place. This verifies serialization, not a running reporter integration.

@@ -12,6 +12,8 @@ import {
   createParameterTypeRegistry,
 } from '../src/index.ts';
 
+import { serialize } from './helpers/reporter-serialization.ts';
+
 // Compare every capture, not just transformed user values. Normalize class
 // instances into data while preserving undefined vs empty and child structure.
 interface ComparableGroup {
@@ -33,6 +35,11 @@ function metadata(group: ComparableGroup): unknown {
 async function compare(source: string, text: string) {
   const upstream = new CucumberExpression(source, new CucumberRegistry()).match(text);
   const local = new BddExpression(source, new CucumberRegistry()).match(text);
+  assert.deepEqual(
+    serialize(local),
+    serialize(upstream),
+    `Reporter output for ${JSON.stringify(source)} matching ${JSON.stringify(text)}`,
+  );
   assert.equal(local === null, upstream === null, `${source}: ${JSON.stringify(text)}`);
   if (!local || !upstream) return;
   assert.equal(local.length, upstream.length);
@@ -141,6 +148,7 @@ void test('shared alternatives, optional text and escaping from upstream fixture
     [String.raw`\(x\) \{int\}`, ['(x) {int}']],
     ['😀 {string} {string} {int}', ['😀 "same" "same" 17']],
     ['x|y [z].*', ['x|y [z].*', 'x']],
+    ['', ['', 'x']],
   ] as const)
     for (const text of inputs) await compare(source, text);
 });
@@ -159,6 +167,8 @@ void test('custom nested and multi-pattern captures, world, and an existing upst
     const a = new CucumberExpression('😀 {Custom}', upstream).match(text)!;
     const b = createExpression('😀 {Custom}', local).match(text)!;
     const adapted = new BddExpression('😀 {Custom}', upstream).match(text)!;
+    assert.deepEqual(serialize(b), serialize(a), `Reporter output for ${JSON.stringify(text)}`);
+    assert.deepEqual(serialize(adapted), serialize(a));
     assert.deepEqual(
       b.map((arg) => metadata(arg.group)),
       a.map((arg) => metadata(arg.group)),
@@ -183,4 +193,31 @@ void test('intentional differences are separate from compatibility claims', () =
 });
 void test('both implementations reject unconsumed final line terminators', async () => {
   for (const tail of ['\n', '\r', '\r\n', '\u2028', '\u2029']) await compare('x', 'x' + tail);
+});
+
+void test('reporter keeps raw string quotes, numeric text and independent inline type names', async () => {
+  const expression = createExpression('😀 :page :count{int} :status{pending/approved}');
+  const text = '😀 "same" 002 approved';
+  const args = expression.match(text)!;
+  assert.deepEqual(serialize(args), [
+    {
+      group: {
+        start: 3,
+        value: '"same"',
+        children: [{ start: 4, value: 'same', children: [{}] }, { children: [{}] }],
+      },
+      parameterTypeName: 'string',
+    },
+    { group: { start: 10, value: '002' }, parameterTypeName: 'int' },
+    { group: { start: 14, value: 'approved' }, parameterTypeName: 'inline-choice' },
+  ]);
+  assert.deepEqual([...(await expression.matchValues(text))!], ['same', 2, 'approved']);
+  assert.equal(args[1]!.group.value, '002');
+});
+void test('absent parameters serialize no fabricated positions or values', () => {
+  const args = createExpression('x( :count{int}) {}').match('x ')!;
+  assert.deepEqual(serialize(args), [
+    { group: {}, parameterTypeName: 'int' },
+    { group: { start: 2, value: '' }, parameterTypeName: '' },
+  ]);
 });
