@@ -1,5 +1,11 @@
-import { validTypeName } from './parser.ts';
-import { normalizePattern } from './regexp.ts';
+/**
+ * Defines parameter types and their registry, including factories for custom types
+ * and built-in patterns and conversions ported from Cucumber Expressions 20.1.0.
+ * See THIRD_PARTY_NOTICES.md for attribution.
+ */
+
+import { validTypeName } from '../parser.ts';
+import { normalizePattern } from '../regexp.ts';
 
 export interface ParameterType<T = unknown> {
   readonly name: string | undefined;

@@ -124,3 +124,11 @@ Resolve these before implementing the affected behavior.
 
 - User requested Cucumber-style construction: `new BddExpression(pattern, parameterTypeRegistry)`. Export a class with an explicit registry, eager compilation, synchronous `match`, and the existing async `matchValues` extension.
 - Retain `createExpression` as a compatibility factory returning the class. This supersedes the factory-only expression API decision; parameter-type factories and intentional syntax extensions remain unchanged.
+
+## Isolate Cucumber-derived code
+
+Keep ported built-ins, compatible parameter-type and matching contracts, and the
+adapted capture-tree scanner in `src/cucumber-expressions/`. These are local
+adaptations of Cucumber Expressions 20.1.0, not unchanged upstream files. Keep
+BDD-specific value collection, compilation, parsing, and regex normalization
+outside that directory. Public exports and runtime behavior remain unchanged.

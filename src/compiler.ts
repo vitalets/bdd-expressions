@@ -3,15 +3,11 @@ import {
   createParameterTypeRegistry,
   type ParameterType,
   type ParameterTypeRegistry,
-} from './parameter-types.ts';
-import { captureTree, escapeRegexp, normalizePattern, type Capture } from './regexp.ts';
-import {
-  buildArgument,
-  buildGroup,
-  transformArguments,
-  type Argument,
-  type Values,
-} from './matching.ts';
+} from './cucumber-expressions/parameter-types.ts';
+import { escapeRegexp, normalizePattern } from './regexp.ts';
+import { captureTree, type Capture } from './cucumber-expressions/capture-tree.ts';
+import { buildArgument, buildGroup, type Argument } from './cucumber-expressions/matching.ts';
+import { transformArguments, type Values } from './matching.ts';
 
 export interface Expression {
   readonly source: string;
