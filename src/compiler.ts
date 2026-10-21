@@ -12,7 +12,9 @@ import {
 import { escapeRegexp } from './utils/regexp.ts';
 import { captureTree, type Capture } from './cucumber-expressions/capture-tree.ts';
 import { buildArgument, buildGroup, type Argument } from './cucumber-expressions/matching.ts';
-import { transformArguments, type Values } from './matching.ts';
+import { resolveParams } from './resolve-params.ts';
+
+export type Values = unknown[] & { readonly params: Record<string, unknown> };
 
 export interface Expression {
   readonly source: string;
@@ -62,7 +64,10 @@ export class BddExpression implements Expression {
    */
   async matchValues(text: string, world?: unknown) {
     const args = this.match(text);
-    return args === null ? null : transformArguments(args, this.names, world);
+    if (args === null) return null;
+    const { positional, named } = await resolveParams(args, this.names, world);
+    Object.defineProperty(positional, 'params', { value: named, enumerable: false });
+    return positional as Values;
   }
 }
 
