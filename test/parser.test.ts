@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { parseExpression, ExpressionError, type Node } from '../src/parser.ts';
 
-void test('nested groups distinguish brace slashes and retain original ranges', () => {
+test('nested groups distinguish brace slashes and retain original ranges', () => {
   const source = String.raw`😀 I create :item( as :owner( with :status{pending/approved})) \/`;
   const nodes = flatten(parseExpression(source));
   assert.equal(nodes.filter((n) => n.kind === 'optional').length, 2);
@@ -46,7 +46,7 @@ for (const { name, source, branches } of [
     branches: [['st', 'nd']],
   },
 ]) {
-  void test(`choice branches: ${name}`, () => {
+  test(`choice branches: ${name}`, () => {
     const choices = flatten(parseExpression(source)).filter((node) => node.kind === 'choice');
     assert.deepEqual(
       choices.map((choice) => choice.branches.map(({ start, end }) => source.slice(start, end))),
@@ -68,7 +68,7 @@ for (const [source, offset] of [
   ['a//b', 2],
   ['(a)/b', 0],
 ] as const) {
-  void test(`positioned syntax error ${JSON.stringify(source)}`, () => {
+  test(`positioned syntax error ${JSON.stringify(source)}`, () => {
     assert.throws(
       () => parseExpression(source),
       (error) =>
@@ -77,7 +77,7 @@ for (const [source, offset] of [
   });
 }
 
-void test('empty grouped branches retain source ranges', () => {
+test('empty grouped branches retain source ranges', () => {
   const choices = flatten(parseExpression('(a//b/)')).filter((node) => node.kind === 'choice');
   assert.deepEqual(
     choices[0]!.branches.map(({ start, end }) => [start, end]),
@@ -90,7 +90,7 @@ void test('empty grouped branches retain source ranges', () => {
   );
 });
 
-void test('empty optional group retains its empty sequence range', () => {
+test('empty optional group retains its empty sequence range', () => {
   const empty = flatten(parseExpression('()')).find((node) => node.kind === 'optional')!;
   assert.deepEqual(empty.body, { kind: 'sequence', children: [], start: 1, end: 1 });
 });

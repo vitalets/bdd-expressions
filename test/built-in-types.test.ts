@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createParameterTypeRegistry } from '../src/cucumber-expressions/parameter-types.ts';
 
-void test('all builtins and deliberate conversions are available', () => {
+test('all builtins and deliberate conversions are available', () => {
   const registry = createParameterTypeRegistry();
   for (const name of [
     'int',

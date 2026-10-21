@@ -12,7 +12,7 @@ async function values(source: string, text: string) {
   const result = await createExpression(source).matchValues(text);
   return result && [...result];
 }
-void test('named parameters default to quoted strings, remain positional and safely indexed', async () => {
+test('named parameters default to quoted strings, remain positional and safely indexed', async () => {
   const expression = createExpression('I open :page with :count{int} :__proto__ :constructor');
   const result = (await expression.matchValues(`I open "Settings" with 2 'safe' ""`))!;
   assert.deepEqual([...result], ['Settings', 2, 'safe', '']);
@@ -25,7 +25,7 @@ void test('named parameters default to quoted strings, remain positional and saf
   assert.equal(await createExpression('":page"').matchValues('"Settings"'), null);
   assert.deepEqual(await values('":page"', '""Settings""'), ['Settings']);
 });
-void test('nested optional parameters keep absent slots and positions', async () => {
+test('nested optional parameters keep absent slots and positions', async () => {
   const expression = createExpression('I create :item( as :owner( in :workspace))');
   for (const [text, expected] of [
     ['I create "x"', ['x', undefined, undefined]],
@@ -82,7 +82,7 @@ for (const { name, source, text, expected } of [
     expected: [undefined, 'Alice'],
   },
 ] as const) {
-  void test(`consecutive optional parameters: ${name}`, async () => {
+  test(`consecutive optional parameters: ${name}`, async () => {
     const registry = createParameterTypeRegistry();
     const stringType = registry.lookupByTypeName('string')!;
     let calls = 0;
@@ -123,7 +123,7 @@ for (const { name, source, text, expected } of [
     }
   });
 }
-void test('choice branches keep stable source-order slots', async () => {
+test('choice branches keep stable source-order slots', async () => {
   const expression = createExpression('(create :item/delete :id{int}/nothing)');
   assert.deepEqual([...(await expression.matchValues('create "x"'))!], ['x', undefined]);
   const result = (await expression.matchValues('delete 42'))!;
@@ -133,7 +133,7 @@ void test('choice branches keep stable source-order slots', async () => {
   assert.deepEqual([...(await expression.matchValues('nothing'))!], [undefined, undefined]);
   assert.throws(() => createExpression('(:x/:x)'), /Duplicate/);
 });
-void test('structural and inline choices, optional first branch, overlap', async () => {
+test('structural and inline choices, optional first branch, overlap', async () => {
   for (const action of ['click', 'tap on', 'press and hold']) {
     assert.deepEqual(await values('I (click/tap on/press and hold) :target', `I ${action} "x"`), [
       'x',
@@ -157,7 +157,7 @@ void test('structural and inline choices, optional first branch, overlap', async
     'inline-choice',
   );
 });
-void test('whitespace, all literal regex metacharacters, escaped colons and URLs', async () => {
+test('whitespace, all literal regex metacharacters, escaped colons and URLs', async () => {
   assert.deepEqual(await values('I create :item( as :owner)', 'I create "x"'), ['x', undefined]);
   assert.equal(await values('I create :item (as :owner)', 'I create "x"'), null);
   assert.deepEqual(await values('I create :item (as :owner)', 'I create "x" '), ['x', undefined]);
@@ -176,7 +176,7 @@ void test('whitespace, all literal regex metacharacters, escaped colons and URLs
   assert.deepEqual(await values(String.raw`{a\/b/c\:d}`, 'c:d'), ['c:d']);
   assert.equal(await values('a b', 'a\tb'), null);
 });
-void test('full-input anchoring includes final newlines only if explicitly matched', async () => {
+test('full-input anchoring includes final newlines only if explicitly matched', async () => {
   for (const tail of ['\n', '\r', '\r\n', '\u2028', '\u2029']) {
     assert.equal(createExpression('x').match('x' + tail), null);
     assert.deepEqual(createExpression('x' + tail).match('x' + tail), []);
@@ -185,7 +185,7 @@ void test('full-input anchoring includes final newlines only if explicitly match
   assert.equal(createExpression('').match('\n'), null);
   assert.equal(await createExpression('x').matchValues('no'), null);
 });
-void test('empty strings, absent captures and greedy arbitrary text are distinct', async () => {
+test('empty strings, absent captures and greedy arbitrary text are distinct', async () => {
   const empty = createExpression('{}').match('')![0]!.group;
   assert.equal(empty.value, '');
   assert.equal(empty.start, 0);
@@ -194,7 +194,7 @@ void test('empty strings, absent captures and greedy arbitrary text are distinct
   assert.deepEqual(await values('{string}', '""'), ['']);
   assert.deepEqual(await values('I send {} to {}', 'I send a to b to c'), ['a to b', 'c']);
 });
-void test('raw UTF-16 captures and nested custom groups use native indices', async () => {
+test('raw UTF-16 captures and nested custom groups use native indices', async () => {
   const registry = createParameterTypeRegistry();
   registry.defineParameterType(
     createParameterType({
@@ -220,7 +220,7 @@ void test('raw UTF-16 captures and nested custom groups use native indices', asy
   assert.deepEqual(await args[0]!.getValue(), ['ab', 'ab']);
   assert.equal(args[0]!.getParameterType(), args[0]!.parameterType);
 });
-void test('capture scanner handles classes, escaped parentheses, lookarounds, repeated named types', () => {
+test('capture scanner handles classes, escaped parentheses, lookarounds, repeated named types', () => {
   const registry = createParameterTypeRegistry();
   registry.defineParameterType(
     createParameterType({ name: 'Complex', regexp: /(?<= )(?=(a))(?<value>a)[()]\((?:b)(c)(?!x)/ }),
@@ -240,7 +240,7 @@ void test('capture scanner handles classes, escaped parentheses, lookarounds, re
     [7, 7, 11],
   );
 });
-void test('world context, PromiseLike, ordered transformations, no calls for absent parameters or failures', async () => {
+test('world context, PromiseLike, ordered transformations, no calls for absent parameters or failures', async () => {
   const registry = createParameterTypeRegistry();
   const calls: string[] = [];
   registry.defineParameterType(
@@ -268,7 +268,7 @@ void test('world context, PromiseLike, ordered transformations, no calls for abs
   assert.equal(await expression.matchValues('???', {}), null);
   assert.deepEqual(calls, ['one', 'two']);
 });
-void test('transformer errors propagate and unknown type errors identify expression ranges', async () => {
+test('transformer errors propagate and unknown type errors identify expression ranges', async () => {
   const registry = createParameterTypeRegistry();
   registry.defineParameterType(
     createParameterType({
@@ -288,7 +288,7 @@ void test('transformer errors propagate and unknown type errors identify express
   );
 });
 
-void test('parenthesized alternatives allow empty branches anywhere', async () => {
+test('parenthesized alternatives allow empty branches anywhere', async () => {
   for (const source of [
     '(/again/once more)',
     '(again//once more)',
@@ -307,7 +307,7 @@ void test('parenthesized alternatives allow empty branches anywhere', async () =
   }
 });
 
-void test('empty branches preserve parameter slots, positions and transformation behavior', async () => {
+test('empty branches preserve parameter slots, positions and transformation behavior', async () => {
   const calls: string[] = [];
   const registry = createParameterTypeRegistry();
   registry.defineParameterType(

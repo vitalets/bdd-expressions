@@ -94,12 +94,12 @@ for (const name of [
   'double',
   'bigdecimal',
 ]) {
-  void test(`differential builtin ${name}: values, match/null, capture tree`, async () => {
+  test(`differential builtin ${name}: values, match/null, capture tree`, async () => {
     const inputs = ['float', 'double', 'bigdecimal'].includes(name) ? floatInputs : integerInputs;
     for (const input of inputs) await compare(`{${name}}`, input);
   });
 }
-void test('differential string quotation and escape semantics', async () => {
+test('differential string quotation and escape semantics', async () => {
   for (const input of [
     '""',
     "''",
@@ -121,14 +121,14 @@ void test('differential string quotation and escape semantics', async () => {
   ])
     await compare('{string}', input);
 });
-void test('differential word and arbitrary text including greediness', async () => {
+test('differential word and arbitrary text including greediness', async () => {
   for (const text of ['', 'abc', '😀', 'a b', 'a\tb']) {
     await compare('{word}', text);
     await compare('{}', text);
   }
   await compare('I send {} to {}', 'I send a to b to c');
 });
-void test('shared alternatives, optional text and escaping from upstream fixture categories', async () => {
+test('shared alternatives, optional text and escaping from upstream fixture categories', async () => {
   for (const [source, inputs] of [
     [
       'I have {int} cucumber(s)',
@@ -152,7 +152,7 @@ void test('shared alternatives, optional text and escaping from upstream fixture
   ] as const)
     for (const text of inputs) await compare(source, text);
 });
-void test('custom nested and multi-pattern captures, world, and an existing upstream registry', async () => {
+test('custom nested and multi-pattern captures, world, and an existing upstream registry', async () => {
   const upstream = new CucumberRegistry();
   const local = createParameterTypeRegistry();
   const patterns = [/((a)(b))-(ab)/, /([A-Z]+)?(?: )?([0-9]+)?/];
@@ -180,7 +180,7 @@ void test('custom nested and multi-pattern captures, world, and an existing upst
     assert.deepEqual(b[0]!.getValue({ prefix: 'world' }), a[0]!.getValue({ prefix: 'world' }));
   }
 });
-void test('intentional differences are separate from compatibility claims', () => {
+test('intentional differences are separate from compatibility claims', () => {
   for (const source of ['(:name)', 'a(b(c))', '(a/b)', '{a/b}']) {
     assert.doesNotThrow(() => createExpression(source));
   }
@@ -191,11 +191,11 @@ void test('intentional differences are separate from compatibility claims', () =
     assert.throws(() => new CucumberExpression(source, new CucumberRegistry()));
   }
 });
-void test('both implementations reject unconsumed final line terminators', async () => {
+test('both implementations reject unconsumed final line terminators', async () => {
   for (const tail of ['\n', '\r', '\r\n', '\u2028', '\u2029']) await compare('x', 'x' + tail);
 });
 
-void test('reporter keeps raw string quotes, numeric text and independent inline type names', async () => {
+test('reporter keeps raw string quotes, numeric text and independent inline type names', async () => {
   const expression = createExpression('😀 :page :count{int} :status{pending/approved}');
   const text = '😀 "same" 002 approved';
   const args = expression.match(text)!;
@@ -214,7 +214,7 @@ void test('reporter keeps raw string quotes, numeric text and independent inline
   assert.deepEqual([...(await expression.matchValues(text))!], ['same', 2, 'approved']);
   assert.equal(args[1]!.group.value, '002');
 });
-void test('absent parameters serialize no fabricated positions or values', () => {
+test('absent parameters serialize no fabricated positions or values', () => {
   const args = createExpression('x( :count{int}) {}').match('x ')!;
   assert.deepEqual(serialize(args), [
     { group: {}, parameterTypeName: 'int' },
