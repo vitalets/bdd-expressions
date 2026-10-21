@@ -1,12 +1,19 @@
+/**
+ * Converts match arguments into positional values with safe named access.
+ */
+
 import type { Argument } from './cucumber-expressions/matching.ts';
 
 export type Values = unknown[] & { readonly params: Record<string, unknown> };
 
+/**
+ * Resolves arguments sequentially and attaches nonenumerable, prototype-free named values.
+ */
 export async function transformArguments(
   args: readonly Argument[],
   names: readonly (string | undefined)[],
   world: unknown,
-): Promise<Values> {
+) {
   const values = [] as unknown as Values;
   const params: Record<string, unknown> = Object.create(null);
   Object.defineProperty(values, 'params', { value: params, enumerable: false });

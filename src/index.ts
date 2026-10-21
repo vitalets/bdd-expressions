@@ -1,3 +1,7 @@
+/**
+ * Defines the package entry point and keeps its supported public surface explicit.
+ */
+
 export { parseExpression, ExpressionError } from './parser.ts';
 export type { Node, SourceRange } from './parser.ts';
 export {

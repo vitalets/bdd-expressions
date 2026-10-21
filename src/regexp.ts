@@ -1,7 +1,17 @@
-export const escapeRegexp = (text: string): string => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+/**
+ * Prepares literal text and custom parameter patterns for safe regexp composition.
+ */
 
-/** Validate in isolation before removing named labels or embedding the pattern. */
-export function normalizePattern(pattern: string | RegExp): string {
+/**
+ * Escapes literal text for inclusion in a regexp pattern.
+ */
+export const escapeRegexp = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+/**
+ * Validates a parameter pattern before embedding it and removes named capture labels.
+ * Rejects flags and backreferences that cannot be preserved during composition.
+ */
+export function normalizePattern(pattern: string | RegExp) {
   if (pattern instanceof RegExp && pattern.flags !== '') {
     throw new Error('Parameter regexps must not use flags');
   }

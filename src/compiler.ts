@@ -1,3 +1,7 @@
+/**
+ * Compiles expression syntax into whole-input regexps and connects matches to values.
+ */
+
 import { parseExpression, ExpressionError, type Node } from './parser.ts';
 import {
   createParameterTypeRegistry,
@@ -22,6 +26,9 @@ interface Slot {
   capture: Capture;
 }
 
+/**
+ * Matches a parsed expression using a compiled regexp and source-ordered parameters.
+ */
 export class BddExpression implements Expression {
   readonly source: string;
   readonly ast: Node;
@@ -38,23 +45,33 @@ export class BddExpression implements Expression {
     this.names = this.slots.map((slot) => slot.name);
   }
 
-  match(text: string): readonly Argument[] | null {
+  /**
+   * Matches the whole input and retains metadata for absent parameters.
+   */
+  match(text: string) {
     const result = this.regexp.exec(text);
-    return result
+    const args: readonly Argument[] | null = result
       ? this.slots.map((slot) => buildArgument(buildGroup(slot.capture, result), slot.type))
       : null;
+    return args;
   }
 
-  async matchValues(text: string, world?: unknown): Promise<Values | null> {
+  /**
+   * Resolves positional and named values with the supplied transformer context.
+   */
+  async matchValues(text: string, world?: unknown) {
     const args = this.match(text);
     return args === null ? null : transformArguments(args, this.names, world);
   }
 }
 
+/**
+ * Creates an expression, using built-in parameter types when no registry is supplied.
+ */
 export function createExpression(
   source: string,
   registry: ParameterTypeRegistry = createParameterTypeRegistry(),
-): BddExpression {
+) {
   return new BddExpression(source, registry);
 }
 
@@ -62,6 +79,9 @@ function compileExpression(source: string, registry: ParameterTypeRegistry) {
   const ast = parseExpression(source);
   const slots: Slot[] = [];
   let captureCount = 0;
+  const regexp = new RegExp(`^(?:${compile(ast)})(?![\\s\\S])`, 'd');
+  return { ast, regexp, slots };
+
   function compile(node: Node): string {
     switch (node.kind) {
       case 'literal':
@@ -73,34 +93,7 @@ function compileExpression(source: string, registry: ParameterTypeRegistry) {
       case 'choice':
         return `(?:${node.branches.map(compile).join('|')})`;
       case 'parameter': {
-        const type: ParameterType | undefined = node.alternatives
-          ? {
-              name: 'inline-choice',
-              regexpStrings: node.alternatives.map(escapeRegexp),
-              transform: (_world, values) => values?.[0],
-            }
-          : registry.lookupByTypeName(node.type);
-        if (!type)
-          throw new ExpressionError(
-            `Unknown parameter type "${node.type}"`,
-            source,
-            node.start,
-            node.end,
-          );
-        let pattern: string;
-        try {
-          if (!type.regexpStrings.length)
-            throw new Error('A parameter type needs at least one regexp');
-          pattern = `(${type.regexpStrings.map((p) => `(?:${normalizePattern(p)})`).join('|')})`;
-          new RegExp(pattern);
-        } catch (error) {
-          throw new ExpressionError(
-            `Invalid regexp for "${node.type}": ${(error as Error).message}`,
-            source,
-            node.start,
-            node.end,
-          );
-        }
+        const { type, pattern } = compileParameter(node, source, registry);
         const tree = captureTree(pattern, captureCount);
         captureCount += tree.count;
         slots.push({ name: node.name, type, capture: tree.roots[0]! });
@@ -108,6 +101,39 @@ function compileExpression(source: string, registry: ParameterTypeRegistry) {
       }
     }
   }
-  const regexp = new RegExp(`^(?:${compile(ast)})(?![\\s\\S])`, 'd');
-  return { ast, regexp, slots };
+}
+
+function compileParameter(
+  node: Extract<Node, { kind: 'parameter' }>,
+  source: string,
+  registry: ParameterTypeRegistry,
+) {
+  const type: ParameterType | undefined = node.alternatives
+    ? {
+        name: 'inline-choice',
+        regexpStrings: node.alternatives.map(escapeRegexp),
+        transform: (_world, values) => values?.[0],
+      }
+    : registry.lookupByTypeName(node.type);
+  if (!type)
+    throw new ExpressionError(
+      `Unknown parameter type "${node.type}"`,
+      source,
+      node.start,
+      node.end,
+    );
+  let pattern: string;
+  try {
+    if (!type.regexpStrings.length) throw new Error('A parameter type needs at least one regexp');
+    pattern = `(${type.regexpStrings.map((p) => `(?:${normalizePattern(p)})`).join('|')})`;
+    new RegExp(pattern);
+  } catch (error) {
+    throw new ExpressionError(
+      `Invalid regexp for "${node.type}": ${(error as Error).message}`,
+      source,
+      node.start,
+      node.end,
+    );
+  }
+  return { type, pattern };
 }

@@ -10,8 +10,10 @@ import { normalizePattern } from '../regexp.ts';
 export interface ParameterType<T = unknown> {
   readonly name: string | undefined;
   readonly regexpStrings: readonly string[];
-  // Method syntax intentionally allows structural upstream types whose typings
-  // omit undefined, although unmatched native capture values can be undefined.
+  /**
+   * Method syntax accepts upstream types whose typings omit undefined,
+   * although unmatched native capture values can be undefined.
+   */
   transform(world: unknown, values: (string | undefined)[] | null): T | PromiseLike<T>;
 }
 export interface ParameterTypeRegistry {
@@ -25,9 +27,12 @@ export interface ParameterTypeOptions<T, World = unknown> {
   regexp: string | RegExp | readonly (string | RegExp)[];
   transformer?: (this: World, ...captures: (string | undefined)[]) => T | PromiseLike<T>;
 }
+/**
+ * Creates a custom parameter type with validated patterns and an optional transformer.
+ */
 export function createParameterType<T = string | undefined, World = unknown>(
   options: ParameterTypeOptions<T, World>,
-): ParameterType<T> {
+) {
   if (!validTypeName(options.name) || options.name === 'inline-choice') {
     throw new Error(`Invalid or reserved parameter type name "${options.name}"`);
   }
@@ -36,7 +41,7 @@ export function createParameterType<T = string | undefined, World = unknown>(
     : [options.regexp as string | RegExp];
   if (!patterns.length) throw new Error('A parameter type needs at least one regexp');
   const regexpStrings = Object.freeze(patterns.map(normalizePattern));
-  return {
+  const type: ParameterType<T> = {
     name: options.name,
     regexpStrings,
     transform(world, values) {
@@ -45,9 +50,13 @@ export function createParameterType<T = string | undefined, World = unknown>(
         : (values?.[0] as T);
     },
   };
+  return type;
 }
 
-export function createParameterTypeRegistry(): MutableParameterTypeRegistry {
+/**
+ * Creates a registry with built-in types and rejects invalid or duplicate registrations.
+ */
+export function createParameterTypeRegistry() {
   const types = new Map<string, ParameterType>();
   const registry: MutableParameterTypeRegistry = {
     lookupByTypeName: (name) => types.get(name),
@@ -66,10 +75,12 @@ export function createParameterTypeRegistry(): MutableParameterTypeRegistry {
   return registry;
 }
 
-// Patterns and conversions ported from @cucumber/cucumber-expressions 20.1.0.
-// Copyright (c) 2016 Cucumber Ltd and contributors (MIT).
-// See THIRD_PARTY_NOTICES.md.
-function defineBuiltins(registry: MutableParameterTypeRegistry): void {
+/**
+ * Patterns and conversions ported from @cucumber/cucumber-expressions 20.1.0.
+ * Copyright (c) 2016 Cucumber Ltd and contributors (MIT).
+ * See THIRD_PARTY_NOTICES.md.
+ */
+function defineBuiltins(registry: MutableParameterTypeRegistry) {
   const integers = [/-?\d+/, /\d+/];
   const float = /[-+]?(?:\d+(?:\.\d+)?|\.\d+)(?:[E][+-]?\d+)?/;
   const add = (

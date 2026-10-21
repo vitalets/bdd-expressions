@@ -9,8 +9,10 @@ export interface Capture {
   readonly children: Capture[];
 }
 
-/** Input is a validated, normalized pattern. Noncapturing groups are flattened. */
-export function captureTree(source: string, offset: number): { roots: Capture[]; count: number } {
+/**
+ * Maps a validated, normalized pattern to capture nesting, flattening noncapturing groups.
+ */
+export function captureTree(source: string, offset: number) {
   const root: Capture = { index: 0, children: [] };
   const stack = [root];
   let inClass = false;

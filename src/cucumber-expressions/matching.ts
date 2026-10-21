@@ -21,6 +21,9 @@ export interface Argument {
   getParameterType(): ParameterType;
 }
 
+/**
+ * Builds a capture tree with native positions, preserving absent and empty captures.
+ */
 export function buildGroup(capture: Capture, match: RegExpExecArray): Group {
   const range = match.indices![capture.index];
   const children = capture.children.length
@@ -36,8 +39,11 @@ export function buildGroup(capture: Capture, match: RegExpExecArray): Group {
     },
   };
 }
-export function buildArgument(group: Group, parameterType: ParameterType): Argument {
-  return {
+/**
+ * Connects capture metadata to its type, skipping transformation for absent parameters.
+ */
+export function buildArgument(group: Group, parameterType: ParameterType) {
+  const argument: Argument = {
     group,
     parameterType,
     getValue(world) {
@@ -47,4 +53,5 @@ export function buildArgument(group: Group, parameterType: ParameterType): Argum
       return parameterType;
     },
   };
+  return argument;
 }
