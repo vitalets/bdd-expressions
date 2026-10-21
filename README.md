@@ -133,7 +133,6 @@ npm ci
 npm run check         # format, lint, type-check, build, and test
 npm run fmt:write     # format with Oxfmt
 npm run lint:fix      # apply Oxlint fixes
-npm run test:example  # test a packed installation and its TypeScript declarations
 ```
 
 Development and CI use Node 24; tests use Node's native TypeScript support.
@@ -142,14 +141,14 @@ The root TypeScript config checks source and tests; `tsconfig.build.json` emits
 ESM, declarations, and source maps after cleaning `dist`. Source files are
 included in the npm package for navigation from those maps.
 
-`npm install` configures the Git hooks when this directory has its own Git
-repository. If Git is initialized later, run `npm run prepare`. The pre-commit
+`npm install` configures the Git hooks through the `prepare` task. To configure
+them again, run `npm run prepare` from the Git repository. The pre-commit
 hook runs lint-staged; pre-push runs `npm run check`. Set `SKIP_GIT_HOOKS=1` to
 skip them for an individual command.
 
 The manual release workflow is copied unchanged from playwright-webext. Its
 `prettier` and `tsc` script names are compatibility aliases for Oxfmt checks and
-TypeScript checking. `test-example.yaml` verifies a packed consumer installation.
+TypeScript checking.
 Publishing requires the destination GitHub repository and npm trusted publisher
 configuration; adding this workflow does not publish anything.
 

@@ -72,11 +72,14 @@ Applied the requested playwright-webext conventions with Oxc tooling:
 - Oxlint type-aware linting, Oxfmt formatting, editor defaults, lint-staged hooks.
 - Root type-check config and separate clean build with source/declaration maps.
 - Unreleased changelog, package metadata, and source-inclusive package contents.
-- Lint, test, and packed-consumer workflows on Node 24 / Ubuntu 24.04 only.
+- Lint and test workflows on Node 24 / Ubuntu 24.04 only.
   This supersedes the initial Node 22/24 CI configuration above.
 - Unmodified manual release workflow, with compatible script/workflow names.
 
 Validation: all 47 existing tests, formatting, type-aware linting, type checking,
 clean build, and packed consumer runtime/type/source-map checks passed locally.
-Hosted CI and releases were not run. Git hook files are ready; this directory
-has no .git entry, so activation waits for Git initialization and `npm run prepare`.
+Hosted CI and releases were not run.
+
+Simplified the infrastructure to match playwright-webext: build cleanup and Git
+hook configuration are inline package commands. Removed the standalone packed
+consumer test and its `test:example` task; the verification above is historical.

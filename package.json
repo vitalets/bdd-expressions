@@ -1,20 +1,22 @@
 {
   "name": "bdd-expressions",
-  "version": "0.1.0",
   "description": "BDD expressions with named parameters, nested optionals and capture metadata",
-  "keywords": [
-    "bdd",
-    "cucumber",
-    "expressions",
-    "testing",
-    "typescript"
-  ],
-  "license": "MIT",
+  "version": "0.1.0",
+  "type": "module",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/vitalets/bdd-expressions.git"
   },
-  "funding": "https://github.com/sponsors/vitalets",
+  "engines": {
+    "node": ">=22"
+  },
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
   "files": [
     "dist",
     "docs",
@@ -24,27 +26,18 @@
     "src",
     "CHANGELOG.md"
   ],
-  "type": "module",
-  "types": "./dist/index.d.ts",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
-    }
-  },
   "scripts": {
-    "build": "node scripts/clean.mjs && tsc -p tsconfig.build.json",
+    "prepare": "git config core.hooksPath scripts/git-hooks",
+    "build": "rm -rf ./dist && tsc -p tsconfig.build.json",
     "test": "node --test test/*.test.ts",
     "tsc": "tsc --noEmit",
     "check": "npm run fmt && npm run lint && npm run tsc && npm run build && npm test",
     "prepack": "npm run build",
-    "prepare": "node scripts/install-hooks.mjs",
     "lint": "oxlint --type-aware --deny-warnings .",
     "lint:fix": "npm run lint -- --fix",
     "fmt": "oxfmt --check .",
     "fmt:write": "oxfmt --write .",
-    "prettier": "npm run fmt",
-    "test:example": "npm run build && node scripts/test-package.mjs"
+    "prettier": "npm run fmt"
   },
   "devDependencies": {
     "@cucumber/cucumber-expressions": "20.1.0",
@@ -55,7 +48,13 @@
     "oxlint-tsgolint": "7.0.2004",
     "typescript": "7.0.2"
   },
-  "engines": {
-    "node": ">=22"
-  }
+  "funding": "https://github.com/sponsors/vitalets",
+  "keywords": [
+    "bdd",
+    "cucumber",
+    "expressions",
+    "testing",
+    "typescript"
+  ],
+  "license": "MIT"
 }
