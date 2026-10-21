@@ -715,6 +715,50 @@ empty or exclusively optional branches are errors. This preserves Cucumber's
 short-alternative boundaries. Inside parentheses all current-level slashes
 belong to the enclosing choice, not bare alternatives.
 
+### Optional groups
+
+Consecutive optional groups are allowed, including groups whose parameters accept
+the same input. Matching follows native JavaScript RegExp behavior: optional
+groups are greedy, so the engine first attempts to match a group and may skip it
+during backtracking if required for the complete expression to match. This is a
+matching preference, not an unconditional rule that the first group always wins.
+
+```text
+Expression: I send( :message)( :recipient)
+Input:      I send "Alice"
+Positional: ["Alice", undefined]
+Named:      params.message === "Alice"
+            params.recipient === undefined
+```
+
+Parameter slots remain in expression-source order. Missing parameters retain
+undefined values; their transformers are not called and their capture positions
+are absent, including positions in child captures. Quotation marks delimit
+parameter values but do not resolve which optional group a value belongs to.
+
+Prefer distinguishing optional groups with literal text:
+
+```text
+Expression: I send( message :message)( to :recipient)
+Input:      I send to "Alice"
+Positional: [undefined, "Alice"]
+Named:      params.message === undefined
+            params.recipient === "Alice"
+```
+
+Backtracking can also skip an earlier group that initially accepts the value:
+
+```text
+Expression: I send( :message)( :recipient confirmed)
+Input:      I send "Alice" confirmed
+Positional: [undefined, "Alice"]
+```
+
+All whitespace remains literal; spaces are optional only when inside an optional
+group. Do not reject consecutive optional groups merely because they could be
+ambiguous. General ambiguity detection for arbitrary custom parameter regexes is
+outside the initial scope.
+
 ### Formal grammar
 
 EBNF below operates on original UTF-16 code units. Scanner predicates and the
@@ -771,6 +815,8 @@ expression. Errors expose `source`, `start`, `end` and include a readable offset
   newline (also rejected by the verified Cucumber JavaScript implementation).
   An explicitly matched newline is allowed.
   Native ordered alternatives/backtracking apply; no longest-match heuristic.
+  See [Optional groups](#optional-groups) for greedy matching and backtracking
+  of consecutive optional groups containing parameters.
 - Slots are assigned in source order, including parameters in every choice
   branch. Absent slots keep a Group with undefined value/start/end and the
   structural child tree, whose absent children also have undefined positions.

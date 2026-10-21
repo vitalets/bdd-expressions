@@ -50,6 +50,12 @@ Final verification:
 
 ## Remaining work
 
+Consecutive optional groups are specified explicitly and covered by regression
+tests for neither, first only, literal-distinguished second only, both, ambiguous
+first-group preference, and backtracking that skips the earlier group. These also
+verify source-order named/positional values, absent capture positions, and skipped
+absent transformers. The existing native RegExp implementation needs no change.
+
 No required first-version implementation stages remain. No publishing or
 external release was performed.
 

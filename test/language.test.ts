@@ -5,6 +5,7 @@ import {
   createParameterType,
   createParameterTypeRegistry,
   ExpressionError,
+  type Group,
 } from '../src/index.ts';
 
 async function values(source: string, text: string) {
@@ -43,6 +44,85 @@ void test('nested optional parameters keep absent slots and positions', async ()
   assert.ok(args[1]!.group.children!.every((child) => child.start === undefined));
   assert.equal(expression.match('I create "x" in "z"'), null);
 });
+for (const { name, source, text, expected } of [
+  {
+    name: 'neither group present',
+    source: 'I send( :message)( :recipient)',
+    text: 'I send',
+    expected: [undefined, undefined],
+  },
+  {
+    name: 'only the first group present',
+    source: 'I send( message :message)( to :recipient)',
+    text: 'I send message "Hello"',
+    expected: ['Hello', undefined],
+  },
+  {
+    name: 'only the second group present, distinguished by literal text',
+    source: 'I send( message :message)( to :recipient)',
+    text: 'I send to "Alice"',
+    expected: [undefined, 'Alice'],
+  },
+  {
+    name: 'both groups present',
+    source: 'I send( :message)( :recipient)',
+    text: 'I send "Hello" "Alice"',
+    expected: ['Hello', 'Alice'],
+  },
+  {
+    name: 'ambiguous input assigned to the first group',
+    source: 'I send( :message)( :recipient)',
+    text: 'I send "Alice"',
+    expected: ['Alice', undefined],
+  },
+  {
+    name: 'backtracking skips an earlier group to complete the match',
+    source: 'I send( :message)( :recipient confirmed)',
+    text: 'I send "Alice" confirmed',
+    expected: [undefined, 'Alice'],
+  },
+] as const) {
+  void test(`consecutive optional parameters: ${name}`, async () => {
+    const registry = createParameterTypeRegistry();
+    const stringType = registry.lookupByTypeName('string')!;
+    let calls = 0;
+    const expression = createExpression(source, {
+      lookupByTypeName: (typeName) =>
+        typeName === 'string'
+          ? {
+              ...stringType,
+              transform(world, captures) {
+                calls++;
+                return stringType.transform(world, captures);
+              },
+            }
+          : registry.lookupByTypeName(typeName),
+    });
+    const result = (await expression.matchValues(text))!;
+    assert.deepEqual([...result], expected);
+    assert.deepEqual({ ...result.params }, { message: expected[0], recipient: expected[1] });
+    assert.equal(calls, expected.filter((value) => value !== undefined).length);
+
+    const args = expression.match(text)!;
+    assert.equal(args.length, 2);
+    function assertAbsent(group: Group) {
+      assert.equal(group.value, undefined);
+      assert.equal(group.start, undefined);
+      assert.equal(group.end, undefined);
+      group.children?.forEach(assertAbsent);
+    }
+    for (const [index, value] of expected.entries()) {
+      const group = args[index]!.group;
+      if (value === undefined) {
+        assertAbsent(group);
+      } else {
+        assert.equal(group.value, `"${value}"`);
+        assert.equal(group.start, text.indexOf(`"${value}"`));
+        assert.equal(group.end, group.start! + group.value!.length);
+      }
+    }
+  });
+}
 void test('choice branches keep stable source-order slots', async () => {
   const expression = createExpression('(create :item/delete :id{int}/nothing)');
   assert.deepEqual([...(await expression.matchValues('create "x"'))!], ['x', undefined]);

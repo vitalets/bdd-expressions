@@ -45,6 +45,20 @@ Resolve these before implementing the affected behavior.
 - Full normative resolutions and grammar are in the specification; the initial
   questions above are now resolved. Framework adapters remain outside scope.
 
+## Consecutive optional groups
+
+- Supplied requirement: consecutive optional groups are legal even when their
+  parameters accept the same input. Native JavaScript RegExp greediness prefers
+  matching an earlier group, but backtracking may skip it to complete the match.
+  Quoted values do not select which group receives them; distinguishing literal
+  text is recommended when that distinction matters.
+- Keep the existing native RegExp compilation without ambiguity rejection or
+  matching heuristics. General ambiguity detection for arbitrary custom regexes
+  is outside the initial scope. Source-order slots, undefined absent values,
+  skipped absent transformers, absent capture positions, and literal whitespace
+  remain unchanged. The normative optional-groups section defines examples;
+  regression tests cover presence combinations, overlap, and backtracking.
+
 ## Verified provenance and integration scope
 
 - Runtime reference: npm `@cucumber/cucumber-expressions@20.1.0`, specifically
