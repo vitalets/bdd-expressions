@@ -1,5 +1,15 @@
 /**
  * Compiles expression syntax into whole-input regexps and connects matches to values.
+ * Parses the source, resolves parameter types, and maps captures to argument slots.
+ *
+ * Input:  I have :count{int} cucumbers + a parameter type registry
+ * Compiled output (abbreviated):
+ *   {
+ *     ast: { kind: 'sequence', children: [...] },
+ *     regexp: /^(?:I have ((?:-?\d+)|(?:\d+)) cucumbers)(?![\s\S])/d,
+ *     slots: [{ name: 'count', type: { name: 'int', ... },
+ *               capture: { index: 1, children: [] } }]
+ *   }
  */
 
 import { parseExpression, ExpressionError, type Node } from './parser.ts';
