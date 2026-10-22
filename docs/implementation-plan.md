@@ -140,11 +140,11 @@ Validation: all 246 tests pass, including 213 independently registered YAML case
 `npm run check` passes formatting, type-aware linting, source/test type checks,
 clean build, and the full test suite.
 
-`npm test` discovers all `test/*.spec.ts` files. `syntax.spec.ts` runs YAML cases;
+`npm test` discovers all `test/**/*.spec.ts` files. `syntax.spec.ts` runs YAML cases;
 `api.spec.ts` retains public contracts, compile-time constructor/return types,
 custom registry validation, capture metadata, transformer invocation, async/world,
-and BigInt/null checks. `compatibility.spec.ts` retains differential and reporter
-coverage. Removed the parser branch matrix and redundant built-in metadata matrix;
+and BigInt/null checks. `compatibility/compatibility.spec.ts` retains differential and reporter
+coverage, with its serialization helper colocated in `compatibility/helpers.ts`. Removed the parser branch matrix and redundant built-in metadata matrix;
 moved remaining optional/choice value cases to YAML. The separate parser,
 language, and custom-type spec files have been consolidated into the API suite,
 with one representative public AST range check instead of a syntax matrix.

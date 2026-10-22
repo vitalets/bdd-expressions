@@ -5,52 +5,14 @@ import {
   ParameterType as CucumberType,
   ParameterTypeRegistry as CucumberRegistry,
 } from '@cucumber/cucumber-expressions';
-import { BddExpression, createParameterType, createParameterTypeRegistry } from '../src/index.ts';
+import {
+  BddExpression,
+  createParameterType,
+  createParameterTypeRegistry,
+} from '../../src/index.ts';
 
-import { serialize } from './helpers/reporter-serialization.ts';
+import { compare, metadata, serialize } from './helpers.ts';
 
-// Compare every capture, not just transformed user values. Normalize class
-// instances into data while preserving undefined vs empty and child structure.
-type ComparableGroup = {
-  value: string | undefined;
-  start: number | undefined;
-  end: number | undefined;
-  values: (string | undefined)[] | null;
-  children: readonly ComparableGroup[] | undefined;
-};
-function metadata(group: ComparableGroup): unknown {
-  return {
-    value: group.value,
-    start: group.start,
-    end: group.end,
-    values: group.values,
-    children: group.children?.map(metadata),
-  };
-}
-async function compare(source: string, text: string) {
-  const upstream = new CucumberExpression(source, new CucumberRegistry()).match(text);
-  const local = new BddExpression(source, new CucumberRegistry()).match(text);
-  assert.deepEqual(
-    serialize(local),
-    serialize(upstream),
-    `Reporter output for ${JSON.stringify(source)} matching ${JSON.stringify(text)}`,
-  );
-  assert.equal(local === null, upstream === null, `${source}: ${JSON.stringify(text)}`);
-  if (!local || !upstream) return;
-  assert.equal(local.length, upstream.length);
-  assert.deepEqual(
-    local.map((arg) => metadata(arg.group)),
-    upstream.map((arg) => metadata(arg.group)),
-  );
-  assert.deepEqual(
-    local.map((arg) => arg.parameterType.name),
-    upstream.map((arg) => arg.parameterType.name),
-  );
-  assert.deepEqual(
-    await Promise.all(local.map((arg) => arg.getValue(null))),
-    await Promise.all(upstream.map((arg) => arg.getValue(null))),
-  );
-}
 const integerInputs = [
   '',
   '0',

@@ -12,7 +12,7 @@
   "ignorePatterns": ["dist/**", "node_modules/**"],
   "overrides": [
     {
-      "files": ["test/*.spec.ts"],
+      "files": ["test/**/*.spec.ts"],
       "rules": {
         "typescript/no-floating-promises": [
           "error",

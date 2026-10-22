@@ -530,7 +530,7 @@ Use behavior-grouped YAML fixtures for straightforward expression syntax and
 matching cases, retaining the existing Node TypeScript test runner.
 `npm test` discovers `test/*.spec.ts`. `test/syntax.spec.ts` runs YAML cases;
 `test/api.spec.ts` checks public API contracts and TypeScript types;
-`test/compatibility.spec.ts` runs differential and reporter checks. Register each
+`test/compatibility/compatibility.spec.ts` runs differential and reporter checks. Register each
 entry independently using its file and name; do not create one file per example.
 Keep ordinary TypeScript tests for custom transformers, async behavior, world/this
 context, invocation assertions, capture metadata, and differential checks.
