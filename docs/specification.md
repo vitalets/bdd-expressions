@@ -528,7 +528,7 @@ Do not assume arbitrary backreferences remain correct after combining patterns. 
 
 Use behavior-grouped YAML test cases for straightforward expression syntax and
 matching cases, retaining the existing Node TypeScript test runner.
-`npm test` discovers `test/**/*.spec.ts`. `test/syntax.spec.ts` runs YAML cases;
+`npm test` discovers `test/**/*.spec.ts`. `test/syntax/syntax.spec.ts` runs YAML cases;
 `test/api.spec.ts` checks public API contracts and TypeScript types;
 `test/compatibility/compatibility.spec.ts` runs differential and reporter checks. Register each
 entry independently using its file and name; do not create one file per example.
@@ -553,7 +553,7 @@ every compatible matching/nonmatching test case using each engine's own registry
 Custom-registry and BDD-specific reporter checks remain in TypeScript; built-in
 value coverage comes from upstream test cases and our own syntax test cases.
 
-The test case helpers in `test/syntax.spec.ts` document and validate the schema.
+The test case helpers in `test/syntax/syntax.spec.ts` document and validate the schema.
 Behavior test cases live in `test/syntax/`; built-in type cases are grouped into
 one YAML file per type in `test/syntax/types/`.
 Each case has `name` and `expression`. Successful matches have `text` and `params`

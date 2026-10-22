@@ -126,7 +126,7 @@ and reporter checks remain in TypeScript.
 The small loader validates expectations, rejects contradictory fields, and uses
 YAML null solely as an expected undefined marker. Actual values are compared
 directly; a separate TypeScript regression verifies real null transformer results.
-See section 13 of [the specification](specification.md) and the test case helpers in `test/syntax.spec.ts`
+See section 13 of [the specification](specification.md) and the test case helpers in `test/syntax/syntax.spec.ts`
 for error fields and whitespace conventions. No production behavior or test runner changed; YAML is a development
 dependency only.
 

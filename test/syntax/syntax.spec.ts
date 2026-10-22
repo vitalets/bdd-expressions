@@ -16,7 +16,7 @@ import {
   createParameterTypeRegistry,
   ExpressionError,
   type MatchValues,
-} from '../src/index.ts';
+} from '../../src/index.ts';
 
 type Value = string | number | boolean | null;
 type Params = { positional: Value[]; named: Record<string, Value> };
@@ -27,7 +27,7 @@ type TestCase = { name: string; expression: string } & (
   | { error: ExpectedError; text?: never; params?: never; match?: never }
 );
 
-const directory = new URL('./syntax/', import.meta.url);
+const directory = new URL('./', import.meta.url);
 const files = readdirSync(directory, { recursive: true, encoding: 'utf8' })
   .filter((file) => file.endsWith('.yaml'))
   .sort();
