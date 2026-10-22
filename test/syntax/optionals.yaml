@@ -1,0 +1,122 @@
+- name: matches an absent optional parameter
+  expression: 'I create :item( as :owner)'
+  text: 'I create "task"'
+  params:
+    positional: [task, null]
+    named:
+      item: task
+      owner: null
+
+- name: matches a present optional parameter
+  expression: 'I create :item( as :owner)'
+  text: 'I create "task" as "Alice"'
+  params:
+    positional: [task, Alice]
+    named:
+      item: task
+      owner: Alice
+
+- name: nested optional parameters absent
+  expression: 'I create :item( as :owner( in :workspace))'
+  text: 'I create "x"'
+  params:
+    positional: [x, null, null]
+    named:
+      item: x
+      owner: null
+      workspace: null
+
+- name: nested optional parameters outer present
+  expression: 'I create :item( as :owner( in :workspace))'
+  text: 'I create "x" as "y"'
+  params:
+    positional: [x, y, null]
+    named:
+      item: x
+      owner: y
+      workspace: null
+
+- name: nested optional parameters both present
+  expression: 'I create :item( as :owner( in :workspace))'
+  text: 'I create "x" as "y" in "z"'
+  params:
+    positional: [x, y, z]
+    named:
+      item: x
+      owner: y
+      workspace: z
+
+- name: nested parameter requires its enclosing group
+  expression: 'I create :item( as :owner( in :workspace))'
+  text: 'I create "x" in "z"'
+  match: false
+
+- name: inline slash does not make its enclosing group required
+  expression: '( with :status{pending/approved})'
+  text: ''
+  params:
+    positional: [null]
+    named:
+      status: null
+
+- name: matches an inline choice inside an optional
+  expression: '( with :status{pending/approved})'
+  text: ' with approved'
+  params:
+    positional: [approved]
+    named:
+      status: approved
+
+- name: consecutive optionals with neither group present
+  expression: 'I send( :message)( :recipient)'
+  text: 'I send'
+  params:
+    positional: [null, null]
+    named:
+      message: null
+      recipient: null
+
+- name: consecutive optionals with only the first group present
+  expression: 'I send( message :message)( to :recipient)'
+  text: 'I send message "Hello"'
+  params:
+    positional: [Hello, null]
+    named:
+      message: Hello
+      recipient: null
+
+- name: consecutive optionals with only the second group present, distinguished by literal text
+  expression: 'I send( message :message)( to :recipient)'
+  text: 'I send to "Alice"'
+  params:
+    positional: [null, Alice]
+    named:
+      message: null
+      recipient: Alice
+
+- name: consecutive optionals with both groups present
+  expression: 'I send( :message)( :recipient)'
+  text: 'I send "Hello" "Alice"'
+  params:
+    positional: [Hello, Alice]
+    named:
+      message: Hello
+      recipient: Alice
+
+- name: consecutive optionals with ambiguous input assigned to the first group
+  expression: 'I send( :message)( :recipient)'
+  text: 'I send "Alice"'
+  params:
+    positional: [Alice, null]
+    named:
+      message: Alice
+      recipient: null
+
+- name: consecutive optionals with backtracking skips an earlier group to complete the match
+  expression: 'I send( :message)( :recipient confirmed)'
+  text: 'I send "Alice" confirmed'
+  params:
+    positional: [null, Alice]
+    named:
+      message: null
+      recipient: Alice

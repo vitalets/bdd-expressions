@@ -112,3 +112,39 @@ playwright-bdd field projection as the reporter contract tests. This covers buil
 escaping, Unicode offsets, repeated captures, custom nested captures, empty captures,
 no-argument matches, and nonmatches. Existing metadata and transformed-value checks
 remain in place. This verifies serialization, not a running reporter integration.
+
+## Behavior-grouped expression fixtures
+
+Replaced the TypeScript-only preference with YAML fixtures in `test/syntax/` and built-in type fixtures in `test/syntax/types/`
+for built-in types, named parameters, optionals, alternatives, escaping/whitespace, and positioned
+syntax/unknown-type errors. The existing native Node TypeScript runner registers
+each entry independently by file and name. Migrated assertions were removed from
+the TypeScript cases; dedicated capture metadata and a minimal public AST contract, custom setup, transformer
+invocation, async/world, built-in parameter-type metadata and BigInt conversions, compatibility,
+and reporter checks remain in TypeScript.
+
+The small loader validates expectations, rejects contradictory fields, and uses
+YAML null solely as an expected undefined marker. Actual values are compared
+directly; a separate TypeScript regression verifies real null transformer results.
+See section 13 of [the specification](specification.md) and the fixture helpers in `test/syntax.spec.ts`
+for error fields and whitespace conventions. No production behavior or test runner changed; YAML is a development
+dependency only.
+
+Built-in conversion and rejection cases now span one YAML file per type (100
+cases across 11 files in `test/syntax/types/`), with named-parameter syntax in `named-parameters.yaml`.
+Differential checks cover built-in type metadata; BigInt conversion expectations
+remain in the TypeScript API suite. Removed the fixture README and loader unit tests at user request;
+schema validation remains in the loader and runs for every fixture file.
+
+Validation: all 246 tests pass, including 213 independently registered YAML cases.
+`npm run check` passes formatting, type-aware linting, source/test type checks,
+clean build, and the full test suite.
+
+`npm test` discovers all `test/*.spec.ts` files. `syntax.spec.ts` runs YAML cases;
+`api.spec.ts` retains public contracts, compile-time constructor/return types,
+custom registry validation, capture metadata, transformer invocation, async/world,
+and BigInt/null checks. `compatibility.spec.ts` retains differential and reporter
+coverage. Removed the parser branch matrix and redundant built-in metadata matrix;
+moved remaining optional/choice value cases to YAML. The separate parser,
+language, and custom-type spec files have been consolidated into the API suite,
+with one representative public AST range check instead of a syntax matrix.

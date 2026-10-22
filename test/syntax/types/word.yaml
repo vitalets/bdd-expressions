@@ -1,0 +1,57 @@
+- name: word captures letters
+  expression: '{word}'
+  text: 'hello'
+  params:
+    positional: [hello]
+    named: {}
+
+- name: word preserves numeric text
+  expression: '{word}'
+  text: '42'
+  params:
+    positional: ['42']
+    named: {}
+
+- name: word preserves punctuation
+  expression: '{word}'
+  text: 'hello-world!'
+  params:
+    positional: [hello-world!]
+    named: {}
+
+- name: word preserves emoji
+  expression: '{word}'
+  text: '😀'
+  params:
+    positional: [😀]
+    named: {}
+
+- name: word rejects empty input
+  expression: '{word}'
+  text: ''
+  match: false
+
+- name: word rejects internal spaces
+  expression: '{word}'
+  text: 'two words'
+  match: false
+
+- name: word rejects internal tabs
+  expression: '{word}'
+  text: "a\tb"
+  match: false
+
+- name: word rejects internal newlines
+  expression: '{word}'
+  text: "a\nb"
+  match: false
+
+- name: word rejects leading whitespace
+  expression: '{word}'
+  text: ' word'
+  match: false
+
+- name: word rejects trailing whitespace
+  expression: '{word}'
+  text: 'word '
+  match: false

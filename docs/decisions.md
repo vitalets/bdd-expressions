@@ -165,3 +165,31 @@ accepted patterns or the public API.
   Retain a named type for consumers who need to annotate stored or passed results.
 - Keep entries typed as `unknown`: custom transformers can return arbitrary values,
   and expression-based type inference remains outside the initial scope.
+
+## Behavior-grouped YAML expression tests
+
+- User requirement: replace straightforward syntax/matching examples with grouped
+  YAML fixtures while retaining Node's test runner and all existing coverage.
+  This supersedes the original TypeScript-only testing preference.
+- Use `params.positional` and `params.named` directly, `match: false` for nonmatches,
+  and `error.start`, `error.end`, and a literal `error.message` substring for
+  construction errors. Always assert the error class and original source.
+- YAML null in expected values denotes JavaScript undefined. Compare actual values
+  directly, including explicit slots and named keys; do not JSON-normalize them.
+  Real null transformer results and executable setup stay in TypeScript, as do
+  dedicated capture metadata, AST, and compatibility checks.
+- Use the existing YAML parser as an explicit development dependency. Validate
+  schema and unique case names, and register each fixture independently. The
+  schema and quoting conventions live in the loader and specification.
+- Group built-in cases into one YAML file per type, per the updated user request.
+  Keep validation in the loader; omit its separate unit tests and fixture README.
+
+## Minimal API tests alongside YAML behavior cases
+
+- User requested minimizing low-level tests already covered through matching.
+  Remove parser branch matrices and keep one public AST source-range contract.
+- Consolidate distinct TypeScript checks into `api.spec.ts`: constructor and return
+  types, public members, registry validation, capture metadata, transformer calls,
+  async/world behavior, and BigInt/null values. Keep syntax/value cases in YAML.
+- Keep Cucumber differential and reporter checks separate. These verify an external
+  compatibility contract beyond the YAML parameter-value schema.

@@ -1,0 +1,35 @@
+- name: long converts zero
+  expression: '{long}'
+  text: '0'
+  params:
+    positional: [0]
+    named: {}
+
+- name: long converts negative integers
+  expression: '{long}'
+  text: '-42'
+  params:
+    positional: [-42]
+    named: {}
+
+- name: long uses Number precision for large integers
+  expression: '{long}'
+  text: '9007199254740993'
+  params:
+    positional: [9007199254740992]
+    named: {}
+
+- name: long rejects empty input
+  expression: '{long}'
+  text: ''
+  match: false
+
+- name: long rejects a leading plus
+  expression: '{long}'
+  text: '+1'
+  match: false
+
+- name: long rejects decimals
+  expression: '{long}'
+  text: '1.5'
+  match: false

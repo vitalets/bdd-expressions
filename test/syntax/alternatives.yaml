@@ -1,0 +1,411 @@
+- name: preserves parameter slots when the first branch matches
+  expression: '(create :item/delete :id{int}/nothing)'
+  text: 'create "x"'
+  params:
+    positional: [x, null]
+    named:
+      item: x
+      id: null
+
+- name: preserves parameter slots when the second branch matches
+  expression: '(create :item/delete :id{int}/nothing)'
+  text: 'delete 42'
+  params:
+    positional: [null, 42]
+    named:
+      item: null
+      id: 42
+
+- name: preserves parameter slots when a parameterless branch matches
+  expression: '(create :item/delete :id{int}/nothing)'
+  text: 'nothing'
+  params:
+    positional: [null, null]
+    named:
+      item: null
+      id: null
+
+- name: matches a single-word structural branch
+  expression: 'I (click/tap on/press and hold) :target'
+  text: 'I click "x"'
+  params:
+    positional: [x]
+    named:
+      target: x
+
+- name: captures a single-word inline branch
+  expression: ':action{click/tap on/press and hold}'
+  text: 'click'
+  params:
+    positional: [click]
+    named:
+      action: click
+
+- name: matches a multiword structural branch
+  expression: 'I (click/tap on/press and hold) :target'
+  text: 'I tap on "x"'
+  params:
+    positional: [x]
+    named:
+      target: x
+
+- name: captures a multiword inline branch
+  expression: ':action{click/tap on/press and hold}'
+  text: 'tap on'
+  params:
+    positional: [tap on]
+    named:
+      action: tap on
+
+- name: matches the final structural branch
+  expression: 'I (click/tap on/press and hold) :target'
+  text: 'I press and hold "x"'
+  params:
+    positional: [x]
+    named:
+      target: x
+
+- name: captures the final inline branch
+  expression: ':action{click/tap on/press and hold}'
+  text: 'press and hold'
+  params:
+    positional: [press and hold]
+    named:
+      action: press and hold
+
+- name: matches an absent optional choice
+  expression: 'I open :page(/ again/ once more)'
+  text: 'I open "x"'
+  params:
+    positional: [x]
+    named:
+      page: x
+
+- name: matches a single-word optional suffix
+  expression: 'I open :page(/ again/ once more)'
+  text: 'I open "x" again'
+  params:
+    positional: [x]
+    named:
+      page: x
+
+- name: matches a multiword optional suffix
+  expression: 'I open :page(/ again/ once more)'
+  text: 'I open "x" once more'
+  params:
+    positional: [x]
+    named:
+      page: x
+
+- name: type names in choices are literal
+  expression: '{int/float}'
+  text: 'int'
+  params:
+    positional: [int]
+    named: {}
+
+- name: type names in choices do not match numbers
+  expression: '{int/float}'
+  text: '42'
+  match: false
+
+- name: overlapping choices backtrack
+  expression: '{a/ab}b'
+  text: 'abb'
+  params:
+    positional: [ab]
+    named: {}
+
+- name: leading empty branch matches empty input
+  expression: '(/again/once more)'
+  text: ''
+  params:
+    positional: []
+    named: {}
+
+- name: leading empty branch matches the first nonempty branch
+  expression: '(/again/once more)'
+  text: 'again'
+  params:
+    positional: []
+    named: {}
+
+- name: leading empty branch matches the last nonempty branch
+  expression: '(/again/once more)'
+  text: 'once more'
+  params:
+    positional: []
+    named: {}
+
+- name: leading empty branch rejects unrelated input
+  expression: '(/again/once more)'
+  text: 'other'
+  match: false
+
+- name: middle empty branch matches empty input
+  expression: '(again//once more)'
+  text: ''
+  params:
+    positional: []
+    named: {}
+
+- name: middle empty branch matches the first nonempty branch
+  expression: '(again//once more)'
+  text: 'again'
+  params:
+    positional: []
+    named: {}
+
+- name: middle empty branch matches the last nonempty branch
+  expression: '(again//once more)'
+  text: 'once more'
+  params:
+    positional: []
+    named: {}
+
+- name: middle empty branch rejects unrelated input
+  expression: '(again//once more)'
+  text: 'other'
+  match: false
+
+- name: trailing empty branch matches empty input
+  expression: '(again/once more/)'
+  text: ''
+  params:
+    positional: []
+    named: {}
+
+- name: trailing empty branch matches the first nonempty branch
+  expression: '(again/once more/)'
+  text: 'again'
+  params:
+    positional: []
+    named: {}
+
+- name: trailing empty branch matches the last nonempty branch
+  expression: '(again/once more/)'
+  text: 'once more'
+  params:
+    positional: []
+    named: {}
+
+- name: trailing empty branch rejects unrelated input
+  expression: '(again/once more/)'
+  text: 'other'
+  match: false
+
+- name: repeated empty branch matches empty input
+  expression: '(/again///once more/)'
+  text: ''
+  params:
+    positional: []
+    named: {}
+
+- name: repeated empty branch matches the first nonempty branch
+  expression: '(/again///once more/)'
+  text: 'again'
+  params:
+    positional: []
+    named: {}
+
+- name: repeated empty branch matches the last nonempty branch
+  expression: '(/again///once more/)'
+  text: 'once more'
+  params:
+    positional: []
+    named: {}
+
+- name: repeated empty branch rejects unrelated input
+  expression: '(/again///once more/)'
+  text: 'other'
+  match: false
+
+- name: empty optional group matches empty input
+  expression: '()'
+  text: ''
+  params:
+    positional: []
+    named: {}
+
+- name: empty optional group rejects nonempty input
+  expression: '()'
+  text: 'x'
+  match: false
+
+- name: empty optional group consumes no text between literals
+  expression: 'before()after'
+  text: 'beforeafter'
+  params:
+    positional: []
+    named: {}
+
+- name: empty binary choice matches empty input
+  expression: '(/)'
+  text: ''
+  params:
+    positional: []
+    named: {}
+
+- name: empty binary choice rejects nonempty input
+  expression: '(/)'
+  text: 'x'
+  match: false
+
+- name: empty binary choice consumes no text between literals
+  expression: 'before(/)after'
+  text: 'beforeafter'
+  params:
+    positional: []
+    named: {}
+
+- name: empty multi-branch choice matches empty input
+  expression: '(//)'
+  text: ''
+  params:
+    positional: []
+    named: {}
+
+- name: empty multi-branch choice rejects nonempty input
+  expression: '(//)'
+  text: 'x'
+  match: false
+
+- name: empty multi-branch choice consumes no text between literals
+  expression: 'before(//)after'
+  text: 'beforeafter'
+  params:
+    positional: []
+    named: {}
+
+- name: choice of empty nested groups matches empty input
+  expression: '(()/())'
+  text: ''
+  params:
+    positional: []
+    named: {}
+
+- name: choice of empty nested groups rejects nonempty input
+  expression: '(()/())'
+  text: 'x'
+  match: false
+
+- name: choice of empty nested groups consumes no text between literals
+  expression: 'before(()/())after'
+  text: 'beforeafter'
+  params:
+    positional: []
+    named: {}
+
+- name: earlier literal branch leaves a later parameter absent
+  expression: '(a/)(:value{word}/)'
+  text: 'a'
+  params:
+    positional: [null]
+    named:
+      value: null
+
+- name: earlier empty branch leaves input for a later parameter
+  expression: '(/a)(:value{word}/)'
+  text: 'a'
+  params:
+    positional: [a]
+    named:
+      value: a
+
+- name: later empty branch wins after an earlier literal consumes input
+  expression: '(a/)(/:value{word})'
+  text: 'a'
+  params:
+    positional: [null]
+    named:
+      value: null
+
+- name: bare choice matches its first branch
+  expression: 'belly/stomach'
+  text: 'belly'
+  params:
+    positional: []
+    named: {}
+
+- name: bare choice matches its last branch
+  expression: 'belly/stomach'
+  text: 'stomach'
+  params:
+    positional: []
+    named: {}
+
+- name: escaped whitespace stays inside a bare branch
+  expression: 'a\ b/c'
+  text: 'a b'
+  params:
+    positional: []
+    named: {}
+
+- name: bare choice can skip an escaped whitespace branch
+  expression: 'a\ b/c'
+  text: 'c'
+  params:
+    positional: []
+    named: {}
+
+- name: nested choice matches its outer branch
+  expression: '(a/(b/c))'
+  text: 'a'
+  params:
+    positional: []
+    named: {}
+
+- name: nested choice matches its first inner branch
+  expression: '(a/(b/c))'
+  text: 'b'
+  params:
+    positional: []
+    named: {}
+
+- name: nested choice matches its last inner branch
+  expression: '(a/(b/c))'
+  text: 'c'
+  params:
+    positional: []
+    named: {}
+
+- name: parameter ends before the first bare branch
+  expression: '{int}st/nd'
+  text: '1st'
+  params:
+    positional: [1]
+    named: {}
+
+- name: parameter ends before the last bare branch
+  expression: '{int}st/nd'
+  text: '2nd'
+  params:
+    positional: [2]
+    named: {}
+
+- name: preserves slots with an empty branch
+  expression: '(:first//:second{int}/)'
+  text: ''
+  params:
+    positional: [null, null]
+    named:
+      first: null
+      second: null
+
+- name: preserves slots with the first parameter branch
+  expression: '(:first//:second{int}/)'
+  text: '"abc"'
+  params:
+    positional: [abc, null]
+    named:
+      first: abc
+      second: null
+
+- name: preserves slots with the second parameter branch
+  expression: '(:first//:second{int}/)'
+  text: '2'
+  params:
+    positional: [null, 2]
+    named:
+      first: null
+      second: 2

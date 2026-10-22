@@ -1,0 +1,28 @@
+- name: named strings and typed numbers retain source order
+  expression: 'I open :page with :count{int} :__proto__ :constructor'
+  text: 'I open "Settings" with 2 ''safe'' ""'
+  params:
+    positional: [Settings, 2, safe, '']
+    named:
+      page: Settings
+      count: 2
+      __proto__: safe
+      constructor: ''
+
+- name: untyped parameters require quotes
+  expression: ':page'
+  text: '123'
+  match: false
+
+- name: expression quotes are literal
+  expression: '":page"'
+  text: '"Settings"'
+  match: false
+
+- name: matches additional literal quotes
+  expression: '":page"'
+  text: '""Settings""'
+  params:
+    positional: [Settings]
+    named:
+      page: Settings

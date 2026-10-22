@@ -1,0 +1,35 @@
+- name: short converts zero
+  expression: '{short}'
+  text: '0'
+  params:
+    positional: [0]
+    named: {}
+
+- name: short accepts below the signed short range
+  expression: '{short}'
+  text: '-32769'
+  params:
+    positional: [-32769]
+    named: {}
+
+- name: short accepts above the signed short range
+  expression: '{short}'
+  text: '32768'
+  params:
+    positional: [32768]
+    named: {}
+
+- name: short rejects empty input
+  expression: '{short}'
+  text: ''
+  match: false
+
+- name: short rejects a leading plus
+  expression: '{short}'
+  text: '+1'
+  match: false
+
+- name: short rejects decimals
+  expression: '{short}'
+  text: '1.5'
+  match: false

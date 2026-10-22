@@ -1,0 +1,45 @@
+- name: int converts zero
+  expression: '{int}'
+  text: '0'
+  params:
+    positional: [0]
+    named: {}
+
+- name: int converts negative integers
+  expression: '{int}'
+  text: '-42'
+  params:
+    positional: [-42]
+    named: {}
+
+- name: int converts leading zeros
+  expression: '{int}'
+  text: '0012'
+  params:
+    positional: [12]
+    named: {}
+
+- name: int rejects empty input
+  expression: '{int}'
+  text: ''
+  match: false
+
+- name: int rejects a leading plus
+  expression: '{int}'
+  text: '+12'
+  match: false
+
+- name: int rejects decimals
+  expression: '{int}'
+  text: '1.2'
+  match: false
+
+- name: int rejects trailing letters
+  expression: '{int}'
+  text: '12a'
+  match: false
+
+- name: int rejects leading whitespace
+  expression: '{int}'
+  text: ' 12'
+  match: false

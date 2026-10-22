@@ -1,0 +1,51 @@
+- name: anonymous captures empty text
+  expression: '{}'
+  text: ''
+  params:
+    positional: ['']
+    named: {}
+
+- name: anonymous preserves spaces
+  expression: '{}'
+  text: 'hello world'
+  params:
+    positional: [hello world]
+    named: {}
+
+- name: anonymous preserves edge spaces and tabs
+  expression: '{}'
+  text: "  a\tb  "
+  params:
+    positional: ["  a\tb  "]
+    named: {}
+
+- name: anonymous preserves quotes
+  expression: '{}'
+  text: '"quoted"'
+  params:
+    positional: ['"quoted"']
+    named: {}
+
+- name: anonymous preserves numeric text
+  expression: '{}'
+  text: '42'
+  params:
+    positional: ['42']
+    named: {}
+
+- name: anonymous rejects internal newlines
+  expression: '{}'
+  text: "a\nb"
+  match: false
+
+- name: anonymous rejects trailing newlines
+  expression: '{}'
+  text: "text\n"
+  match: false
+
+- name: arbitrary text is greedy
+  expression: 'I send {} to {}'
+  text: 'I send a to b to c'
+  params:
+    positional: [a to b, c]
+    named: {}

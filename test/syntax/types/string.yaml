@@ -1,0 +1,108 @@
+- name: string removes double quotes
+  expression: '{string}'
+  text: '"hello"'
+  params:
+    positional: [hello]
+    named: {}
+
+- name: string removes single quotes
+  expression: '{string}'
+  text: "'hello'"
+  params:
+    positional: [hello]
+    named: {}
+
+- name: string captures empty double-quoted strings
+  expression: '{string}'
+  text: '""'
+  params:
+    positional: ['']
+    named: {}
+
+- name: string captures empty single-quoted strings
+  expression: '{string}'
+  text: "''"
+  params:
+    positional: ['']
+    named: {}
+
+- name: string preserves quoted numeric text
+  expression: '{string}'
+  text: '"42"'
+  params:
+    positional: ['42']
+    named: {}
+
+- name: string unescapes double quotes in double-quoted input
+  expression: '{string}'
+  text: '"a\"b"'
+  params:
+    positional: [a"b]
+    named: {}
+
+- name: string unescapes single quotes in single-quoted input
+  expression: '{string}'
+  text: '''a\''b'''
+  params:
+    positional: [a'b]
+    named: {}
+
+- name: string unescapes single quotes in double-quoted input
+  expression: '{string}'
+  text: '"a\''b"'
+  params:
+    positional: [a'b]
+    named: {}
+
+- name: string unescapes double quotes in single-quoted input
+  expression: '{string}'
+  text: '''a\"b'''
+  params:
+    positional: [a"b]
+    named: {}
+
+- name: string preserves backslash letter sequences
+  expression: '{string}'
+  text: '"a\nb"'
+  params:
+    positional: [a\nb]
+    named: {}
+
+- name: string preserves escaped backslashes
+  expression: '{string}'
+  text: '"a\\b"'
+  params:
+    positional: [a\\b]
+    named: {}
+
+- name: string preserves literal newlines
+  expression: '{string}'
+  text: "\"a\nb\""
+  params:
+    positional: ["a\nb"]
+    named: {}
+
+- name: string rejects empty input
+  expression: '{string}'
+  text: ''
+  match: false
+
+- name: string rejects unquoted input
+  expression: '{string}'
+  text: 'unquoted'
+  match: false
+
+- name: string rejects unclosed quotes
+  expression: '{string}'
+  text: '"unterminated'
+  match: false
+
+- name: string rejects mismatched quotes
+  expression: '{string}'
+  text: '''mismatched"'
+  match: false
+
+- name: string rejects unescaped internal quotes
+  expression: '{string}'
+  text: '"a"b"'
+  match: false

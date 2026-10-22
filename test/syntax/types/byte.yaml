@@ -1,0 +1,35 @@
+- name: byte converts zero
+  expression: '{byte}'
+  text: '0'
+  params:
+    positional: [0]
+    named: {}
+
+- name: byte accepts below the signed byte range
+  expression: '{byte}'
+  text: '-129'
+  params:
+    positional: [-129]
+    named: {}
+
+- name: byte accepts above the unsigned byte range
+  expression: '{byte}'
+  text: '256'
+  params:
+    positional: [256]
+    named: {}
+
+- name: byte rejects empty input
+  expression: '{byte}'
+  text: ''
+  match: false
+
+- name: byte rejects a leading plus
+  expression: '{byte}'
+  text: '+1'
+  match: false
+
+- name: byte rejects decimals
+  expression: '{byte}'
+  text: '1.5'
+  match: false

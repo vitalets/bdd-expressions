@@ -1,0 +1,151 @@
+- name: space outside optional remains mandatory
+  expression: 'I create :item (as :owner)'
+  text: 'I create "x"'
+  match: false
+
+- name: matches mandatory space before absent optional
+  expression: 'I create :item (as :owner)'
+  text: 'I create "x" '
+  params:
+    positional: [x, null]
+    named:
+      item: x
+      owner: null
+
+- name: preserves literal repeated and edge spaces
+  expression: ' a  b '
+  text: ' a  b '
+  params:
+    positional: []
+    named: {}
+
+- name: preserves literal tab and newline
+  expression: "a\tb\n"
+  text: "a\tb\n"
+  params:
+    positional: []
+    named: {}
+
+- name: preserves literal pipe
+  expression: 'a|b'
+  text: 'a|b'
+  params:
+    positional: []
+    named: {}
+
+- name: preserves literal regexp metacharacters
+  expression: '[a].*+?$^'
+  text: '[a].*+?$^'
+  params:
+    positional: []
+    named: {}
+
+- name: escaped URL slashes and label colon
+  expression: 'https:\/\/example.com label\:value 12:30'
+  text: 'https://example.com label:value 12:30'
+  params:
+    positional: []
+    named: {}
+
+- name: escaped reserved characters
+  expression: '\{\}\(\)\\\/\:'
+  text: '{}()\/:'
+  params:
+    positional: []
+    named: {}
+
+- name: captures an escaped slash in an inline choice
+  expression: '{a\/b/c\:d}'
+  text: 'a/b'
+  params:
+    positional: [a/b]
+    named: {}
+
+- name: captures an escaped colon in an inline choice
+  expression: '{a\/b/c\:d}'
+  text: 'c:d'
+  params:
+    positional: [c:d]
+    named: {}
+
+- name: space does not match tab
+  expression: 'a b'
+  text: "a\tb"
+  match: false
+
+- name: rejects unconsumed LF
+  expression: 'x'
+  text: "x\n"
+  match: false
+
+- name: matches explicit LF
+  expression: "x\n"
+  text: "x\n"
+  params:
+    positional: []
+    named: {}
+
+- name: rejects unconsumed CR
+  expression: 'x'
+  text: "x\r"
+  match: false
+
+- name: matches explicit CR
+  expression: "x\r"
+  text: "x\r"
+  params:
+    positional: []
+    named: {}
+
+- name: rejects unconsumed CRLF
+  expression: 'x'
+  text: "x\r\n"
+  match: false
+
+- name: matches explicit CRLF
+  expression: "x\r\n"
+  text: "x\r\n"
+  params:
+    positional: []
+    named: {}
+
+- name: rejects unconsumed line separator
+  expression: 'x'
+  text: "x\u2028"
+  match: false
+
+- name: matches explicit line separator
+  expression: "x\u2028"
+  text: "x\u2028"
+  params:
+    positional: []
+    named: {}
+
+- name: rejects unconsumed paragraph separator
+  expression: 'x'
+  text: "x\u2029"
+  match: false
+
+- name: matches explicit paragraph separator
+  expression: "x\u2029"
+  text: "x\u2029"
+  params:
+    positional: []
+    named: {}
+
+- name: empty expression matches empty text
+  expression: ''
+  text: ''
+  params:
+    positional: []
+    named: {}
+
+- name: empty expression rejects newline
+  expression: ''
+  text: "\n"
+  match: false
+
+- name: rejects different literal text
+  expression: 'x'
+  text: 'no'
+  match: false

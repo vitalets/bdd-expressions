@@ -1,0 +1,19 @@
+- name: biginteger rejects empty input
+  expression: '{biginteger}'
+  text: ''
+  match: false
+
+- name: biginteger rejects a leading plus
+  expression: '{biginteger}'
+  text: '+1'
+  match: false
+
+- name: biginteger rejects decimals
+  expression: '{biginteger}'
+  text: '1.5'
+  match: false
+
+- name: biginteger rejects exponents
+  expression: '{biginteger}'
+  text: '1E2'
+  match: false

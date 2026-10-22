@@ -1,0 +1,90 @@
+- name: empty inline branch
+  expression: '{a/}'
+  error:
+    start: 0
+    end: 1
+    message: Inline choices must be nonempty
+
+- name: unclosed parameter
+  expression: '{x'
+  error:
+    start: 0
+    end: 1
+    message: Unclosed parameter
+
+- name: unclosed group
+  expression: '(x'
+  error:
+    start: 0
+    end: 1
+    message: Unclosed group
+
+- name: unexpected closing parenthesis
+  expression: 'x)'
+  error:
+    start: 1
+    end: 2
+    message: Unexpected ")"
+
+- name: unexpected closing brace
+  expression: 'x}'
+  error:
+    start: 1
+    end: 2
+    message: Unexpected "}"
+
+- name: invalid escape
+  expression: '\q'
+  error:
+    start: 0
+    end: 1
+    message: Invalid escape
+
+- name: trailing escape
+  expression: 'x\'
+  error:
+    start: 1
+    end: 2
+    message: Invalid escape
+
+- name: duplicate parameter
+  expression: ':a :a'
+  error:
+    start: 3
+    end: 4
+    message: Duplicate parameter name "a"
+
+- name: invalid type name
+  expression: '{bad name}'
+  error:
+    start: 0
+    end: 1
+    message: Invalid parameter type name "bad name"
+
+- name: empty bare branch
+  expression: 'a//b'
+  error:
+    start: 2
+    end: 3
+    message: Empty alternative
+
+- name: optional-only bare branch
+  expression: '(a)/b'
+  error:
+    start: 0
+    end: 1
+    message: Bare alternatives need literal text
+
+- name: duplicate parameter across branches
+  expression: '(:x/:x)'
+  error:
+    start: 4
+    end: 5
+    message: Duplicate parameter name "x"
+
+- name: unknown type
+  expression: 'I {unknown}'
+  error:
+    start: 2
+    end: 11
+    message: Unknown parameter type "unknown"

@@ -78,7 +78,7 @@ Use:
 - an AST;
 - compilation to native JavaScript RegExp;
 - native match indices;
-- ordinary TypeScript tests;
+- behavior-grouped YAML fixtures with TypeScript tests for executable setup and metadata;
 - compatible capture metadata for integrations and reporters.
 
 Do not use runtime dependencies on:
@@ -526,11 +526,33 @@ Do not assume arbitrary backreferences remain correct after combining patterns. 
 
 ## 13. Tests
 
-Write ordinary TypeScript tests, using parameterized cases where useful.
+Use behavior-grouped YAML fixtures for straightforward expression syntax and
+matching cases, retaining the existing Node TypeScript test runner.
+`npm test` discovers `test/*.spec.ts`. `test/syntax.spec.ts` runs YAML cases;
+`test/api.spec.ts` checks public API contracts and TypeScript types;
+`test/compatibility.spec.ts` runs differential and reporter checks. Register each
+entry independently using its file and name; do not create one file per example.
+Keep ordinary TypeScript tests for custom transformers, async behavior, world/this
+context, invocation assertions, capture metadata, and differential checks.
+Keep low-level tests minimal: syntax and matching belong in YAML, with only a
+representative public AST source-range check in the API suite. Avoid duplicating
+YAML cases as parser structure or transformed-value assertions.
+This replaces the earlier preference for TypeScript-only test cases.
 
-Do not create one small YAML file per test case.
-
-Retain the repository's test runner if suitable; otherwise select one and document the choice.
+The fixture helpers in `test/syntax.spec.ts` document and validate the schema.
+Behavior fixtures live in `test/syntax/`; built-in type cases are grouped into
+one YAML file per type in `test/syntax/types/`.
+Each case has `name` and `expression`. Successful matches have `text` and `params`
+with the complete `positional` array and `named` mapping (`{}` when unnamed).
+A successful no-parameter result is `params: { positional: [], named: {} }`.
+YAML `null` within expected parameter values represents actual JavaScript
+`undefined`, asserted explicitly without JSON serialization of actual results.
+Real transformer `null` results remain separate TypeScript tests.
+Nonmatches use `match: false` with `text` and no `params`. Errors use an `error`
+object with exact `start`/`end` UTF-16 source offsets and a literal `message`
+substring; the runner asserts `ExpressionError` and `source === expression`.
+Error cases omit `text`, `match`, and `params`. Preserve expression/input whitespace
+exactly. Validate fixture structure and reject conflicting or unknown fields.
 
 Cover:
 1. Built-in and custom parameter types.
@@ -652,7 +674,7 @@ Do not publish the npm package or perform external releases without a separate r
 
 # Resolved language and API (normative, version 0.1)
 
-The original brief above is preserved verbatim. This section resolves its open
+The original brief above is preserved with updated testing conventions. This section resolves its open
 questions and takes precedence over wording that labels those questions open.
 There are no unresolved language questions for version 0.1. Future extensions
 require a specification change, not registry-dependent parsing.

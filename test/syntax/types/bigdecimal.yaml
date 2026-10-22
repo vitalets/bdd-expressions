@@ -1,0 +1,64 @@
+- name: bigdecimal preserves trailing zeros
+  expression: '{bigdecimal}'
+  text: '1.20'
+  params:
+    positional: ['1.20']
+    named: {}
+
+- name: bigdecimal preserves signs and leading zeros
+  expression: '{bigdecimal}'
+  text: '+001.20'
+  params:
+    positional: ['+001.20']
+    named: {}
+
+- name: bigdecimal preserves fractions without an integer part
+  expression: '{bigdecimal}'
+  text: '-.5'
+  params:
+    positional: ['-.5']
+    named: {}
+
+- name: bigdecimal preserves exponent notation
+  expression: '{bigdecimal}'
+  text: '1E+2'
+  params:
+    positional: ['1E+2']
+    named: {}
+
+- name: bigdecimal preserves arbitrary decimal precision
+  expression: '{bigdecimal}'
+  text: '9007199254740993.123456789'
+  params:
+    positional: ['9007199254740993.123456789']
+    named: {}
+
+- name: bigdecimal rejects empty input
+  expression: '{bigdecimal}'
+  text: ''
+  match: false
+
+- name: bigdecimal rejects a bare decimal point
+  expression: '{bigdecimal}'
+  text: '.'
+  match: false
+
+- name: bigdecimal rejects trailing decimal points
+  expression: '{bigdecimal}'
+  text: '1.'
+  match: false
+
+- name: bigdecimal rejects lowercase exponents
+  expression: '{bigdecimal}'
+  text: '1e2'
+  match: false
+
+- name: bigdecimal rejects NaN
+  expression: '{bigdecimal}'
+  text: 'NaN'
+  match: false
+
+- name: bigdecimal rejects infinity
+  expression: '{bigdecimal}'
+  text: 'Infinity'
+  match: false
