@@ -25,11 +25,11 @@ import { resolveParams } from './resolve-params.ts';
 
 export type MatchValues = unknown[] & { readonly params: Record<string, unknown> };
 
-interface Slot {
+type Slot = {
   name?: string;
   type: ParameterType;
   capture: Capture;
-}
+};
 
 /**
  * Matches a parsed expression using a compiled regexp and source-ordered parameters.

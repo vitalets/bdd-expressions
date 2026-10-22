@@ -11,13 +11,13 @@ import { serialize } from './helpers/reporter-serialization.ts';
 
 // Compare every capture, not just transformed user values. Normalize class
 // instances into data while preserving undefined vs empty and child structure.
-interface ComparableGroup {
+type ComparableGroup = {
   value: string | undefined;
   start: number | undefined;
   end: number | undefined;
   values: (string | undefined)[] | null;
   children: readonly ComparableGroup[] | undefined;
-}
+};
 function metadata(group: ComparableGroup): unknown {
   return {
     value: group.value,

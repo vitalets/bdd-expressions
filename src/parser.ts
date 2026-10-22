@@ -19,10 +19,10 @@
  *   ] }
  */
 
-export interface SourceRange {
+export type SourceRange = {
   readonly start: number;
   readonly end: number;
-}
+};
 export type Node = SourceRange &
   (
     | { readonly kind: 'literal'; readonly value: string }

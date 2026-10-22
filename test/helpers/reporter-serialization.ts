@@ -3,23 +3,23 @@
  * Accepts either engine structurally, without invoking value transformers.
  */
 
-interface ReportCapture {
+type ReportCapture = {
   start: number | undefined;
   value: string | undefined;
   children: readonly ReportCapture[] | undefined;
-}
-interface ReportArgument {
+};
+type ReportArgument = {
   group: ReportCapture;
   parameterType: { name: string | undefined };
-}
+};
 // Contract inspected in playwright-bdd@9.2.1:
 // src/steps/matchedStepDefinition.ts, getStepMatchArguments/mapArgumentGroup.
 // This mirrors the field projection so no playwright runtime is needed.
-interface ReportGroup {
+type ReportGroup = {
   start?: number;
   value?: string;
   children?: ReportGroup[];
-}
+};
 /**
  * Serializes reporter fields while preserving no-match results.
  */

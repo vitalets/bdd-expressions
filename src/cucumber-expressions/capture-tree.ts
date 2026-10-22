@@ -4,10 +4,10 @@
  * See THIRD_PARTY_NOTICES.md for attribution.
  */
 
-export interface Capture {
+export type Capture = {
   readonly index: number;
   readonly children: Capture[];
-}
+};
 
 /**
  * Maps a validated, normalized pattern to capture nesting, flattening noncapturing groups.

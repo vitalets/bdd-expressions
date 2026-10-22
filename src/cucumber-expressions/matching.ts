@@ -7,19 +7,19 @@
 import type { ParameterType } from './parameter-types.ts';
 import type { Capture } from './capture-tree.ts';
 
-export interface Group {
+export type Group = {
   readonly value: string | undefined;
   readonly start: number | undefined;
   readonly end: number | undefined;
   readonly children: readonly Group[] | undefined;
   readonly values: (string | undefined)[];
-}
-export interface Argument {
+};
+export type Argument = {
   readonly group: Group;
   readonly parameterType: ParameterType;
   getValue(world?: unknown): unknown;
   getParameterType(): ParameterType;
-}
+};
 
 /**
  * Builds a capture tree with native positions, preserving absent and empty captures.

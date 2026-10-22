@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- Use type aliases for exported types; declaration merging is no longer supported.
+
 - Rename the exported `Values` type to `MatchValues` to identify the result of `matchValues()`.
 
 - Remove the redundant `Expression` interface; use `BddExpression` as the instance type.

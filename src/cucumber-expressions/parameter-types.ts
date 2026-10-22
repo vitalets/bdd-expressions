@@ -7,7 +7,7 @@
 import { validTypeName } from '../parser.ts';
 import { stripGroupNames } from '../utils/regexp.ts';
 
-export interface ParameterType<T = unknown> {
+export type ParameterType<T = unknown> = {
   readonly name: string | undefined;
   readonly regexpStrings: readonly string[];
   /**
@@ -15,18 +15,18 @@ export interface ParameterType<T = unknown> {
    * although unmatched native capture values can be undefined.
    */
   transform(world: unknown, values: (string | undefined)[] | null): T | PromiseLike<T>;
-}
-export interface ParameterTypeRegistry {
+};
+export type ParameterTypeRegistry = {
   lookupByTypeName(name: string): ParameterType | undefined;
-}
-export interface MutableParameterTypeRegistry extends ParameterTypeRegistry {
+};
+export type MutableParameterTypeRegistry = ParameterTypeRegistry & {
   defineParameterType(type: ParameterType): void;
-}
-export interface ParameterTypeOptions<T, World = unknown> {
+};
+export type ParameterTypeOptions<T, World = unknown> = {
   name: string;
   regexp: string | RegExp | readonly (string | RegExp)[];
   transformer?: (this: World, ...captures: (string | undefined)[]) => T | PromiseLike<T>;
-}
+};
 /**
  * Creates a custom parameter type with validated patterns and an optional transformer.
  */
