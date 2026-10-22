@@ -158,3 +158,10 @@ accepted patterns or the public API.
 - Keep interfaces that describe plain data, recursive structures, options, or
   structural interoperability with Cucumber. These have no corresponding local
   class declaration and are not duplicate class contracts.
+
+## Name the transformed match result
+
+- Rename `Values` to `MatchValues` to tie the public type to `matchValues()`.
+  Retain a named type for consumers who need to annotate stored or passed results.
+- Keep entries typed as `unknown`: custom transformers can return arbitrary values,
+  and expression-based type inference remains outside the initial scope.

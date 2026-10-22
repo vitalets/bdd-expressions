@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- Rename the exported `Values` type to `MatchValues` to identify the result of `matchValues()`.
+
 - Remove the redundant `Expression` interface; use `BddExpression` as the instance type.
 
 - Export `BddExpression` for `new BddExpression(pattern, parameterTypeRegistry)`;

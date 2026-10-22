@@ -835,8 +835,8 @@ expression. Errors expose `source`, `start`, `end` and include a readable offset
   for leaves), and `values` (immediate child values, or its own singleton value).
   Nested descendants remain metadata; transformer arguments are immediate
   capture children, exactly as upstream. No `instanceof` compatibility is promised.
-- `matchValues(text, world?)` always returns a Promise of `Values | null`.
-  `Values` is an `unknown[]` with a nonenumerable `params` property containing a
+- `matchValues(text, world?)` always returns a Promise of `MatchValues | null`.
+  `MatchValues` is an `unknown[]` with a nonenumerable `params` property containing a
   null-prototype name-to-value object. Names also retain positional slots.
   Matching occurs once; transformers run once per present argument, in source
   order, awaited sequentially (including PromiseLike results). Errors propagate.

@@ -23,7 +23,7 @@ import { captureTree, type Capture } from './cucumber-expressions/capture-tree.t
 import { buildArgument, buildGroup, type Argument } from './cucumber-expressions/matching.ts';
 import { resolveParams } from './resolve-params.ts';
 
-export type Values = unknown[] & { readonly params: Record<string, unknown> };
+export type MatchValues = unknown[] & { readonly params: Record<string, unknown> };
 
 interface Slot {
   name?: string;
@@ -69,7 +69,7 @@ export class BddExpression {
     if (args === null) return null;
     const { positional, named } = await resolveParams(args, this.names, world);
     Object.defineProperty(positional, 'params', { value: named, enumerable: false });
-    return positional as Values;
+    return positional as MatchValues;
   }
 }
 
