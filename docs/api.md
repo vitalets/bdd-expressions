@@ -36,7 +36,7 @@ argument.getValue(); // 2
 argument.getParameterType().name; // 'int'
 ```
 
-Ranges are UTF-16, half-open offsets in the input. Groups retain raw text and child captures independently of transformed values. Leaves have undefined `children`. Absent slots have undefined value and positions; an empty capture has `''` and defined, equal start/end positions. Inline choices have type name `inline-choice`, regardless of their variable name. Calling `getValue(world?)` directly returns the transformer's result; repeated calls rerun it.
+Ranges are UTF-16, half-open offsets in the input. Groups retain raw text and child captures independently of transformed values. Leaves have undefined `children`. Absent slots have undefined value and positions; an empty capture has `''` and defined, equal start/end positions. Inline types have type name `inline-choice`, regardless of their variable name. Calling `getValue(world?)` directly returns the transformer's result; repeated calls rerun it.
 
 ## Custom parameter types
 

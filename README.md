@@ -4,21 +4,32 @@ Expressive BDD step syntax inspired by [Cucumber Expressions](https://github.com
 
 ## Features
 
-- **Named and positional parameters:** access the same value by index or through `values.params`.
-- **Flexible optional phrases:** put parameters inside optional groups, nest groups, or use consecutive groups.
-- **Readable alternatives:** choose between words or whole phrases, optionally capturing the selected text without registering a type.
-- **Familiar parameter types:** all 11 Cucumber JavaScript built-ins, plus custom types and support for existing Cucumber registries.
-- **Async transformations:** await custom transformers and pass a world object as their `this` context.
-- **Capture metadata:** preserve raw text, nested captures, and native match positions for integrations and reporters.
-- **Zero runtime dependencies:** an ESM JavaScript/TypeScript package for Node.js 22 and later.
+- Named parameters
+  - `I open :page`
+- Named parameters with type
+  - `I have :count{int} cucumbers`
+- Anonymous parameters
+  - `I have {int} cucumbers`
+- Inline types
+  - `Set :status{pending/approved/rejected}`
+- Optionals with parameters
+  - `I create :item( as :owner)`
+- Nested optionals
+  - `I create :item( as :owner( in :workspace))`
+- Multi-word alternatives without escaping
+  - `I (click/tap on/press and hold) button`
+- Alternatives with parameters
+  - `I choose (page :page/label :label)`
+- All Cucumber Expressions rules
+  - `I have {int} cucumber(s) in my belly/stomach`
+
+## Full syntax
+
+See the [full syntax guide](docs/syntax.md) for all supported syntax, rules, and examples.
 
 ## Usage
 
 See the [TypeScript API guide](docs/api.md) for creating expressions, matching values, custom parameter types, and capture metadata.
-
-## Syntax
-
-See the [syntax guide](docs/syntax.md) for parameters, built-in types, optional groups, alternatives, and escaping, with examples.
 
 ## Comparison with Cucumber Expressions
 
@@ -33,7 +44,7 @@ This comparison uses the JavaScript implementation, `@cucumber/cucumber-expressi
 | Nested optional groups                 | Supported: `( as :owner( in :workspace))`                            | Not supported                                                                   |
 | Short alternatives                     | `belly/stomach`                                                      | `belly/stomach`                                                                 |
 | Multiword structural alternatives      | `(click/tap on/press and hold)`                                      | Bare alternatives with escaped spaces, such as `click/tap\ on/press\ and\ hold` |
-| Inline choice                          | `{pending/approved}` or `:status{pending/approved}`                  | Requires a registered custom type                                               |
+| Inline type                            | `{pending/approved}` or `:status{pending/approved}`                  | Requires a registered custom type                                               |
 | Parameters in choice branches          | Supported; unselected parameters keep `undefined` slots              | Parameters are not allowed in alternatives                                      |
 | Optional whitespace                    | Explicitly include it inside the optional group                      | Explicitly include it inside the optional group                                 |
 | Arbitrary text                         | Greedy `{}`; ambiguous boundaries remain possible                    | Greedy `{}`; ambiguous boundaries remain possible                               |

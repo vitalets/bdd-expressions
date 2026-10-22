@@ -5,7 +5,7 @@ Expressions match the entire input and are case sensitive. Ordinary text and whi
 - [Parameters](#parameters)
   - [Anonymous Parameters](#anonymous-parameters)
   - [Named parameters](#named-parameters)
-  - [Inline choice](#inline-choice)
+  - [Inline type](#inline-type)
   - [Arbitrary text](#arbitrary-text)
   - [Custom types](#custom-types)
   - [Built-in types](#built-in-types)
@@ -72,7 +72,7 @@ Untyped `:name` parameters default to `{string}` and require single or double qu
 
 Parameter names use ASCII letters, digits, `_`, and `$`, and cannot start with a digit. They are case sensitive and must be unique across the entire expression, including mutually exclusive branches. `{page}` looks up a registered type named `page`; it never declares a named parameter. Unknown types are errors.
 
-### Inline choice
+### Inline type
 
 Put slash-separated literals inside curly braces to capture the selected text. No custom type registration is needed. Every branch must be nonempty; wrap the parameter in an optional group to allow absence.
 
@@ -90,7 +90,7 @@ Put slash-separated literals inside curly braces to capture the selected text. N
 | Captured params (positional) | `['approved']`                                                                  |
 | Captured params (named)      | <code>{</code><br>&nbsp;&nbsp;<code>status: "approved"</code><br><code>}</code> |
 
-Inline choices can contain whole phrases. Spaces inside each branch are literal and need no escaping.
+Inline types can contain whole phrases. Spaces inside each branch are literal and need no escaping.
 
 |                              |                                                                                       |
 | ---------------------------- | ------------------------------------------------------------------------------------- |
