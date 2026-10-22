@@ -113,9 +113,9 @@ escaping, Unicode offsets, repeated captures, custom nested captures, empty capt
 no-argument matches, and nonmatches. Existing metadata and transformed-value checks
 remain in place. This verifies serialization, not a running reporter integration.
 
-## Behavior-grouped expression fixtures
+## Behavior-grouped expression test cases
 
-Replaced the TypeScript-only preference with YAML fixtures in `test/syntax/` and built-in type fixtures in `test/syntax/types/`
+Replaced the TypeScript-only preference with YAML test cases in `test/syntax/` and built-in type test cases in `test/syntax/types/`
 for built-in types, named parameters, optionals, alternatives, escaping/whitespace, and positioned
 syntax/unknown-type errors. The existing native Node TypeScript runner registers
 each entry independently by file and name. Migrated assertions were removed from
@@ -126,15 +126,15 @@ and reporter checks remain in TypeScript.
 The small loader validates expectations, rejects contradictory fields, and uses
 YAML null solely as an expected undefined marker. Actual values are compared
 directly; a separate TypeScript regression verifies real null transformer results.
-See section 13 of [the specification](specification.md) and the fixture helpers in `test/syntax.spec.ts`
+See section 13 of [the specification](specification.md) and the test case helpers in `test/syntax.spec.ts`
 for error fields and whitespace conventions. No production behavior or test runner changed; YAML is a development
 dependency only.
 
 Built-in conversion and rejection cases now span one YAML file per type (100
 cases across 11 files in `test/syntax/types/`), with named-parameter syntax in `named-parameters.yaml`.
 Differential checks cover built-in type metadata; BigInt conversion expectations
-remain in the TypeScript API suite. Removed the fixture README and loader unit tests at user request;
-schema validation remains in the loader and runs for every fixture file.
+remain in the TypeScript API suite. Removed the test case README and loader unit tests at user request;
+schema validation remains in the loader and runs for every test case file.
 
 Validation: all 246 tests pass, including 213 independently registered YAML cases.
 `npm run check` passes formatting, type-aware linting, source/test type checks,
@@ -148,3 +148,17 @@ coverage, with its serialization helper colocated in `compatibility/helpers.ts`.
 moved remaining optional/choice value cases to YAML. The separate parser,
 language, and custom-type spec files have been consolidated into the API suite,
 with one representative public AST range check instead of a syntax matrix.
+
+Compatibility tests now consume all 65 upstream matching YAML files in
+`test/compatibility/testdata/`, replacing the hand-maintained upstream syntax
+table. Eight intentional syntax differences are explicit assertions in
+`differences.ts`, with stale filename/expression checks; no cases are skipped.
+The remaining 57 cases verify shared matching or rejection behavior, and custom
+registry, numeric edge, and reporter tests remain. All 311 tests pass via
+`npm run check`.
+
+Removed the supplemental integer/float, string/word, and miscellaneous syntax
+compatibility tables. Every compatible upstream matching/nonmatching test case
+compares reporter JSON and expected values using each engine's own
+registry. Keep custom-registry interoperability and two BDD-specific reporter
+contracts; intentional syntax differences remain in the test case difference map.

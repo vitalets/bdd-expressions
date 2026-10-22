@@ -1,5 +1,5 @@
 /**
- * Refreshes local matching fixtures from Cucumber Expressions' default branch.
+ * Refreshes local matching test cases from Cucumber Expressions' default branch.
  */
 import { execFileSync } from 'node:child_process';
 import { copyFileSync, mkdirSync, mkdtempSync, readdirSync, rmSync } from 'node:fs';

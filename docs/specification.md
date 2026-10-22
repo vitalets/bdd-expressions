@@ -78,7 +78,7 @@ Use:
 - an AST;
 - compilation to native JavaScript RegExp;
 - native match indices;
-- behavior-grouped YAML fixtures with TypeScript tests for executable setup and metadata;
+- behavior-grouped YAML test cases with TypeScript tests for executable setup and metadata;
 - compatible capture metadata for integrations and reporters.
 
 Do not use runtime dependencies on:
@@ -526,9 +526,9 @@ Do not assume arbitrary backreferences remain correct after combining patterns. 
 
 ## 13. Tests
 
-Use behavior-grouped YAML fixtures for straightforward expression syntax and
+Use behavior-grouped YAML test cases for straightforward expression syntax and
 matching cases, retaining the existing Node TypeScript test runner.
-`npm test` discovers `test/*.spec.ts`. `test/syntax.spec.ts` runs YAML cases;
+`npm test` discovers `test/**/*.spec.ts`. `test/syntax.spec.ts` runs YAML cases;
 `test/api.spec.ts` checks public API contracts and TypeScript types;
 `test/compatibility/compatibility.spec.ts` runs differential and reporter checks. Register each
 entry independently using its file and name; do not create one file per example.
@@ -539,8 +539,22 @@ representative public AST source-range check in the API suite. Avoid duplicating
 YAML cases as parser structure or transformed-value assertions.
 This replaces the earlier preference for TypeScript-only test cases.
 
-The fixture helpers in `test/syntax.spec.ts` document and validate the schema.
-Behavior fixtures live in `test/syntax/`; built-in type cases are grouped into
+Compatibility matching test cases live unchanged in `test/compatibility/testdata/`.
+Refresh them from the upstream default branch with `npm run update:compatibility`.
+Each YAML file runs independently against the pinned Cucumber dependency and
+BddExpression. Shared successful/nonmatching cases check test case values and
+normalized reporter output; shared error cases require both engines
+to reject, without requiring identical local diagnostics.
+`test/compatibility/differences.ts` records intentional syntax differences by
+filename, expression, reason, and local acceptance/rejection. These cases assert
+the difference rather than being skipped. Missing test cases, changed expressions,
+or changed upstream acceptance require review. Reporter output is compared for
+every compatible matching/nonmatching test case using each engine's own registry.
+Custom-registry and BDD-specific reporter checks remain in TypeScript; built-in
+value coverage comes from upstream test cases and our own syntax test cases.
+
+The test case helpers in `test/syntax.spec.ts` document and validate the schema.
+Behavior test cases live in `test/syntax/`; built-in type cases are grouped into
 one YAML file per type in `test/syntax/types/`.
 Each case has `name` and `expression`. Successful matches have `text` and `params`
 with the complete `positional` array and `named` mapping (`{}` when unnamed).
@@ -552,7 +566,7 @@ Nonmatches use `match: false` with `text` and no `params`. Errors use an `error`
 object with exact `start`/`end` UTF-16 source offsets and a literal `message`
 substring; the runner asserts `ExpressionError` and `source === expression`.
 Error cases omit `text`, `match`, and `params`. Preserve expression/input whitespace
-exactly. Validate fixture structure and reject conflicting or unknown fields.
+exactly. Validate test case structure and reject conflicting or unknown fields.
 
 Cover:
 1. Built-in and custom parameter types.

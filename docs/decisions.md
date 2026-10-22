@@ -66,7 +66,7 @@ Resolve these before implementing the affected behavior.
   `CucumberExpressionParser`, `CucumberExpressionTokenizer`, `Argument`, `Group`,
   `TreeRegexp`, `GroupBuilder`, and the `Expression` interface in `types.d.ts`.
   The runtime implementation here imports none of that package.
-- Upstream test harness and alternative/escaping fixtures were inspected at
+- Upstream test harness and alternative/escaping test cases were inspected at
   [commit b0dcbbab82745782737c723895e2e5d843b39a9a](https://github.com/cucumber/cucumber-expressions/tree/b0dcbbab82745782737c723895e2e5d843b39a9a/testdata/cucumber-expression/matching).
   Representative cases were expressed as ordinary TypeScript tables. We do not
   copy prohibitions on our intentionally supported grouped constructs.
@@ -169,7 +169,7 @@ accepted patterns or the public API.
 ## Behavior-grouped YAML expression tests
 
 - User requirement: replace straightforward syntax/matching examples with grouped
-  YAML fixtures while retaining Node's test runner and all existing coverage.
+  YAML test cases while retaining Node's test runner and all existing coverage.
   This supersedes the original TypeScript-only testing preference.
 - Use `params.positional` and `params.named` directly, `match: false` for nonmatches,
   and `error.start`, `error.end`, and a literal `error.message` substring for
@@ -179,10 +179,10 @@ accepted patterns or the public API.
   Real null transformer results and executable setup stay in TypeScript, as do
   dedicated capture metadata, AST, and compatibility checks.
 - Use the existing YAML parser as an explicit development dependency. Validate
-  schema and unique case names, and register each fixture independently. The
+  schema and unique case names, and register each test case independently. The
   schema and quoting conventions live in the loader and specification.
 - Group built-in cases into one YAML file per type, per the updated user request.
-  Keep validation in the loader; omit its separate unit tests and fixture README.
+  Keep validation in the loader; omit its separate unit tests and test case README.
 
 ## Minimal API tests alongside YAML behavior cases
 
@@ -193,3 +193,24 @@ accepted patterns or the public API.
   async/world behavior, and BigInt/null values. Keep syntax/value cases in YAML.
 - Keep Cucumber differential and reporter checks separate. These verify an external
   compatibility contract beyond the YAML parameter-value schema.
+
+## Upstream matching test cases and intentional differences
+
+- Run the vendored upstream matching YAML files directly, superseding the earlier
+  representative TypeScript syntax table. Keep upstream files unchanged and
+  update them explicitly with `npm run update:compatibility`.
+- Check test case expectations against the pinned Cucumber dependency as well as
+  our implementation, exposing drift between downloaded data and the oracle.
+- Keep intentional differences in `test/compatibility/differences.ts`, separate
+  from downloaded data. Assert local acceptance/rejection and upstream behavior
+  instead of silently skipping cases. Require exact test case names and expression
+  guards so removals, renames, and expression changes demand review.
+- Compare local error acceptance rather than Cucumber's exact error wording.
+  Use normalized reporter data as the single differential match representation.
+  Check transformed values against upstream test-case expectations; retain direct
+  capture metadata assertions in the API suite.
+
+- Use upstream matching test cases for shared value and reporter coverage instead
+  of maintaining supplemental compatibility input matrices. Compare each engine
+  with its own default registry; retain the custom registry adapter test and
+  BDD-specific reporter contracts that upstream syntax cannot represent.
