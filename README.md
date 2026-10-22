@@ -110,9 +110,12 @@ argument.getParameterType().name; // 'int'
 
 Ranges are UTF-16, half-open offsets in the input. Groups retain raw text and child captures independently of transformed values. Leaves have undefined `children`. Absent slots have undefined value and positions; an empty capture has `''` and defined, equal start/end positions. Inline choices have type name `inline-choice`, regardless of their variable name. Calling `getValue(world?)` directly returns the transformer's result; repeated calls rerun it.
 
-## Project documentation
+## Architecture
 
-- [Syntax guide](docs/syntax.md): usage examples for every syntax form.
-- [Specification](docs/specification.md): complete language rules, grammar, matching behavior, and API contracts. The resolved normative section takes precedence over the preserved original brief.
-- [Implementation plan](docs/implementation-plan.md): completed stages, verification, and remaining scope.
-- [Decisions](docs/decisions.md): design rationale, compatibility provenance, and intentional limitations.
+BDD Expressions borrows the architecture of
+[Cucumber Expressions](https://github.com/cucumber/cucumber-expressions/blob/main/ARCHITECTURE.md):
+parse the expression string into an AST, then compile that AST into a regular
+expression used to match input text and capture parameter values.
+
+See the upstream document for the architectural approach and the
+[syntax guide](docs/syntax.md) for this library's language extensions.

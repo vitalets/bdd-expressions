@@ -1,5 +1,5 @@
 /**
- * Runs YAML syntax cases; see docs/specification.md, section 13.
+ * Runs YAML syntax cases.
  * Each entry has name/expression and either text/params, text/match: false,
  * or error: { start, end, message }. Params contain the complete positional
  * array and named mapping. Expected null means actual undefined; actual values

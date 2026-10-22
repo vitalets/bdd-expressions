@@ -6,7 +6,8 @@ src/cucumber-expressions/capture-tree.ts adapts the TreeRegexp/GroupBuilder mech
 contracts in src/cucumber-expressions/matching.ts follow the same upstream version.
 
 Differential test cases also draw on upstream alternative/escaping fixture
-categories; the inspected commit is recorded in docs/decisions.md.
+categories; the originally inspected upstream commit is
+[b0dcbbab82745782737c723895e2e5d843b39a9a](https://github.com/cucumber/cucumber-expressions/tree/b0dcbbab82745782737c723895e2e5d843b39a9a/testdata/cucumber-expression/matching).
 
 Source: https://github.com/cucumber/cucumber-expressions
 

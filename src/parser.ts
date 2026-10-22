@@ -1,7 +1,7 @@
 /**
  * Parses BDD expression syntax independently of parameter type registration.
  *
- * Grammar overview (full lexical rules: docs/specification.md, Formal grammar):
+ * Grammar overview (language rules and examples: docs/syntax.md):
  *   expression = { parameter | whitespace | run }
  *   run        = rootBranch, { "/", rootBranch }
  *   rootBranch = { rootLiteral | group }

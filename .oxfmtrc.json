@@ -13,7 +13,6 @@
     "node_modules/**",
     "test/compatibility/testdata/**",
     "package-lock.json",
-    ".github/workflows/release.yaml",
-    "docs/specification.md"
+    ".github/workflows/release.yaml"
   ]
 }
