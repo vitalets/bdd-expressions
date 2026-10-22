@@ -123,7 +123,7 @@ Use `{}` or `:name{}` to capture arbitrary text, including an empty string, with
 
 Register a custom type to match and transform domain-specific values, then use its name in curly braces.
 
-These examples use the `Point` transformer defined in [Custom parameter types](../README.md#custom-parameter-types).
+These examples use the `Point` transformer defined in [Custom parameter types](api.md#custom-parameter-types).
 
 |                              |                     |
 | ---------------------------- | ------------------- |
@@ -400,14 +400,4 @@ Use a backslash to make special characters literal. Expression-language escapes 
 
 An unescaped colon starts a parameter only when followed by a valid name-start character. Colons in `12:30` and `https:` are already literal; URL slashes still need escaping. Inside braces, colons are literal, and literal parentheses or opening braces must be escaped. Braces cannot be nested.
 
-JavaScript string literals add their own escaping layer. `String.raw` lets you write expression escapes directly:
-
-```ts
-import { BddExpression, createParameterTypeRegistry } from 'bdd-expressions';
-
-const url = new BddExpression(
-  String.raw`Visit https:\/\/example.com label\:value`,
-  createParameterTypeRegistry(),
-);
-url.match('Visit https://example.com label:value'); // []
-```
+For escaping expression strings in TypeScript, see [Escaping in string literals](api.md#escaping-in-string-literals).
