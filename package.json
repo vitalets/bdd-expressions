@@ -38,6 +38,7 @@
     "fmt": "oxfmt --check .",
     "fmt:write": "oxfmt --write .",
     "update:rules": "cp ../agentic-dev/rules/ts-file-structure/ts-file-structure.md .agents/rules/",
+    "update:compatibility": "node scripts/update-compatibility-testdata.mjs",
     "prettier": "npm run fmt"
   },
   "devDependencies": {
