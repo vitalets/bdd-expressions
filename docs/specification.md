@@ -802,9 +802,9 @@ expression. Errors expose `source`, `start`, `end` and include a readable offset
 - `new BddExpression(pattern, parameterTypeRegistry)` constructs an expression
   with `source`, `regexp`, `ast`, `match`, and `matchValues`. The registry is
   required, following the CucumberExpression constructor contract. Compilation
-  and validation happen during construction. `createExpression(source, registry?)`
-  remains a convenience factory returning a BddExpression, with built-ins by
-  default. `parseExpression(source)` exposes the AST independently.
+  and validation happen during construction. This constructor is the only public
+  expression creation API. Use `BddExpression` as the instance type; no separate
+  `Expression` interface is exported. `parseExpression(source)` exposes the AST independently.
 - `createParameterType({name, regexp, transformer?})` creates a structural type;
   `createParameterTypeRegistry()` supplies built-ins, `defineParameterType(type)`
   adds a type and rejects duplicate names. Default transformation returns the

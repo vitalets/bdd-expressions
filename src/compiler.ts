@@ -14,7 +14,6 @@
 
 import { parseExpression, ExpressionError, type Node } from './parser.ts';
 import {
-  createParameterTypeRegistry,
   normalizeParameterPattern,
   type ParameterType,
   type ParameterTypeRegistry,
@@ -26,13 +25,6 @@ import { resolveParams } from './resolve-params.ts';
 
 export type Values = unknown[] & { readonly params: Record<string, unknown> };
 
-export interface Expression {
-  readonly source: string;
-  readonly ast: Node;
-  readonly regexp: RegExp;
-  match(text: string): readonly Argument[] | null;
-  matchValues(text: string, world?: unknown): Promise<Values | null>;
-}
 interface Slot {
   name?: string;
   type: ParameterType;
@@ -42,7 +34,7 @@ interface Slot {
 /**
  * Matches a parsed expression using a compiled regexp and source-ordered parameters.
  */
-export class BddExpression implements Expression {
+export class BddExpression {
   readonly source: string;
   readonly ast: Node;
   readonly regexp: RegExp;
@@ -79,16 +71,6 @@ export class BddExpression implements Expression {
     Object.defineProperty(positional, 'params', { value: named, enumerable: false });
     return positional as Values;
   }
-}
-
-/**
- * Creates an expression, using built-in parameter types when no registry is supplied.
- */
-export function createExpression(
-  source: string,
-  registry: ParameterTypeRegistry = createParameterTypeRegistry(),
-) {
-  return new BddExpression(source, registry);
 }
 
 function compileExpression(source: string, registry: ParameterTypeRegistry) {

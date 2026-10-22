@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  createExpression,
+  BddExpression,
   createParameterType,
   createParameterTypeRegistry,
   ExpressionError,
@@ -9,11 +9,14 @@ import {
 } from '../src/index.ts';
 
 async function values(source: string, text: string) {
-  const result = await createExpression(source).matchValues(text);
+  const result = await new BddExpression(source, createParameterTypeRegistry()).matchValues(text);
   return result && [...result];
 }
 test('named parameters default to quoted strings, remain positional and safely indexed', async () => {
-  const expression = createExpression('I open :page with :count{int} :__proto__ :constructor');
+  const expression = new BddExpression(
+    'I open :page with :count{int} :__proto__ :constructor',
+    createParameterTypeRegistry(),
+  );
   const result = (await expression.matchValues(`I open "Settings" with 2 'safe' ""`))!;
   assert.deepEqual([...result], ['Settings', 2, 'safe', '']);
   assert.equal(result.params.page, result[0]);
@@ -21,12 +24,21 @@ test('named parameters default to quoted strings, remain positional and safely i
   assert.equal(result.params.constructor, '');
   assert.equal(Object.getPrototypeOf(result.params), null);
   assert.equal(Object.keys(result).includes('params'), false);
-  assert.equal(await createExpression(':page').matchValues('123'), null);
-  assert.equal(await createExpression('":page"').matchValues('"Settings"'), null);
+  assert.equal(
+    await new BddExpression(':page', createParameterTypeRegistry()).matchValues('123'),
+    null,
+  );
+  assert.equal(
+    await new BddExpression('":page"', createParameterTypeRegistry()).matchValues('"Settings"'),
+    null,
+  );
   assert.deepEqual(await values('":page"', '""Settings""'), ['Settings']);
 });
 test('nested optional parameters keep absent slots and positions', async () => {
-  const expression = createExpression('I create :item( as :owner( in :workspace))');
+  const expression = new BddExpression(
+    'I create :item( as :owner( in :workspace))',
+    createParameterTypeRegistry(),
+  );
   for (const [text, expected] of [
     ['I create "x"', ['x', undefined, undefined]],
     ['I create "x" as "y"', ['x', 'y', undefined]],
@@ -86,7 +98,7 @@ for (const { name, source, text, expected } of [
     const registry = createParameterTypeRegistry();
     const stringType = registry.lookupByTypeName('string')!;
     let calls = 0;
-    const expression = createExpression(source, {
+    const expression = new BddExpression(source, {
       lookupByTypeName: (typeName) =>
         typeName === 'string'
           ? {
@@ -124,14 +136,17 @@ for (const { name, source, text, expected } of [
   });
 }
 test('choice branches keep stable source-order slots', async () => {
-  const expression = createExpression('(create :item/delete :id{int}/nothing)');
+  const expression = new BddExpression(
+    '(create :item/delete :id{int}/nothing)',
+    createParameterTypeRegistry(),
+  );
   assert.deepEqual([...(await expression.matchValues('create "x"'))!], ['x', undefined]);
   const result = (await expression.matchValues('delete 42'))!;
   assert.deepEqual([...result], [undefined, 42]);
   assert.equal(result.params.item, undefined);
   assert.equal(result.params.id, 42);
   assert.deepEqual([...(await expression.matchValues('nothing'))!], [undefined, undefined]);
-  assert.throws(() => createExpression('(:x/:x)'), /Duplicate/);
+  assert.throws(() => new BddExpression('(:x/:x)', createParameterTypeRegistry()), /Duplicate/);
 });
 test('structural and inline choices, optional first branch, overlap', async () => {
   for (const action of ['click', 'tap on', 'press and hold']) {
@@ -153,7 +168,8 @@ test('structural and inline choices, optional first branch, overlap', async () =
     'approved',
   ]);
   assert.equal(
-    createExpression(':status{a/b}').match('a')![0]!.parameterType.name,
+    new BddExpression(':status{a/b}', createParameterTypeRegistry()).match('a')![0]!.parameterType
+      .name,
     'inline-choice',
   );
 });
@@ -178,15 +194,18 @@ test('whitespace, all literal regex metacharacters, escaped colons and URLs', as
 });
 test('full-input anchoring includes final newlines only if explicitly matched', async () => {
   for (const tail of ['\n', '\r', '\r\n', '\u2028', '\u2029']) {
-    assert.equal(createExpression('x').match('x' + tail), null);
-    assert.deepEqual(createExpression('x' + tail).match('x' + tail), []);
+    assert.equal(new BddExpression('x', createParameterTypeRegistry()).match('x' + tail), null);
+    assert.deepEqual(
+      new BddExpression('x' + tail, createParameterTypeRegistry()).match('x' + tail),
+      [],
+    );
   }
-  assert.deepEqual(createExpression('').match(''), []);
-  assert.equal(createExpression('').match('\n'), null);
-  assert.equal(await createExpression('x').matchValues('no'), null);
+  assert.deepEqual(new BddExpression('', createParameterTypeRegistry()).match(''), []);
+  assert.equal(new BddExpression('', createParameterTypeRegistry()).match('\n'), null);
+  assert.equal(await new BddExpression('x', createParameterTypeRegistry()).matchValues('no'), null);
 });
 test('empty strings, absent captures and greedy arbitrary text are distinct', async () => {
-  const empty = createExpression('{}').match('')![0]!.group;
+  const empty = new BddExpression('{}', createParameterTypeRegistry()).match('')![0]!.group;
   assert.equal(empty.value, '');
   assert.equal(empty.start, 0);
   assert.equal(empty.end, 0);
@@ -203,7 +222,7 @@ test('raw UTF-16 captures and nested custom groups use native indices', async ()
       transformer: (first, last) => [first, last],
     }),
   );
-  const expression = createExpression('😀 :pair{Pair} {word}', registry);
+  const expression = new BddExpression('😀 :pair{Pair} {word}', registry);
   const args = expression.match('😀 ab-ab ab')!;
   const group = args[0]!.group;
   assert.equal(group.value, 'ab-ab');
@@ -225,7 +244,7 @@ test('capture scanner handles classes, escaped parentheses, lookarounds, repeate
   registry.defineParameterType(
     createParameterType({ name: 'Complex', regexp: /(?<= )(?=(a))(?<value>a)[()]\((?:b)(c)(?!x)/ }),
   );
-  const expression = createExpression(' {Complex} {Complex}', registry);
+  const expression = new BddExpression(' {Complex} {Complex}', registry);
   const args = expression.match(' a((bc a)(bc')!;
   assert.equal(args.length, 2);
   assert.deepEqual(
@@ -254,7 +273,7 @@ test('world context, PromiseLike, ordered transformations, no calls for absent p
       },
     }),
   );
-  const expression = createExpression(':a{Async}( :b{Async})( :c{Async})', registry);
+  const expression = new BddExpression(':a{Async}( :b{Async})( :c{Async})', registry);
   let execs = 0;
   const originalExec = expression.regexp.exec.bind(expression.regexp);
   expression.regexp.exec = (text) => {
@@ -277,9 +296,9 @@ test('transformer errors propagate and unknown type errors identify expression r
       transformer: () => Promise.reject(new Error('transform failed')),
     }),
   );
-  await assert.rejects(createExpression('{Fail}', registry).matchValues('x'), /transform failed/);
+  await assert.rejects(new BddExpression('{Fail}', registry).matchValues('x'), /transform failed/);
   assert.throws(
-    () => createExpression('I {unknown}'),
+    () => new BddExpression('I {unknown}', createParameterTypeRegistry()),
     (error) =>
       error instanceof ExpressionError &&
       error.start === 2 &&
@@ -298,11 +317,11 @@ test('parenthesized alternatives allow empty branches anywhere', async () => {
     for (const input of ['', 'again', 'once more']) {
       assert.deepEqual(await values(source, input), [], `${source}: ${input}`);
     }
-    assert.equal(createExpression(source).match('other'), null);
+    assert.equal(new BddExpression(source, createParameterTypeRegistry()).match('other'), null);
   }
   for (const source of ['()', '(/)', '(//)', '(()/())']) {
     assert.deepEqual(await values(source, ''), []);
-    assert.equal(createExpression(source).match('x'), null);
+    assert.equal(new BddExpression(source, createParameterTypeRegistry()).match('x'), null);
     assert.deepEqual(await values(`before${source}after`, 'beforeafter'), []);
   }
 });
@@ -320,7 +339,7 @@ test('empty branches preserve parameter slots, positions and transformation beha
       },
     }),
   );
-  const expression = createExpression('(:first{Tracked}//:second{int}/)', registry);
+  const expression = new BddExpression('(:first{Tracked}//:second{int}/)', registry);
   for (const [input, expected] of [
     ['', [undefined, undefined]],
     ['abc', ['abc', undefined]],

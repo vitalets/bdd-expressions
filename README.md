@@ -92,7 +92,7 @@ An existing Cucumber registry can be passed directly if it exposes `lookupByType
 
 ## Matching API
 
-`new BddExpression(pattern, parameterTypeRegistry)` exposes `source`, `regexp`, `ast`, `match`, and `matchValues`. The registry is required and can be created with `createParameterTypeRegistry()` or supplied by Cucumber. The existing `createExpression(source, registry?)` factory remains available and returns a `BddExpression`. Use `parseExpression(source)` to obtain the AST independently. Parse errors include the expression source and source offsets.
+`new BddExpression(pattern, parameterTypeRegistry)` exposes `source`, `regexp`, `ast`, `match`, and `matchValues`. Use `BddExpression` as the TypeScript instance type as well. The registry is required and can be created with `createParameterTypeRegistry()` or supplied by Cucumber. Use `parseExpression(source)` to obtain the AST independently. Parse errors include the expression source and source offsets.
 
 `matchValues(text, world?)` returns a Promise of a positional array with a `params` object, or `null` on no match. Named parameters are positional arguments too. Matching runs once, and transformers run once per present parameter in source order, awaiting each result. Transformer errors propagate. `params` has a null prototype and is nonenumerable on the array.
 

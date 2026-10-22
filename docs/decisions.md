@@ -140,3 +140,21 @@ registration and compilation of external registry types. The generic
 `stripGroupNames` utility accepts validated source strings and only removes
 capture names. This refines the normalization boundary above without changing
 accepted patterns or the public API.
+
+## Remove the expression factory
+
+- User requested removing `createExpression` and keeping the registry argument
+  required. This supersedes the compatibility-factory decision above.
+- Use `new BddExpression(pattern, parameterTypeRegistry)` everywhere so integrations
+  such as playwright-bdd can pass the same registry to either expression class.
+- The supplied registry remains authoritative for all parameter types. Keep
+  `createParameterTypeRegistry()` for standalone callers needing built-in types;
+  do not add implicit defaults or a separate custom-type lookup layer.
+
+## Use the expression class as its type
+
+- Remove the separate `Expression` interface, which duplicated the public members
+  of `BddExpression`. Consumers use the class directly as their instance type.
+- Keep interfaces that describe plain data, recursive structures, options, or
+  structural interoperability with Cucumber. These have no corresponding local
+  class declaration and are not duplicate class contracts.

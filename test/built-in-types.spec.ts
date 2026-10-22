@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { createExpression } from '../src/index.ts';
+import { BddExpression, createParameterTypeRegistry } from '../src/index.ts';
 
 test('int', async () => {
   // Converts signed integers and leading zeros to numbers.
@@ -135,7 +135,7 @@ async function accepted(
   name: string,
   accepted: readonly (readonly [input: string, expected: unknown])[],
 ) {
-  const expression = createExpression(`{${name}}`);
+  const expression = new BddExpression(`{${name}}`, createParameterTypeRegistry());
   for (const [input, expected] of accepted) {
     const message = `{${name}} matching ${JSON.stringify(input)}`;
     const args = expression.match(input);
@@ -147,7 +147,7 @@ async function accepted(
 }
 
 function rejected(name: string, rejected: readonly string[]) {
-  const expression = createExpression(`{${name}}`);
+  const expression = new BddExpression(`{${name}}`, createParameterTypeRegistry());
   for (const input of rejected) {
     assert.equal(expression.match(input), null, `{${name}} must reject ${JSON.stringify(input)}`);
   }

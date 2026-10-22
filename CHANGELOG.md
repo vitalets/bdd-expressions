@@ -2,8 +2,10 @@
 
 ## [Unreleased]
 
+- Remove the redundant `Expression` interface; use `BddExpression` as the instance type.
+
 - Export `BddExpression` for `new BddExpression(pattern, parameterTypeRegistry)`;
-  retain `createExpression` as a compatibility factory.
+  remove the `createExpression` factory. The registry argument remains required.
 
 - Allow empty branches anywhere in parenthesized alternatives, including repeated
   empty branches, all-empty choices, and empty optional groups.

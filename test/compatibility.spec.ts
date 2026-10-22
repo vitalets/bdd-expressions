@@ -5,12 +5,7 @@ import {
   ParameterType as CucumberType,
   ParameterTypeRegistry as CucumberRegistry,
 } from '@cucumber/cucumber-expressions';
-import {
-  BddExpression,
-  createExpression,
-  createParameterType,
-  createParameterTypeRegistry,
-} from '../src/index.ts';
+import { BddExpression, createParameterType, createParameterTypeRegistry } from '../src/index.ts';
 
 import { serialize } from './helpers/reporter-serialization.ts';
 
@@ -165,7 +160,7 @@ test('custom nested and multi-pattern captures, world, and an existing upstream 
   );
   for (const text of ['😀 ab-ab', '😀 ABC', '😀 123', '😀 ABC 123', '😀 ']) {
     const a = new CucumberExpression('😀 {Custom}', upstream).match(text)!;
-    const b = createExpression('😀 {Custom}', local).match(text)!;
+    const b = new BddExpression('😀 {Custom}', local).match(text)!;
     const adapted = new BddExpression('😀 {Custom}', upstream).match(text)!;
     assert.deepEqual(serialize(b), serialize(a), `Reporter output for ${JSON.stringify(text)}`);
     assert.deepEqual(serialize(adapted), serialize(a));
@@ -182,12 +177,12 @@ test('custom nested and multi-pattern captures, world, and an existing upstream 
 });
 test('intentional differences are separate from compatibility claims', () => {
   for (const source of ['(:name)', 'a(b(c))', '(a/b)', '{a/b}']) {
-    assert.doesNotThrow(() => createExpression(source));
+    assert.doesNotThrow(() => new BddExpression(source, createParameterTypeRegistry()));
   }
   assert.ok(new CucumberExpression('x)', new CucumberRegistry()).match('x)'));
-  assert.throws(() => createExpression('x)'), /Unexpected/);
+  assert.throws(() => new BddExpression('x)', createParameterTypeRegistry()), /Unexpected/);
   for (const source of ['x/{int}', '{int}/x', 'a//b', '(a)/b']) {
-    assert.throws(() => createExpression(source));
+    assert.throws(() => new BddExpression(source, createParameterTypeRegistry()));
     assert.throws(() => new CucumberExpression(source, new CucumberRegistry()));
   }
 });
@@ -196,7 +191,10 @@ test('both implementations reject unconsumed final line terminators', async () =
 });
 
 test('reporter keeps raw string quotes, numeric text and independent inline type names', async () => {
-  const expression = createExpression('😀 :page :count{int} :status{pending/approved}');
+  const expression = new BddExpression(
+    '😀 :page :count{int} :status{pending/approved}',
+    createParameterTypeRegistry(),
+  );
   const text = '😀 "same" 002 approved';
   const args = expression.match(text)!;
   assert.deepEqual(serialize(args), [
@@ -215,7 +213,7 @@ test('reporter keeps raw string quotes, numeric text and independent inline type
   assert.equal(args[1]!.group.value, '002');
 });
 test('absent parameters serialize no fabricated positions or values', () => {
-  const args = createExpression('x( :count{int}) {}').match('x ')!;
+  const args = new BddExpression('x( :count{int}) {}', createParameterTypeRegistry()).match('x ')!;
   assert.deepEqual(serialize(args), [
     { group: {}, parameterTypeName: 'int' },
     { group: { start: 2, value: '' }, parameterTypeName: '' },

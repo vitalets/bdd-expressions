@@ -101,7 +101,8 @@ transformers. Inline choices and bare alternatives retain their existing rules.
 
 Exported `BddExpression` with the Cucumber-style explicit-registry constructor.
 README examples and differential checks exercise class construction, including
-upstream registries. The existing factory returns a BddExpression.
+upstream registries. The expression factory has since been removed. All tests and examples use the
+constructor with an explicit registry; parameter-type factories remain unchanged.
 
 ## Reporter differential coverage
 

@@ -403,8 +403,11 @@ An unescaped colon starts a parameter only when followed by a valid name-start c
 JavaScript string literals add their own escaping layer. `String.raw` lets you write expression escapes directly:
 
 ```ts
-import { createExpression } from 'bdd-expressions';
+import { BddExpression, createParameterTypeRegistry } from 'bdd-expressions';
 
-const url = createExpression(String.raw`Visit https:\/\/example.com label\:value`);
+const url = new BddExpression(
+  String.raw`Visit https:\/\/example.com label\:value`,
+  createParameterTypeRegistry(),
+);
 url.match('Visit https://example.com label:value'); // []
 ```
