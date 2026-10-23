@@ -4,14 +4,16 @@ Expressive BDD step syntax inspired by [Cucumber Expressions](https://github.com
 
 ## Features
 
-- Named parameters
-  - `I open :page`
 - Named parameters with type
-  - `I have :count{int} cucumbers`
-- Anonymous parameters
-  - `I have {int} cucumbers`
-- Inline types
-  - `Set :status{pending/approved/rejected}`
+  - `I open :page{string}`
+  - `I set rating :rating{int}`
+- Named parameters without type
+  - `I open :page` (treated as `:page{string}`)
+- Anonymous parameters (same as in Cucumber)
+  - `I open {string}`
+  - `I set rating {int}`
+- Inline choice parameters
+  - `Set status {pending/approved/rejected}`
 - Optionals with parameters
   - `I create :item( as :owner)`
 - Nested optionals
@@ -20,12 +22,10 @@ Expressive BDD step syntax inspired by [Cucumber Expressions](https://github.com
   - `I (click/tap on/press and hold) button`
 - Alternatives with parameters
   - `I choose (page :page/label :label)`
-- All Cucumber Expressions rules
+- Full support for Cucumber Expressions syntax
   - `I have {int} cucumber(s) in my belly/stomach`
 
-## Full syntax
-
-See the [full syntax guide](docs/syntax.md) for all supported syntax, rules, and examples.
+See the [syntax guide](docs/syntax.md) for all supported syntax, rules, and examples.
 
 ## Usage
 
