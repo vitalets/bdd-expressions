@@ -19,12 +19,10 @@
   },
   "files": [
     "dist",
-    "docs",
-    "README.md",
-    "LICENSE",
-    "THIRD_PARTY_NOTICES.md",
     "src",
-    "CHANGELOG.md"
+    "README.md",
+    "CHANGELOG.md",
+    "THIRD_PARTY_NOTICES.md"
   ],
   "scripts": {
     "prepare": "git config core.hooksPath scripts/git-hooks",
