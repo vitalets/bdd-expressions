@@ -1,6 +1,25 @@
 name: test
 
-on: [push, pull_request]
+on:
+  push:
+    branches: ['**', '!docs']
+    paths:
+      - '.github/workflows/test.yaml'
+      - 'src/**'
+      - 'test/**'
+      - 'package*.json'
+      - 'tsconfig*.json'
+      - '.npmrc'
+  pull_request:
+    branches: [main]
+    paths:
+      # no way to avoid repeating the paths here
+      - '.github/workflows/test.yaml'
+      - 'src/**'
+      - 'test/**'
+      - 'package*.json'
+      - 'tsconfig*.json'
+      - '.npmrc'
 
 permissions:
   contents: read
