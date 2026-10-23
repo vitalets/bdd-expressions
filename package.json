@@ -1,6 +1,6 @@
 {
   "name": "bdd-expressions",
-  "description": "BDD expressions with named parameters, nested optionals and capture metadata",
+  "description": "Expressive syntax for BDD step definitions",
   "version": "0.1.0",
   "type": "module",
   "repository": {
