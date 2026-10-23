@@ -36,12 +36,11 @@
     "fmt": "oxfmt --check .",
     "fmt:write": "oxfmt --write .",
     "update:rules": "cp ../agentic-dev/rules/ts-file-structure/ts-file-structure.md .agents/rules/",
-    "update:compatibility": "node scripts/update-compatibility-testdata.mjs",
-    "prettier": "npm run fmt"
+    "update:compatibility": "node scripts/update-compatibility-testdata.mjs"
   },
   "devDependencies": {
     "@cucumber/cucumber-expressions": "20.1.0",
-    "@types/node": "26.6.5",
+    "@types/node": "^20.19.43",
     "lint-staged": "17.6.0",
     "oxfmt": "0.74.0",
     "oxlint": "1.89.0",
