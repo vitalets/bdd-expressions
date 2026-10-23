@@ -8,7 +8,7 @@
     "url": "git+https://github.com/vitalets/bdd-expressions.git"
   },
   "engines": {
-    "node": ">=22"
+    "node": ">=20"
   },
   "types": "./dist/index.d.ts",
   "exports": {
@@ -27,7 +27,7 @@
   "scripts": {
     "prepare": "git config core.hooksPath scripts/git-hooks",
     "build": "rm -rf ./dist && tsc -p tsconfig.build.json",
-    "test": "node --test 'test/**/*.spec.ts'",
+    "test": "tsx --test test/*.spec.ts test/*/*.spec.ts",
     "tsc": "tsc --noEmit",
     "check": "npm run fmt && npm run lint && npm run tsc && npm run build && npm test",
     "prepack": "npm run build",
@@ -46,6 +46,7 @@
     "oxfmt": "0.74.0",
     "oxlint": "1.89.0",
     "oxlint-tsgolint": "7.0.2004",
+    "tsx": "4.23.15",
     "typescript": "7.0.2",
     "yaml": "2.9.1"
   },
