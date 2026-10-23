@@ -1,5 +1,10 @@
 # bdd-expressions
 
+[![lint](https://github.com/vitalets/bdd-expressions/actions/workflows/lint.yaml/badge.svg)](https://github.com/vitalets/bdd-expressions/actions/workflows/lint.yaml)
+[![test](https://github.com/vitalets/bdd-expressions/actions/workflows/test.yaml/badge.svg)](https://github.com/vitalets/bdd-expressions/actions/workflows/test.yaml)
+[![npm version](https://img.shields.io/npm/v/bdd-expressions)](https://www.npmjs.com/package/bdd-expressions)
+[![license](https://img.shields.io/npm/l/bdd-expressions)](https://github.com/vitalets/bdd-expressions/blob/main/LICENSE)
+
 Expressive BDD step syntax inspired by [Cucumber Expressions](https://github.com/cucumber/cucumber-expressions).
 
 ## Features
