@@ -5,7 +5,7 @@
 [![npm version](https://img.shields.io/npm/v/bdd-expressions)](https://www.npmjs.com/package/bdd-expressions)
 [![license](https://img.shields.io/npm/l/bdd-expressions)](https://github.com/vitalets/bdd-expressions/blob/main/LICENSE)
 
-Expressive BDD step syntax inspired by [Cucumber Expressions](https://github.com/cucumber/cucumber-expressions).
+Expressive BDD step syntax, inspired by [Cucumber Expressions](https://github.com/cucumber/cucumber-expressions).
 
 ## Features
 
@@ -19,9 +19,9 @@ Expressive BDD step syntax inspired by [Cucumber Expressions](https://github.com
   - `I set rating {int}`
 - Inline choice parameters
   - `Set status {pending/approved/rejected}`
-- Optionals with parameters
+- Optional text with parameters
   - `I create :item( as :owner)`
-- Nested optionals
+- Nested optional text
   - `I create :item( as :owner( in :workspace))`
 - Multi-word alternatives without escaping
   - `I (click/tap on/press and hold) button`
@@ -30,11 +30,11 @@ Expressive BDD step syntax inspired by [Cucumber Expressions](https://github.com
 - Full support for Cucumber Expressions syntax
   - `I have {int} cucumber(s) in my belly/stomach`
 
-See the [syntax guide](docs/syntax.md) for all supported syntax, rules, and examples.
+See the [syntax guide](docs/syntax.md) for all supported syntax and examples.
 
 ## Usage
 
-See the [TypeScript API guide](docs/api.md) for creating expressions, matching values, custom parameter types, and capture metadata.
+See the [TypeScript API guide](docs/api.md).
 
 ## Comparison with Cucumber Expressions
 
@@ -44,9 +44,9 @@ Comparison with the JavaScript implementation, `@cucumber/cucumber-expressions@2
 | ---------------------------------------- | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Named parameters                         | ✅ `:page`, `:count{int}`                | ❌ ([#206](https://github.com/cucumber/cucumber-expressions/issues/206))                                                                                                                                           |
 | Anonymous typed parameters               | ✅ `{int}`, `{string}`, all 11 built-ins | ✅ Same built-ins                                                                                                                                                                                                  |
-| Inline types                             | ✅ `{pending/approved}`                  | ❌ Requires a custom type ([#304](https://github.com/cucumber/cucumber-expressions/issues/304))                                                                                                                    |
-| Optionals with parameters                | ✅ `( as :owner)`                        | ❌ ([#305](https://github.com/cucumber/cucumber-expressions/issues/305), [#166](https://github.com/cucumber/cucumber-expressions/issues/166), [#299](https://github.com/cucumber/cucumber-expressions/issues/299)) |
-| Nested optionals                         | ✅ `( as :owner( in :workspace))`        | ❌ ([#41](https://github.com/cucumber/cucumber-expressions/issues/41#issuecomment-963023587))                                                                                                                      |
+| Inline choice types                      | ✅ `{pending/approved}`                  | ❌ Requires a custom type ([#304](https://github.com/cucumber/cucumber-expressions/issues/304))                                                                                                                    |
+| Optional text with parameters            | ✅ `( as :owner)`                        | ❌ ([#305](https://github.com/cucumber/cucumber-expressions/issues/305), [#166](https://github.com/cucumber/cucumber-expressions/issues/166), [#299](https://github.com/cucumber/cucumber-expressions/issues/299)) |
+| Nested optional text                     | ✅ `( as :owner( in :workspace))`        | ❌ ([#41](https://github.com/cucumber/cucumber-expressions/issues/41#issuecomment-963023587))                                                                                                                      |
 | Multi-word alternatives without escaping | ✅ `(click/tap on/press and hold)`       | ❌ Spaces must be escaped ([#41](https://github.com/cucumber/cucumber-expressions/issues/41#issuecomment-963823708), [#75](https://github.com/cucumber/cucumber-expressions/issues/75#issuecomment-1048148209))    |
 | Alternatives with parameters             | ✅ `(page :page/label :label)`           | ❌ ([#41](https://github.com/cucumber/cucumber-expressions/issues/41))                                                                                                                                             |
 | Optional literal text                    | ✅ `cucumber(s)`                         | ✅ `cucumber(s)`                                                                                                                                                                                                   |
