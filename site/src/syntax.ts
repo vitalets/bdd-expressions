@@ -42,6 +42,11 @@ function updateCurrentSection() {
     if (section.heading.getBoundingClientRect().top > offset) break;
     current = section;
   }
+  // The final heading may never reach the reading offset before scrolling ends.
+  const documentHeight = document.documentElement.scrollHeight;
+  if (window.scrollY > 0 && window.scrollY + window.innerHeight >= documentHeight - 2) {
+    current = sections.at(-1);
+  }
   if (!current || current.link.getAttribute('aria-current') === 'location') return;
   for (const { link } of sections) link.removeAttribute('aria-current');
   current.link.setAttribute('aria-current', 'location');

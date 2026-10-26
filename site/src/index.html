@@ -14,26 +14,28 @@
   <body>
     <header>
       <a class="brand" href="%BASE_URL%">{ bdd-expressions }</a>
-      <nav aria-label="Main">
-        <a aria-current="page" href="%BASE_URL%">Playground</a
-        ><a href="%BASE_URL%syntax/">Syntax guide</a>
-      </nav>
+      <button id="share" type="button" aria-live="polite">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <rect x="8" y="8" width="12" height="12" rx="2" />
+          <path d="M16 8V4H4v12h4" /></svg
+        ><span>Copy link</span>
+      </button>
       <div class="header-actions">
+        <a
+          href="%BASE_URL%syntax/"
+          target="_blank"
+          rel="noopener"
+          aria-label="Syntax guide (opens in a new tab)"
+          >Syntax guide ↗</a
+        >
+        <a href="https://www.npmjs.com/package/bdd-expressions">npm ↗</a>
         <a href="https://github.com/vitalets/bdd-expressions">GitHub ↗</a>
       </div>
     </header>
     <main aria-label="Expression playground">
       <div class="panel workspace">
         <section class="editor" aria-label="Expression editor">
-          <div class="expression-heading">
-            <label for="expression">Expression</label>
-            <button id="share" type="button" aria-live="polite">
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <rect x="8" y="8" width="12" height="12" rx="2" />
-                <path d="M16 8V4H4v12h4" /></svg
-              ><span>Copy link</span>
-            </button>
-          </div>
+          <label for="expression">Expression</label>
           <div class="input-control">
             <input
               id="expression"
