@@ -1,0 +1,44 @@
+import { readFile } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
+import { marked } from 'marked';
+import { defineConfig } from 'vite';
+
+const root = fileURLToPath(new URL('./src/', import.meta.url));
+
+export default defineConfig({
+  root,
+  base: '/bdd-expressions/',
+  plugins: [
+    {
+      name: 'syntax-document',
+      async transformIndexHtml(html) {
+        if (!html.includes('<!-- syntax -->')) return html;
+        const source = await readFile(new URL('../docs/syntax.md', import.meta.url), 'utf8');
+        const rendered = await marked.parse(source);
+        const anchored = rendered.replace(
+          /<h([1-6])>(.*?)<\/h\1>/g,
+          (_, level: string, title: string) => {
+            const id = title
+              .replace(/<[^>]*>/g, '')
+              .toLowerCase()
+              .replace(/[^\w\s-]/g, '')
+              .replace(/\s+/g, '-');
+            return `<h${level} id="${id}">${title}</h${level}>`;
+          },
+        );
+        return html.replace(
+          '<!-- syntax -->',
+          anchored.replaceAll(
+            'href="api.md',
+            'href="https://github.com/vitalets/bdd-expressions/blob/main/docs/api.md',
+          ),
+        );
+      },
+    },
+  ],
+  build: {
+    outDir: '../dist',
+    emptyOutDir: true,
+    rollupOptions: { input: { main: `${root}index.html`, syntax: `${root}syntax/index.html` } },
+  },
+});

@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Try BDD Expressions in your browser. Match step text and inspect named and positional parameters."
+    />
+    <title>Playground · BDD Expressions</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header>
+      <a class="brand" href="%BASE_URL%">{ bdd-expressions }</a>
+      <nav aria-label="Main">
+        <a aria-current="page" href="%BASE_URL%">Playground</a
+        ><a href="%BASE_URL%syntax/">Syntax guide</a
+        ><a href="https://github.com/vitalets/bdd-expressions">GitHub ↗</a>
+      </nav>
+    </header>
+    <main>
+      <p class="eyebrow">EXPRESSIVE BDD STEP SYNTAX</p>
+      <h1>Put your expressions to the test.</h1>
+      <p class="intro">Write an expression, enter some step text, and see what matches.</p>
+      <div class="toolbar">
+        <label for="example">Start with an example</label
+        ><select id="example">
+          <option value="0">Named parameters</option>
+          <option value="1">Optional groups</option>
+          <option value="2">Alternatives</option>
+          <option value="3">Inline choices</option>
+          <option value="4">Big integers</option></select
+        ><button id="share" type="button">Copy link</button
+        ><span id="share-status" role="status"></span>
+      </div>
+      <div class="workspace">
+        <section class="panel editor" aria-label="Expression editor">
+          <label for="expression">Expression</label>
+          <textarea id="expression" rows="3" spellcheck="false" aria-describedby="expression-help">
+I have :count{int} cucumber(s)</textarea>
+          <p id="expression-help" class="hint">
+            Use <code>:name{type}</code> to capture a named value.
+          </p>
+          <label for="input">Input text</label>
+          <textarea id="input" rows="3" spellcheck="false">I have 2 cucumbers</textarea>
+          <p class="hint">Matches the whole input. Text and whitespace are case sensitive.</p>
+        </section>
+        <section
+          class="panel results"
+          aria-label="Evaluation results"
+          aria-live="polite"
+          aria-atomic="true"
+        >
+          <h2>Result <span id="status" class="badge">Evaluating…</span></h2>
+          <p id="message"></p>
+          <h3>Positional values</h3>
+          <pre id="positional">—</pre>
+          <h3>Named values</h3>
+          <pre id="named">—</pre>
+          <details>
+            <summary>Compiled regular expression</summary>
+            <pre id="regexp">—</pre>
+          </details>
+        </section>
+      </div>
+      <p class="footnote">
+        Runs locally in your browser. <a href="%BASE_URL%syntax/">Explore the syntax →</a>
+      </p>
+      <noscript
+        >This playground requires JavaScript. The syntax guide is available without it.</noscript
+      >
+    </main>
+    <script type="module" src="./playground.ts"></script>
+  </body>
+</html>
