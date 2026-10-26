@@ -37,7 +37,8 @@
     "update:compatibility": "node scripts/update-compatibility-testdata.mjs",
     "site:dev": "vite --config site/vite.config.ts",
     "site:build": "tsc -p site/tsconfig.json && vite build --config site/vite.config.ts",
-    "site:preview": "vite preview --config site/vite.config.ts"
+    "site:preview": "vite preview --config site/vite.config.ts",
+    "site:deploy": "git checkout site && git pull --no-edit && git merge --no-edit main && git push origin site && git checkout main"
   },
   "devDependencies": {
     "@cucumber/cucumber-expressions": "20.1.0",
