@@ -9,9 +9,9 @@ import type { Evaluation } from './evaluate.ts';
  */
 const examples = [
   ['I have :count{int} cucumber(s)', 'I have 2 cucumbers'],
+  ['I (search for/look up) {string}', 'I search for "red shoes"'],
   ['I create :item( as :owner)', 'I create "report" as "admin"'],
-  ['I (click/tap on/press and hold) :target', 'I tap on "Save"'],
-  ['Set :status{pending/approved/rejected}', 'Set approved'],
+  ['Set {pending/approved/rejected} status', 'Set approved status'],
 ] as const;
 
 /**

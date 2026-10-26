@@ -17,7 +17,9 @@ export default defineConfig({
         const indexStart = source.indexOf('- [');
         const indexEnd = source.indexOf('\n## ');
         const index = await marked.parse(source.slice(indexStart, indexEnd));
-        const rendered = await marked.parse(source.slice(0, indexStart) + source.slice(indexEnd));
+        const rendered = renderNamedParams(
+          await marked.parse(source.slice(0, indexStart) + source.slice(indexEnd)),
+        );
         html = html.replace('<!-- syntax-index -->', index);
         const anchored = rendered.replace(
           /<h([1-6])>(.*?)<\/h\1>/g,
@@ -52,3 +54,16 @@ export default defineConfig({
     },
   },
 });
+
+function renderNamedParams(html: string) {
+  return html.replace(
+    /(<td>Captured params \(named\)<\/td>\s*<td>)(<code>.*?)<\/td>/g,
+    (_, cell: string, content: string) => {
+      const code = content
+        .replace(/<\/?code>/g, '')
+        .replace(/<br\s*\/?>/g, '\n')
+        .replaceAll('&nbsp;', ' ');
+      return `${cell}<pre><code>${code}</code></pre></td>`;
+    },
+  );
+}

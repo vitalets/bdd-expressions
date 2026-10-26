@@ -482,6 +482,7 @@ summary {
 header {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  grid-template-rows: minmax(36px, auto);
   gap: 24px;
   padding-top: 18px;
   padding-bottom: 18px;
@@ -507,11 +508,13 @@ header {
 @media (max-width: 720px) {
   header {
     grid-template-columns: 1fr;
+    grid-template-rows: auto minmax(36px, auto) minmax(28px, auto);
     justify-items: center;
     gap: 12px;
   }
   .header-actions {
     grid-column: 1;
+    grid-row: 3;
     justify-self: center;
   }
 }
@@ -528,6 +531,7 @@ header {
 @media (min-width: 721px) and (max-width: 1100px) {
   header {
     grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: minmax(36px, auto) minmax(28px, auto);
     gap: 16px;
   }
   .header-actions {
