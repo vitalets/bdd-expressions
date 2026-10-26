@@ -5,7 +5,7 @@
 [![npm version](https://img.shields.io/npm/v/bdd-expressions)](https://www.npmjs.com/package/bdd-expressions)
 [![license](https://img.shields.io/npm/l/bdd-expressions)](https://github.com/vitalets/bdd-expressions/blob/main/LICENSE)
 
-Expressive BDD step syntax, inspired by [Cucumber Expressions](https://github.com/cucumber/cucumber-expressions).
+Extended syntax for BDD steps, inspired by [Cucumber Expressions](https://github.com/cucumber/cucumber-expressions).
 
 ## Features
 
@@ -13,7 +13,7 @@ Expressive BDD step syntax, inspired by [Cucumber Expressions](https://github.co
   - `I open :page{string}`
   - `I set rating :rating{int}`
 - Named parameters without type
-  - `I open :page` (treated as `:page{string}`)
+  - `I open :page` (treated as `{string}`)
 - Anonymous parameters (same as in Cucumber)
   - `I open {string}`
   - `I set rating {int}`
