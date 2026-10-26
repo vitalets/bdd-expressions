@@ -13,7 +13,15 @@
   </head>
   <body>
     <header>
-      <a class="brand" href="%BASE_URL%">{ bdd-expressions }</a>
+      <nav class="breadcrumbs" aria-label="Breadcrumb">
+        <ol>
+          <li><a class="brand" href="%BASE_URL%">{ bdd-expressions }</a></li>
+          <li class="breadcrumb-current">
+            <span class="breadcrumb-separator" aria-hidden="true">/</span
+            ><span aria-current="page">Playground</span>
+          </li>
+        </ol>
+      </nav>
       <button id="share" type="button" aria-live="polite">
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <rect x="8" y="8" width="12" height="12" rx="2" />

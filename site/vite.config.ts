@@ -43,6 +43,12 @@ export default defineConfig({
   build: {
     outDir: '../dist',
     emptyOutDir: true,
-    rollupOptions: { input: { main: `${root}index.html`, syntax: `${root}syntax/index.html` } },
+    rollupOptions: {
+      input: {
+        main: `${root}index.html`,
+        syntax: `${root}syntax/index.html`,
+        headerOptions: `${root}header-options/index.html`,
+      },
+    },
   },
 });

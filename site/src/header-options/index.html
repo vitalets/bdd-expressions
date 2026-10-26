@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Header options · BDD Expressions</title>
+    <link rel="icon" href="%BASE_URL%favicon.svg" />
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="./options.css" />
+  </head>
+  <body>
+    <main class="comparison">
+      <div class="comparison-intro">
+        <a href="%BASE_URL%">← Back to playground</a>
+        <h1>Page titles in the header</h1>
+        <p>
+          Three treatments using the current typography, violet identity, and navigation. Each pair
+          shows Playground and Syntax.
+        </p>
+      </div>
+      <section class="option">
+        <div class="option-heading">
+          <span class="option-number">01</span>
+          <div>
+            <h2>Breadcrumb <span class="recommendation">Recommended</span></h2>
+            <p>
+              A familiar documentation pattern. The separator clearly distinguishes the project from
+              the current page.
+            </p>
+          </div>
+        </div>
+        <div class="preview-pair">
+          <div class="preview-header breadcrumb" aria-label="Breadcrumb: Playground header">
+            <div class="identity">
+              <a class="brand" href="%BASE_URL%">{ bdd-expressions }</a
+              ><span class="separator" aria-hidden="true">/</span
+              ><span class="page-title">Playground</span>
+            </div>
+            <button class="copy-link" type="button" aria-live="polite">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <rect x="8" y="8" width="12" height="12" rx="2" />
+                <path d="M16 8V4H4v12h4" /></svg
+              ><span>Copy link</span>
+            </button>
+            <div class="header-actions">
+              <a
+                href="%BASE_URL%syntax/"
+                target="_blank"
+                rel="noopener"
+                aria-label="Syntax guide (opens in a new tab)"
+                >Syntax guide ↗</a
+              ><a href="https://www.npmjs.com/package/bdd-expressions">npm ↗</a
+              ><a href="https://github.com/vitalets/bdd-expressions">GitHub ↗</a>
+            </div>
+          </div>
+          <div class="preview-header breadcrumb" aria-label="Breadcrumb: Syntax header">
+            <div class="identity">
+              <a class="brand" href="%BASE_URL%">{ bdd-expressions }</a
+              ><span class="separator" aria-hidden="true">/</span
+              ><span class="page-title">Syntax</span>
+            </div>
+            <div class="header-actions">
+              <a href="https://www.npmjs.com/package/bdd-expressions">npm ↗</a
+              ><a href="https://github.com/vitalets/bdd-expressions">GitHub ↗</a>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="option">
+        <div class="option-heading">
+          <span class="option-number">02</span>
+          <div>
+            <h2>Stacked title <span class="recommendation">More hierarchy</span></h2>
+            <p>
+              A quieter project name above a stronger page title. Clear at a glance, with a slightly
+              taller header.
+            </p>
+          </div>
+        </div>
+        <div class="preview-pair">
+          <div class="preview-header stacked" aria-label="Stacked title: Playground header">
+            <div class="identity">
+              <a class="brand" href="%BASE_URL%">{ bdd-expressions }</a
+              ><span class="page-title">Playground</span>
+            </div>
+            <button class="copy-link" type="button" aria-live="polite">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <rect x="8" y="8" width="12" height="12" rx="2" />
+                <path d="M16 8V4H4v12h4" /></svg
+              ><span>Copy link</span>
+            </button>
+            <div class="header-actions">
+              <a
+                href="%BASE_URL%syntax/"
+                target="_blank"
+                rel="noopener"
+                aria-label="Syntax guide (opens in a new tab)"
+                >Syntax guide ↗</a
+              ><a href="https://www.npmjs.com/package/bdd-expressions">npm ↗</a
+              ><a href="https://github.com/vitalets/bdd-expressions">GitHub ↗</a>
+            </div>
+          </div>
+          <div class="preview-header stacked" aria-label="Stacked title: Syntax header">
+            <div class="identity">
+              <a class="brand" href="%BASE_URL%">{ bdd-expressions }</a
+              ><span class="page-title">Syntax</span>
+            </div>
+            <div class="header-actions">
+              <a href="https://www.npmjs.com/package/bdd-expressions">npm ↗</a
+              ><a href="https://github.com/vitalets/bdd-expressions">GitHub ↗</a>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="option">
+        <div class="option-heading">
+          <span class="option-number">03</span>
+          <div>
+            <h2>Page label <span class="recommendation">Smallest change</span></h2>
+            <p>
+              Keep the existing logo and add a restrained violet label. Compact and easy to scan;
+              the label is not a switcher.
+            </p>
+          </div>
+        </div>
+        <div class="preview-pair">
+          <div class="preview-header label" aria-label="Page label: Playground header">
+            <div class="identity">
+              <a class="brand" href="%BASE_URL%">{ bdd-expressions }</a
+              ><span class="page-title">Playground</span>
+            </div>
+            <button class="copy-link" type="button" aria-live="polite">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <rect x="8" y="8" width="12" height="12" rx="2" />
+                <path d="M16 8V4H4v12h4" /></svg
+              ><span>Copy link</span>
+            </button>
+            <div class="header-actions">
+              <a
+                href="%BASE_URL%syntax/"
+                target="_blank"
+                rel="noopener"
+                aria-label="Syntax guide (opens in a new tab)"
+                >Syntax guide ↗</a
+              ><a href="https://www.npmjs.com/package/bdd-expressions">npm ↗</a
+              ><a href="https://github.com/vitalets/bdd-expressions">GitHub ↗</a>
+            </div>
+          </div>
+          <div class="preview-header label" aria-label="Page label: Syntax header">
+            <div class="identity">
+              <a class="brand" href="%BASE_URL%">{ bdd-expressions }</a
+              ><span class="page-title">Syntax</span>
+            </div>
+            <div class="header-actions">
+              <a href="https://www.npmjs.com/package/bdd-expressions">npm ↗</a
+              ><a href="https://github.com/vitalets/bdd-expressions">GitHub ↗</a>
+            </div>
+          </div>
+        </div>
+      </section>
+      <p class="preview-note">
+        Header previews only. Copy link copies the playground URL; the live site header has not
+        changed.
+      </p>
+    </main>
+    <script type="module" src="./options.js"></script>
+  </body>
+</html>
