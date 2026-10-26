@@ -45,6 +45,8 @@ header {
     monospace;
   text-decoration: none;
   white-space: nowrap;
+  letter-spacing: -0.035em;
+  word-spacing: -0.2em;
 }
 nav {
   display: flex;
