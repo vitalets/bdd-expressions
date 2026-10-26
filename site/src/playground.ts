@@ -9,24 +9,23 @@ import type { Evaluation } from './evaluate.ts';
  */
 const examples = [
   ['I have :count{int} cucumber(s)', 'I have 2 cucumbers'],
-  ['I create :item( as :owner)', 'I create "report"'],
+  ['I create :item( as :owner)', 'I create "report" as "admin"'],
   ['I (click/tap on/press and hold) :target', 'I tap on "Save"'],
   ['Set :status{pending/approved/rejected}', 'Set approved'],
-  ['Account :id{biginteger}', 'Account 12345678901234567890'],
 ] as const;
 
 /**
  * Native controls and output regions owned by the playground.
  */
-const expression = document.querySelector<HTMLTextAreaElement>('#expression')!;
+const expression = document.querySelector<HTMLInputElement>('#expression')!;
 /**
  * Step text to match against the expression.
  */
-const input = document.querySelector<HTMLTextAreaElement>('#input')!;
+const input = document.querySelector<HTMLInputElement>('#input')!;
 /**
- * Preset selector for the editable fields.
+ * Example buttons that populate both editable fields.
  */
-const example = document.querySelector<HTMLSelectElement>('#example')!;
+const exampleButtons = document.querySelectorAll<HTMLButtonElement>('[data-example]');
 /**
  * Compact evaluation outcome.
  */
@@ -36,9 +35,14 @@ const status = document.querySelector<HTMLElement>('#status')!;
  */
 const message = document.querySelector<HTMLElement>('#message')!;
 /**
- * Accessible feedback after copying a link.
+ * Share button displays clipboard feedback without changing the header layout.
  */
-const shareStatus = document.querySelector<HTMLElement>('#share-status')!;
+const shareButton = document.querySelector<HTMLButtonElement>('#share')!;
+
+/**
+ * Clear actions paired with the editable fields.
+ */
+const clearButtons = document.querySelectorAll<HTMLButtonElement>('[data-clear]');
 
 /**
  * Pending work is cancelled whenever the input changes.
@@ -46,21 +50,35 @@ const shareStatus = document.querySelector<HTMLElement>('#share-status')!;
 let worker: Worker | undefined;
 let debounce: ReturnType<typeof setTimeout>;
 let timeout: ReturnType<typeof setTimeout>;
+/**
+ * Restores the copy button label after temporary clipboard feedback.
+ */
+let copyFeedbackTimeout: ReturnType<typeof setTimeout>;
 
 initialize();
 
 function initialize() {
   restoreLink();
+  shareButton.addEventListener('click', () => {
+    void copyLink();
+  });
   expression.addEventListener('input', schedule);
   input.addEventListener('input', schedule);
-  example.addEventListener('change', () => {
-    const selected = examples[Number(example.value)];
-    if (!selected) return;
-    [expression.value, input.value] = selected;
-    schedule();
+  exampleButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      const selected = examples[Number(button.dataset.example)];
+      if (!selected) return;
+      [expression.value, input.value] = selected;
+      schedule();
+    });
   });
-  document.querySelector('#share')!.addEventListener('click', () => {
-    void share();
+  clearButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      const field = document.getElementById(button.dataset.clear!) as HTMLInputElement;
+      field.value = '';
+      field.focus();
+      schedule();
+    });
   });
   window.addEventListener('hashchange', () => {
     restoreLink();
@@ -70,12 +88,18 @@ function initialize() {
 }
 
 function schedule() {
+  shareButton.querySelector('span')!.textContent = 'Copy link';
+  updateLink();
   clearTimeout(debounce);
   clearTimeout(timeout);
   worker?.terminate();
-  shareStatus.textContent = '';
-  render({ state: 'match', message: 'Evaluating…', positional: '—', named: '—', regexp: '—' });
+  clearButtons.forEach((button) => {
+    const field = document.getElementById(button.dataset.clear!) as HTMLInputElement;
+    button.hidden = field.value.length === 0;
+  });
+  document.querySelector('.results')!.setAttribute('aria-busy', 'true');
   status.textContent = 'Evaluating…';
+  status.dataset.state = 'pending';
   debounce = setTimeout(run, 180);
 }
 
@@ -107,9 +131,12 @@ function fail(text: string) {
 }
 
 function render(result: Evaluation) {
+  document.querySelector('.results')!.setAttribute('aria-busy', 'false');
   status.textContent = { match: 'Match', miss: 'No match', error: 'Error' }[result.state];
   status.dataset.state = result.state;
-  message.textContent = result.message;
+  input.dataset.state = result.state;
+  message.hidden = result.state !== 'error';
+  message.textContent = result.state === 'error' ? result.message : '';
   for (const key of ['positional', 'named', 'regexp'] as const) {
     document.getElementById(key)!.textContent = result[key];
   }
@@ -121,14 +148,21 @@ function restoreLink() {
   if (params.has('input')) input.value = params.get('input')!;
 }
 
-async function share() {
+function updateLink() {
   const url = new URL(location.href);
   url.hash = new URLSearchParams({ expression: expression.value, input: input.value }).toString();
   history.replaceState(null, '', url);
+}
+
+async function copyLink() {
+  clearTimeout(copyFeedbackTimeout);
   try {
-    await navigator.clipboard.writeText(url.href);
-    shareStatus.textContent = 'Link copied';
+    await navigator.clipboard.writeText(location.href);
+    shareButton.querySelector('span')!.textContent = 'Copied';
   } catch {
-    shareStatus.textContent = 'Copy the link from the address bar';
+    shareButton.querySelector('span')!.textContent = 'Retry copy';
   }
+  copyFeedbackTimeout = setTimeout(() => {
+    shareButton.querySelector('span')!.textContent = 'Copy link';
+  }, 2000);
 }

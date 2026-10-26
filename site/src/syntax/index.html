@@ -7,18 +7,27 @@
       name="description"
       content="BDD Expressions syntax reference, with examples of parameters, optional groups, and alternatives."
     />
+    <link rel="icon" type="image/svg+xml" href="%BASE_URL%favicon.svg" />
     <title>Syntax guide · BDD Expressions</title>
     <link rel="stylesheet" href="../styles.css" />
   </head>
   <body>
-    <header>
+    <header class="syntax-header">
       <a class="brand" href="%BASE_URL%">{ bdd-expressions }</a>
       <nav aria-label="Main">
         <a href="%BASE_URL%">Playground</a
-        ><a aria-current="page" href="%BASE_URL%syntax/">Syntax guide</a
-        ><a href="https://github.com/vitalets/bdd-expressions">GitHub ↗</a>
+        ><a aria-current="page" href="%BASE_URL%syntax/">Syntax guide</a>
       </nav>
+      <div class="header-actions">
+        <a href="https://github.com/vitalets/bdd-expressions">GitHub ↗</a>
+      </div>
     </header>
-    <main class="prose"><!-- syntax --></main>
+    <main class="syntax-layout">
+      <aside class="syntax-index">
+        <nav aria-label="Syntax index"><!-- syntax-index --></nav>
+      </aside>
+      <article class="prose"><!-- syntax --></article>
+    </main>
+    <script type="module" src="../syntax.ts"></script>
   </body>
 </html>

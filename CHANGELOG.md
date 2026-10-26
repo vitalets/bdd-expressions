@@ -2,7 +2,7 @@
 
 ## [Unreleased]
 
-## [0.1.1] - 2026-10-23
+- Add a browser playground and rendered syntax guide, with GitHub Pages deployment.
 
 - Initial release.
 

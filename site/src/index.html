@@ -7,6 +7,7 @@
       name="description"
       content="Try BDD Expressions in your browser. Match step text and inspect named and positional parameters."
     />
+    <link rel="icon" type="image/svg+xml" href="%BASE_URL%favicon.svg" />
     <title>Playground · BDD Expressions</title>
     <link rel="stylesheet" href="./styles.css" />
   </head>
@@ -15,58 +16,96 @@
       <a class="brand" href="%BASE_URL%">{ bdd-expressions }</a>
       <nav aria-label="Main">
         <a aria-current="page" href="%BASE_URL%">Playground</a
-        ><a href="%BASE_URL%syntax/">Syntax guide</a
-        ><a href="https://github.com/vitalets/bdd-expressions">GitHub ↗</a>
+        ><a href="%BASE_URL%syntax/">Syntax guide</a>
       </nav>
-    </header>
-    <main>
-      <p class="eyebrow">EXPRESSIVE BDD STEP SYNTAX</p>
-      <h1>Put your expressions to the test.</h1>
-      <p class="intro">Write an expression, enter some step text, and see what matches.</p>
-      <div class="toolbar">
-        <label for="example">Start with an example</label
-        ><select id="example">
-          <option value="0">Named parameters</option>
-          <option value="1">Optional groups</option>
-          <option value="2">Alternatives</option>
-          <option value="3">Inline choices</option>
-          <option value="4">Big integers</option></select
-        ><button id="share" type="button">Copy link</button
-        ><span id="share-status" role="status"></span>
+      <div class="header-actions">
+        <a href="https://github.com/vitalets/bdd-expressions">GitHub ↗</a>
       </div>
-      <div class="workspace">
-        <section class="panel editor" aria-label="Expression editor">
-          <label for="expression">Expression</label>
-          <textarea id="expression" rows="3" spellcheck="false" aria-describedby="expression-help">
-I have :count{int} cucumber(s)</textarea>
-          <p id="expression-help" class="hint">
-            Use <code>:name{type}</code> to capture a named value.
-          </p>
-          <label for="input">Input text</label>
-          <textarea id="input" rows="3" spellcheck="false">I have 2 cucumbers</textarea>
-          <p class="hint">Matches the whole input. Text and whitespace are case sensitive.</p>
+    </header>
+    <main aria-label="Expression playground">
+      <div class="panel workspace">
+        <section class="editor" aria-label="Expression editor">
+          <div class="expression-heading">
+            <label for="expression">Expression</label>
+            <button id="share" type="button" aria-live="polite">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <rect x="8" y="8" width="12" height="12" rx="2" />
+                <path d="M16 8V4H4v12h4" /></svg
+              ><span>Copy link</span>
+            </button>
+          </div>
+          <div class="input-control">
+            <input
+              id="expression"
+              type="text"
+              spellcheck="false"
+              autocomplete="off"
+              value="I have :count{int} cucumber(s)"
+            />
+            <button
+              type="button"
+              class="clear-input"
+              data-clear="expression"
+              aria-label="Clear expression"
+              hidden
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17" /></svg>
+            </button>
+          </div>
+          <div class="examples" role="group" aria-label="Try an example">
+            <button type="button" data-example="0">I have :count{int} cucumber(s)</button>
+            <button type="button" data-example="1">I create :item( as :owner)</button>
+            <button type="button" data-example="2">I (click/tap on/press and hold) :target</button>
+            <button type="button" data-example="3">Set :status{pending/approved/rejected}</button>
+          </div>
+          <div class="input-heading">
+            <label for="input">Input text</label>
+            <span id="status" class="badge" role="status">Evaluating…</span>
+          </div>
+          <div class="input-control">
+            <input
+              id="input"
+              aria-describedby="status"
+              type="text"
+              spellcheck="false"
+              autocomplete="off"
+              value="I have 2 cucumbers"
+            />
+            <button
+              type="button"
+              class="clear-input"
+              data-clear="input"
+              aria-label="Clear input text"
+              hidden
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17" /></svg>
+            </button>
+          </div>
         </section>
         <section
-          class="panel results"
+          class="results"
           aria-label="Evaluation results"
           aria-live="polite"
           aria-atomic="true"
         >
-          <h2>Result <span id="status" class="badge">Evaluating…</span></h2>
-          <p id="message"></p>
-          <h3>Positional values</h3>
-          <pre id="positional">—</pre>
-          <h3>Named values</h3>
-          <pre id="named">—</pre>
+          <p id="message" hidden></p>
+          <div class="result-values">
+            <div>
+              <h3>Positional params</h3>
+              <pre id="positional">—</pre>
+            </div>
+            <div>
+              <h3>Named params</h3>
+              <pre id="named">—</pre>
+            </div>
+          </div>
           <details>
             <summary>Compiled regular expression</summary>
             <pre id="regexp">—</pre>
           </details>
         </section>
       </div>
-      <p class="footnote">
-        Runs locally in your browser. <a href="%BASE_URL%syntax/">Explore the syntax →</a>
-      </p>
+      <p class="footnote">Runs locally in your browser.</p>
       <noscript
         >This playground requires JavaScript. The syntax guide is available without it.</noscript
       >

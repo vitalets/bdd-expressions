@@ -14,7 +14,11 @@ export default defineConfig({
       async transformIndexHtml(html) {
         if (!html.includes('<!-- syntax -->')) return html;
         const source = await readFile(new URL('../docs/syntax.md', import.meta.url), 'utf8');
-        const rendered = await marked.parse(source);
+        const indexStart = source.indexOf('- [');
+        const indexEnd = source.indexOf('\n## ');
+        const index = await marked.parse(source.slice(indexStart, indexEnd));
+        const rendered = await marked.parse(source.slice(0, indexStart) + source.slice(indexEnd));
+        html = html.replace('<!-- syntax-index -->', index);
         const anchored = rendered.replace(
           /<h([1-6])>(.*?)<\/h\1>/g,
           (_, level: string, title: string) => {

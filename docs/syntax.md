@@ -3,21 +3,22 @@
 Expressions match the entire input and are case sensitive. Ordinary text and whitespace match literally. Parameters capture arguments; optional groups and structural alternatives do not add arguments themselves.
 
 - [Parameters](#parameters)
-  - [Anonymous Parameters](#anonymous-parameters)
-  - [Named parameters](#named-parameters)
-  - [Inline type](#inline-type)
+  - [Anonymous parameters](#anonymous-parameters)
+  - [Named parameters with type](#named-parameters-with-type)
+  - [Named parameters without type](#named-parameters-without-type)
+  - [Inline choice parameters](#inline-choice-parameters)
   - [Arbitrary text](#arbitrary-text)
-  - [Custom types](#custom-types)
-  - [Built-in types](#built-in-types)
+  - [Custom parameter types](#custom-parameter-types)
+  - [Built-in parameter types](#built-in-parameter-types)
 - [Optional groups](#optional-groups)
   - [Optional suffix](#optional-suffix)
-  - [Optional phrase](#optional-phrase)
-  - [Optional phrase with parameter](#optional-phrase-with-parameter)
-  - [Nested optional parameters](#nested-optional-parameters)
-  - [Consecutive optional parameters](#consecutive-optional-parameters)
+  - [Optional text](#optional-text)
+  - [Optional text with parameters](#optional-text-with-parameters)
+  - [Nested optional text](#nested-optional-text)
+  - [Consecutive optional text](#consecutive-optional-text)
 - [Alternatives](#alternatives)
   - [Single-word alternatives](#single-word-alternatives)
-  - [Multi-word alternatives](#multi-word-alternatives)
+  - [Multi-word alternatives without escaping](#multi-word-alternatives-without-escaping)
   - [Optional alternative](#optional-alternative)
   - [Alternatives with parameters](#alternatives-with-parameters)
 - [Escaping](#escaping)
@@ -26,9 +27,9 @@ Expressions match the entire input and are case sensitive. Ordinary text and whi
 
 Named parameters also occupy positional slots. Each example shows captured params first as a positional array, then as a named object from `values.params`. String values are quoted; `undefined` marks an absent parameter.
 
-### Anonymous Parameters
+### Anonymous parameters
 
-Put a type name in curly braces to capture a value by position, for example `{int}`, `{string}`, or `{word}`. See [Built-in types](#built-in-types) for the full list and conversions.
+Put a type name in curly braces to capture a value by position, for example `{int}`, `{string}`, or `{word}`. See [Built-in parameter types](#built-in-parameter-types) for the full list and conversions.
 
 For example, `{int}` captures an integer:
 
@@ -48,7 +49,7 @@ Use `{string}` to capture a single- or double-quoted string. The surrounding quo
 | Captured params (positional) | `['Settings']`      |
 | Captured params (named)      | —                   |
 
-### Named parameters
+### Named parameters with type
 
 Add `:name` before the type in curly braces to give the captured value a name. The value remains available by position too.
 
@@ -61,6 +62,8 @@ For example, `:count{int}` captures an integer as `count`:
 | Captured params (positional) | `[2]`                                                                 |
 | Captured params (named)      | <code>{</code><br>&nbsp;&nbsp;<code>count: 2</code><br><code>}</code> |
 
+### Named parameters without type
+
 Untyped `:name` parameters default to `{string}` and require single or double quotes in the input. The transformer removes the surrounding quotes and unescapes `\"` and `\'`; it leaves other backslashes unchanged. Empty quoted strings are allowed. Quotes written explicitly in the expression are literal: `":page"` requires an extra pair of literal quotes around the quoted parameter. There is no automatic number inference.
 
 |                              |                                                                               |
@@ -72,7 +75,7 @@ Untyped `:name` parameters default to `{string}` and require single or double qu
 
 Parameter names use ASCII letters, digits, `_`, and `$`, and cannot start with a digit. They are case sensitive and must be unique across the entire expression, including mutually exclusive branches. `{page}` looks up a registered type named `page`; it never declares a named parameter. Unknown types are errors.
 
-### Inline type
+### Inline choice parameters
 
 Put slash-separated literals inside curly braces to capture the selected text. No custom type registration is needed. Every branch must be nonempty; wrap the parameter in an optional group to allow absence.
 
@@ -90,7 +93,7 @@ Put slash-separated literals inside curly braces to capture the selected text. N
 | Captured params (positional) | `['approved']`                                                                  |
 | Captured params (named)      | <code>{</code><br>&nbsp;&nbsp;<code>status: "approved"</code><br><code>}</code> |
 
-Inline types can contain whole phrases. Spaces inside each branch are literal and need no escaping.
+Inline choice parameters can contain whole phrases. Spaces inside each branch are literal and need no escaping.
 
 |                              |                                                                                       |
 | ---------------------------- | ------------------------------------------------------------------------------------- |
@@ -119,7 +122,7 @@ Use `{}` or `:name{}` to capture arbitrary text, including an empty string, with
 
 > This syntax is not recommended because matching is greedy and can make capture boundaries ambiguous. For example, `I send {} to {}` can split at a later `to` than intended. Prefer a specific parameter type.
 
-### Custom types
+### Custom parameter types
 
 Register a custom type to match and transform domain-specific values, then use its name in curly braces.
 
@@ -139,7 +142,7 @@ These examples use the `Point` transformer defined in [Custom parameter types](a
 | Captured params (positional) | `[{ x: 3, y: -2 }]`                                                                 |
 | Captured params (named)      | <code>{</code><br>&nbsp;&nbsp;<code>point: { x: 3, y: -2 }</code><br><code>}</code> |
 
-### Built-in types
+### Built-in parameter types
 
 These built-in types define which input is accepted and how it becomes a captured value.
 
@@ -181,11 +184,11 @@ With the optional suffix:
 | Captured params (positional) | `[2]`                      |
 | Captured params (named)      | —                          |
 
-### Optional phrase
+### Optional text
 
-Wrap a phrase in parentheses to make it optional. Include its leading space inside the group so the space is optional too.
+Wrap text in parentheses to make it optional. Include its leading space inside the group so the space is optional too.
 
-Without the optional phrase:
+Without the optional text:
 
 |                              |                                                                               |
 | ---------------------------- | ----------------------------------------------------------------------------- |
@@ -194,7 +197,7 @@ Without the optional phrase:
 | Captured params (positional) | `['Settings']`                                                                |
 | Captured params (named)      | <code>{</code><br>&nbsp;&nbsp;<code>page: "Settings"</code><br><code>}</code> |
 
-With the optional phrase:
+With the optional text:
 
 |                              |                                                                               |
 | ---------------------------- | ----------------------------------------------------------------------------- |
@@ -203,7 +206,7 @@ With the optional phrase:
 | Captured params (positional) | `['Settings']`                                                                |
 | Captured params (named)      | <code>{</code><br>&nbsp;&nbsp;<code>page: "Settings"</code><br><code>}</code> |
 
-### Optional phrase with parameter
+### Optional text with parameters
 
 An optional group can contain parameters. When the group is absent, those parameters keep their positions and have `undefined` values.
 
@@ -225,7 +228,7 @@ With an owner:
 | Captured params (positional) | `['document', 'Alice']`                                                                                                   |
 | Captured params (named)      | <code>{</code><br>&nbsp;&nbsp;<code>item: "document",</code><br>&nbsp;&nbsp;<code>owner: "Alice"</code><br><code>}</code> |
 
-### Nested optional parameters
+### Nested optional text
 
 Nest optional groups to make one phrase depend on another. Here, the workspace phrase can appear only when the owner phrase is present.
 
@@ -236,7 +239,7 @@ Nest optional groups to make one phrase depend on another. Here, the workspace p
 | Captured params (positional) | `['document', 'Alice', 'Team']`                                                                                                                                          |
 | Captured params (named)      | <code>{</code><br>&nbsp;&nbsp;<code>item: "document",</code><br>&nbsp;&nbsp;<code>owner: "Alice",</code><br>&nbsp;&nbsp;<code>workspace: "Team"</code><br><code>}</code> |
 
-### Consecutive optional parameters
+### Consecutive optional text
 
 Place optional groups next to each other to allow either, both, or neither. Distinct literal prefixes make it clear which parameter each input value belongs to.
 
@@ -278,7 +281,7 @@ Both optional groups are present:
 
 Put optional spaces **inside** the group. `I create :item (as :owner)` always requires a space after the item, even when the group is absent. Whitespace is never trimmed or normalized.
 
-Absent parameters retain their positional slots and have `undefined` values and capture positions. Their transformers are not called. In a nested group, the inner phrase can appear only when its enclosing group appears.
+Absent parameters retain their positional slots and have `undefined` values and capture positions. Their transformers are not called. In a nested group, the inner text can appear only when its enclosing group appears.
 
 > [!CAUTION]
 > Consecutive optionals use native greedy matching and backtracking. For `I send( :message)( :recipient)`, input `I send "Alice"` fills `message`. For `I send( :message)( :recipient confirmed)`, input `I send "Alice" confirmed` fills `recipient` instead. Distinguishing literal text, such as `message` and `to` in the examples, makes the intended assignment clear.
@@ -309,7 +312,7 @@ Paying by cash:
 | Captured params (positional) | —                    |
 | Captured params (named)      | —                    |
 
-### Multi-word alternatives
+### Multi-word alternatives without escaping
 
 Put slash-separated phrases in parentheses to require one of them. The selected phrase is not captured as a parameter. Spaces are literal and need no escaping. Only slashes at the current nesting level separate branches; slashes inside nested groups or braces do not affect the enclosing group.
 
