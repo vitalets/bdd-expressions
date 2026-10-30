@@ -51,6 +51,12 @@ Comparison with the JavaScript implementation, `@cucumber/cucumber-expressions@2
 | Arbitrary text                           | ✅ `{}`                                                                                                                                                                                                            | ✅ `{}`                            |
 | Custom parameter types                   | ✅                                                                                                                                                                                                                 | ✅                                 |
 
+## IDE support
+
+The [official Cucumber extension](https://github.com/cucumber/vscode) and [Cucumber (Gherkin) Full Support](https://github.com/alexkrechik/VSCucumberAutoComplete) for VS Code **do not currently support** the full BDD Expressions syntax for mapping feature steps to their implementations.
+
+🛠️ Work is in progress on a dedicated VS Code extension for BDD Expressions.
+
 ## Acknowledgements
 
 Thanks to the [Cucumber Expressions](https://github.com/cucumber/cucumber-expressions) contributors for the syntax and architecture that inspired this package, and for the parameter types, capture handling, and test cases adapted here. See [third-party notices](THIRD_PARTY_NOTICES.md) for attribution and license details.
