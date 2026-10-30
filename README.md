@@ -5,7 +5,9 @@
 [![npm version](https://img.shields.io/npm/v/bdd-expressions)](https://www.npmjs.com/package/bdd-expressions)
 [![license](https://img.shields.io/npm/l/bdd-expressions)](https://github.com/vitalets/bdd-expressions/blob/main/LICENSE)
 
-Extended syntax for BDD steps, inspired by [Cucumber Expressions](https://github.com/cucumber/cucumber-expressions).
+Extended syntax for BDD steps, a superset of [Cucumber Expressions](https://github.com/cucumber/cucumber-expressions).
+
+🚀 [Playground](https://vitalets.github.io/bdd-expressions) | [Syntax](https://vitalets.github.io/bdd-expressions/syntax/) | [API](docs/api.md) | [Comparison](#comparison-with-cucumber-expressions)
 
 ## Features
 
@@ -29,18 +31,6 @@ Extended syntax for BDD steps, inspired by [Cucumber Expressions](https://github
   - `I choose (page :page/label :label)`
 - Full support for Cucumber Expressions syntax
   - `I have {int} cucumber(s) in my belly/stomach`
-
-## Try it
-
-Try expressions in the [online playground](https://vitalets.github.io/bdd-expressions).
-
-## Syntax
-
-See the [syntax guide](https://vitalets.github.io/bdd-expressions/syntax/) for all supported syntax and examples.
-
-## Programmatic Usage
-
-See the [TypeScript API guide](docs/api.md).
 
 ## Comparison with Cucumber Expressions
 
