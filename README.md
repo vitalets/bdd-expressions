@@ -32,7 +32,7 @@ Extended syntax for BDD steps, a superset of [Cucumber Expressions](https://gith
 - Full support for Cucumber Expressions syntax
   - `I have {int} cucumber(s) in my belly/stomach`
 
-## Infer Param Typings
+## Automatic Type Inference
 
 The `BddExpression` constructor automatically infers parameter types from your expression, providing accurate TypeScript typings, autocomplete, and compile-time checks for named parameters and optional captures.
 
