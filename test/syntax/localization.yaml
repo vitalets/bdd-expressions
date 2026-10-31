@@ -1,0 +1,143 @@
+- name: Spanish text with English names and optional owner
+  expression: 'Compro :count{int} manzanas( para :owner)'
+  text: 'Compro 3 manzanas para "Ana"'
+  params:
+    positional: [3, Ana]
+    named:
+      count: 3
+      owner: Ana
+
+- name: Spanish text with absent owner
+  expression: 'Compro :count{int} manzanas( para :owner)'
+  text: 'Compro 3 manzanas'
+  params:
+    positional: [3, null]
+    named:
+      count: 3
+      owner: null
+
+- name: accented Latin text
+  expression: 'Compro :count{int} manzanas para :owner'
+  text: 'Compro 2 manzanas para "José"'
+  params:
+    positional: [2, José]
+    named:
+      count: 2
+      owner: José
+
+- name: Chinese text without spaces around parameters
+  expression: '我买:count{int}个苹果（给:owner）'
+  text: '我买3个苹果（给"小明"）'
+  params:
+    positional: [3, 小明]
+    named:
+      count: 3
+      owner: 小明
+
+- name: Japanese inline choice values
+  expression: '状態を:status{承認済み/保留}にする'
+  text: '状態を承認済みにする'
+  params:
+    positional: [承認済み]
+    named:
+      status: 承認済み
+
+- name: Arabic text and string values
+  expression: 'أشتري :count{int} تفاحات لـ :owner'
+  text: 'أشتري 3 تفاحات لـ "أحمد"'
+  params:
+    positional: [3, أحمد]
+    named:
+      count: 3
+      owner: أحمد
+
+- name: Devanagari combining characters
+  expression: 'मैं :count{int} सेब खरीदता हूँ'
+  text: 'मैं 3 सेब खरीदता हूँ'
+  params:
+    positional: [3]
+    named:
+      count: 3
+
+- name: emoji including a joined sequence in inline choices
+  expression: 'Elijo :icon{🍎/👩‍💻}'
+  text: 'Elijo 👩‍💻'
+  params:
+    positional: [👩‍💻]
+    named:
+      icon: 👩‍💻
+
+- name: Unicode whitespace remains literal text
+  expression: "Je\u00a0prends\u202f:count{int} pommes"
+  text: "Je\u00a0prends\u202f2 pommes"
+  params:
+    positional: [2]
+    named:
+      count: 2
+
+- name: non-ASCII parameter start is literal
+  expression: ':árbol'
+  text: ':árbol'
+  params:
+    positional: []
+    named: {}
+
+- name: non-ASCII continuation ends a parameter name
+  expression: ':café'
+  text: '"coffee"é'
+  params:
+    positional: [coffee]
+    named:
+      caf: coffee
+
+- name: fullwidth punctuation does not introduce parameters
+  expression: '：count｛int｝'
+  text: '：count｛int｝'
+  params:
+    positional: []
+    named: {}
+
+- name: fullwidth parentheses do not make their content optional
+  expression: '我买:count{int}个苹果（给:owner）'
+  text: '我买3个苹果'
+  match: false
+
+- name: Arabic-Indic digits do not match int
+  expression: 'أشتري :count{int} تفاحات'
+  text: 'أشتري ٣ تفاحات'
+  match: false
+
+- name: fullwidth digits do not match int
+  expression: '我买:count{int}个苹果'
+  text: '我买３个苹果'
+  match: false
+
+- name: decimal comma does not match float
+  expression: 'Prix :price{float}'
+  text: 'Prix 1,5'
+  match: false
+
+- name: localized quotes do not match the default string type
+  expression: 'Nombre :owner'
+  text: 'Nombre «Ana»'
+  match: false
+
+- name: canonical Unicode normalization is not automatic
+  expression: 'café :count{int}'
+  text: "cafe\u0301 2"
+  match: false
+
+- name: canonically equivalent inline choices remain distinct
+  expression: ":label{café/cafe\u0301}"
+  text: "cafe\u0301"
+  params:
+    positional: ["cafe\u0301"]
+    named:
+      label: "cafe\u0301"
+
+- name: non-ASCII registered type names are rejected
+  expression: ':value{número}'
+  error:
+    start: 6
+    end: 7
+    message: 'Invalid parameter type name'

@@ -22,8 +22,11 @@ import { escapeRegexp } from './utils/regexp.ts';
 import { captureTree, type Capture } from './cucumber-expressions/capture-tree.ts';
 import { buildArgument, buildGroup, type Argument } from './cucumber-expressions/matching.ts';
 import { resolveParams } from './resolve-params.ts';
+import type { InferBddParams } from './infer-params.ts';
 
-export type MatchValues = unknown[] & { readonly params: Record<string, unknown> };
+export type MatchValues<Params extends object = Record<string, unknown>> = unknown[] & {
+  readonly params: Params;
+};
 
 type Slot = {
   name?: string;
@@ -33,15 +36,23 @@ type Slot = {
 
 /**
  * Matches a parsed expression using a compiled regexp and source-ordered parameters.
+ * Infers named values from expression literals unless a Params contract is supplied.
+ * An explicit Params type bypasses inference and must match the expression and registry.
+ * Values resolves that choice once, keeping instances assignable to BddExpression
+ * without requiring their source literal in type annotations.
  */
-export class BddExpression {
+export class BddExpression<
+  Params extends object = never,
+  Source extends string = string,
+  Values extends object = [Params] extends [never] ? InferBddParams<Source> : Params,
+> {
   readonly source: string;
   readonly ast: Node;
   readonly regexp: RegExp;
   private readonly slots: readonly Slot[];
   private readonly names: readonly (string | undefined)[];
 
-  constructor(pattern: string, parameterTypeRegistry: ParameterTypeRegistry) {
+  constructor(pattern: Source, parameterTypeRegistry: ParameterTypeRegistry) {
     this.source = pattern;
     const compiled = compileExpression(pattern, parameterTypeRegistry);
     this.ast = compiled.ast;
@@ -69,7 +80,7 @@ export class BddExpression {
     if (args === null) return null;
     const { positional, named } = await resolveParams(args, this.names, world);
     Object.defineProperty(positional, 'params', { value: named, enumerable: false });
-    return positional as MatchValues;
+    return positional as MatchValues<Values>;
   }
 }
 

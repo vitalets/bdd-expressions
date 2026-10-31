@@ -17,3 +17,4 @@ export type {
 export { BddExpression } from './compiler.ts';
 export type { MatchValues } from './compiler.ts';
 export type { Argument, Group } from './cucumber-expressions/matching.ts';
+export type { InferBddParams } from './infer-params.ts';

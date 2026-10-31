@@ -2,8 +2,9 @@
 
 ## [Unreleased]
 
+- Add automatic named parameter type inference, with custom type mappings, bounded compiler work, and manual parameter contracts.
+
 - Add a browser playground with expression examples, match highlighting, and shareable URLs that preserve inputs.
-- Add an online syntax guide with sticky navigation and active-section tracking.
 
 ## [0.1.1] - 2026-10-23
 

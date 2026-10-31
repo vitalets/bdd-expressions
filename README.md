@@ -32,6 +32,24 @@ Extended syntax for BDD steps, a superset of [Cucumber Expressions](https://gith
 - Full support for Cucumber Expressions syntax
   - `I have {int} cucumber(s) in my belly/stomach`
 
+## Infer Param Typings
+
+The `BddExpression` constructor automatically infers parameter types from your expression, providing accurate TypeScript typings, autocomplete, and compile-time checks for named parameters and optional captures.
+
+```ts
+const expression = new BddExpression('I buy :count{int} apples( for :owner)', registry);
+const result = await expression.matchValues('I buy 2 apples');
+/*
+result.params:
+{
+  count: number;
+  owner: string | undefined;
+}
+*/
+```
+
+See the [API guide](docs/api.md#named-parameter-inference) for details and how to supply manual types or disable inference.
+
 ## Comparison with Cucumber Expressions
 
 Comparison with the JavaScript implementation, `@cucumber/cucumber-expressions@20.1.0`.
