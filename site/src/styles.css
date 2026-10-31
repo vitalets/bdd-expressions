@@ -274,6 +274,26 @@ summary {
 .result-values h3 {
   margin-top: 8px;
 }
+.positional-result {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.positional-result h3 {
+  flex-shrink: 0;
+  margin: 0;
+}
+.positional-result pre {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 14px;
+}
+.preview-label {
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: normal;
+}
 .examples {
   display: flex;
   align-items: baseline;
@@ -356,6 +376,7 @@ summary {
     scroll-margin-top: calc(var(--syntax-header-height, 103px) + 200px);
   }
   .result-values {
+    grid-template-columns: 1fr;
     gap: 12px;
   }
 }

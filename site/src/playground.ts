@@ -11,7 +11,7 @@ const examples = [
   ['I have :count{int} cucumber(s)', 'I have 2 cucumbers'],
   ['I (search for/look up) {string}', 'I search for "red shoes"'],
   ['I create :item( as :owner)', 'I create "report" as "admin"'],
-  ['Set {pending/approved/rejected} status', 'Set approved status'],
+  ['Set :status{pending/approved/rejected} status', 'Set approved status'],
 ] as const;
 
 /**
@@ -127,7 +127,14 @@ function finish() {
 }
 
 function fail(text: string) {
-  render({ state: 'error', message: text, positional: '—', named: '—', regexp: '—' });
+  render({
+    state: 'error',
+    message: text,
+    positional: '—',
+    named: '—',
+    typescript: '—',
+    regexp: '—',
+  });
 }
 
 function render(result: Evaluation) {
@@ -137,7 +144,7 @@ function render(result: Evaluation) {
   input.dataset.state = result.state;
   message.hidden = result.state !== 'error';
   message.textContent = result.state === 'error' ? result.message : '';
-  for (const key of ['positional', 'named', 'regexp'] as const) {
+  for (const key of ['positional', 'named', 'typescript', 'regexp'] as const) {
     document.getElementById(key)!.textContent = result[key];
   }
 }

@@ -3,12 +3,14 @@
  */
 
 import { BddExpression, createParameterTypeRegistry, ExpressionError } from '../../src/index.ts';
+import { formatTypePreview } from './type-preview.ts';
 
 export type Evaluation = {
   state: 'match' | 'miss' | 'error';
   message: string;
   positional: string;
   named: string;
+  typescript: string;
   regexp: string;
 };
 
@@ -27,6 +29,7 @@ async function evaluate(source: string, input: string) {
         values === null ? 'The expression does not match this input.' : 'The entire input matches.',
       positional: values === null ? '—' : formatValue(values),
       named: values === null ? '—' : formatValue(values.params),
+      typescript: formatTypePreview(expression.ast, source),
       regexp: String(expression.regexp),
     };
   } catch (error) {
@@ -36,6 +39,7 @@ async function evaluate(source: string, input: string) {
       message: `${error instanceof Error ? error.message : String(error)}${location}`,
       positional: '—',
       named: '—',
+      typescript: '—',
       regexp: '—',
     };
   }

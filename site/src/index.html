@@ -70,7 +70,9 @@
             <button type="button" data-example="0">I have :count{int} cucumber(s)</button>
             <button type="button" data-example="1">I (search for/look up) {string}</button>
             <button type="button" data-example="2">I create :item( as :owner)</button>
-            <button type="button" data-example="3">Set {pending/approved/rejected} status</button>
+            <button type="button" data-example="3">
+              Set :status{pending/approved/rejected} status
+            </button>
           </div>
           <div class="input-heading">
             <label for="input">Input text</label>
@@ -103,14 +105,18 @@
           aria-atomic="true"
         >
           <p id="message" hidden></p>
+          <div class="positional-result">
+            <h3>Positional params</h3>
+            <pre id="positional">—</pre>
+          </div>
           <div class="result-values">
-            <div>
-              <h3>Positional params</h3>
-              <pre id="positional">—</pre>
-            </div>
             <div>
               <h3>Named params</h3>
               <pre id="named">—</pre>
+            </div>
+            <div>
+              <h3>Infered Typings</h3>
+              <pre id="typescript">—</pre>
             </div>
           </div>
           <details>
