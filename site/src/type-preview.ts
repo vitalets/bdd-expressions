@@ -1,56 +1,54 @@
 /**
- * Formats named parameter types from the parsed expression for the built-in registry.
- * Mirrors InferBddParams without loading a TypeScript compiler in the browser.
+ * Resolves named parameter types with the library's own inference source in a virtual compiler.
  */
 
-import type { Node } from '../../src/parser.ts';
+import ts from 'typescript';
+import { createSystem, createVirtualTypeScriptEnvironment } from '@typescript/vfs';
 
 /**
- * TypeScript results of the built-in parameter transformers.
+ * Virtual query updated on each expression change while the language service stays alive.
  */
-const builtinTypes: Record<string, string> = {
-  int: 'number',
-  byte: 'number',
-  short: 'number',
-  long: 'number',
-  float: 'number',
-  double: 'number',
-  biginteger: 'bigint',
-  bigdecimal: 'string',
-  word: 'string',
-  string: 'string',
-  '': 'string',
-};
+const queryPath = '/query.ts';
 
 /**
- * Shows the named parameter shape independently of whether the input matches.
- * Long expressions use the same inference budget as InferBddParams.
+ * Creates a reusable type preview with bundled declarations and no network dependency.
  */
-export function formatTypePreview(ast: Node, source: string) {
-  if (source.length > 256) return 'Record<string, unknown>';
-  const properties: string[] = [];
-  visit(ast, false);
-  return properties.length ? `{\n${properties.join('\n')}\n}` : '{}';
+export function createTypePreview(inferenceSource: string, libraries: Map<string, string>) {
+  const files = new Map(libraries);
+  files.set('/infer-params.ts', inferenceSource);
+  files.set(queryPath, 'export {};');
+  const environment = createVirtualTypeScriptEnvironment(createSystem(files), [queryPath], ts, {
+    strict: true,
+    target: ts.ScriptTarget.ES2022,
+    module: ts.ModuleKind.ESNext,
+    moduleResolution: ts.ModuleResolutionKind.Bundler,
+    lib: ['lib.es5.d.ts'],
+    skipLibCheck: true,
+  });
 
-  function visit(node: Node, optional: boolean) {
-    switch (node.kind) {
-      case 'sequence':
-        node.children.forEach((child) => visit(child, optional));
-        break;
-      case 'optional':
-        visit(node.body, true);
-        break;
-      case 'choice':
-        node.branches.forEach((branch) => visit(branch, true));
-        break;
-      case 'parameter': {
-        if (!node.name) return;
-        const type = node.alternatives
-          ? [...new Set(node.alternatives)].map((value) => JSON.stringify(value)).join(' | ')
-          : (builtinTypes[node.type] ?? 'unknown');
-        properties.push(`  ${node.name}: ${type}${optional ? ' | undefined' : ''};`);
-        break;
-      }
+  return (expression: string) => {
+    environment.updateFile(
+      queryPath,
+      `import type { InferBddParams } from './infer-params';\ndeclare const params: InferBddParams<${JSON.stringify(expression)}>;`,
+    );
+    const diagnostics = [
+      ...environment.languageService.getSyntacticDiagnostics(queryPath),
+      ...environment.languageService.getSemanticDiagnostics(queryPath),
+    ];
+    if (diagnostics.length) {
+      throw new Error(ts.flattenDiagnosticMessageText(diagnostics[0]!.messageText, '\n'));
     }
-  }
+    const program = environment.languageService.getProgram()!;
+    const source = program.getSourceFile(queryPath)!;
+    const statement = source.statements.find(ts.isVariableStatement)!;
+    const declaration = statement.declarationList.declarations[0]!;
+    const checker = program.getTypeChecker();
+    const type = checker.getTypeAtLocation(declaration.name);
+    if (type.getStringIndexType()) return checker.typeToString(type);
+    const properties = type.getProperties().map((property) => {
+      const value = checker.getTypeOfSymbolAtLocation(property, declaration);
+      return `  ${property.name}: ${checker.typeToString(value, declaration, ts.TypeFormatFlags.NoTruncation)};`;
+    });
+    return properties.length ? `{\n${properties.join('\n')}\n}` : '{}';
+  };
 }

@@ -3,6 +3,7 @@
  */
 
 import type { Evaluation } from './evaluate.ts';
+import type { TypeResult } from './type-worker.ts';
 
 /**
  * Examples covering the most useful expression features.
@@ -48,6 +49,13 @@ const clearButtons = document.querySelectorAll<HTMLButtonElement>('[data-clear]'
  * Pending work is cancelled whenever the input changes.
  */
 let worker: Worker | undefined;
+/**
+ * Independent persistent compiler worker, restarted only after failures or timeouts.
+ */
+let typeWorker: Worker | undefined;
+let typeTimeout: ReturnType<typeof setTimeout>;
+let typeRequestId = 0;
+let completedPreview: { expression: string; text: string } | undefined;
 let debounce: ReturnType<typeof setTimeout>;
 let timeout: ReturnType<typeof setTimeout>;
 /**
@@ -93,6 +101,10 @@ function schedule() {
   clearTimeout(debounce);
   clearTimeout(timeout);
   worker?.terminate();
+  clearTimeout(typeTimeout);
+  typeRequestId++;
+  document.getElementById('typescript')!.textContent =
+    completedPreview?.expression === expression.value ? completedPreview.text : 'Inferring…';
   clearButtons.forEach((button) => {
     const field = document.getElementById(button.dataset.clear!) as HTMLInputElement;
     button.hidden = field.value.length === 0;
@@ -108,6 +120,8 @@ function run() {
   worker.onmessage = (event: MessageEvent<Evaluation>) => {
     finish();
     render(event.data);
+    if (event.data.state !== 'error') requestTypePreview();
+    else resetTypePreview();
   };
   worker.onerror = () => {
     finish();
@@ -127,12 +141,12 @@ function finish() {
 }
 
 function fail(text: string) {
+  resetTypePreview();
   render({
     state: 'error',
     message: text,
     positional: '—',
     named: '—',
-    typescript: '—',
     regexp: '—',
   });
 }
@@ -144,9 +158,37 @@ function render(result: Evaluation) {
   input.dataset.state = result.state;
   message.hidden = result.state !== 'error';
   message.textContent = result.state === 'error' ? result.message : '';
-  for (const key of ['positional', 'named', 'typescript', 'regexp'] as const) {
+  for (const key of ['positional', 'named', 'regexp'] as const) {
     document.getElementById(key)!.textContent = result[key];
   }
+}
+
+function requestTypePreview() {
+  if (completedPreview?.expression === expression.value) return;
+  completedPreview = undefined;
+  const output = document.getElementById('typescript')!;
+  output.textContent = 'Inferring…';
+  typeWorker ??= new Worker(new URL('./type-worker.ts', import.meta.url), { type: 'module' });
+  typeWorker.onmessage = (event: MessageEvent<TypeResult>) => {
+    if (event.data.id !== typeRequestId) return;
+    clearTimeout(typeTimeout);
+    output.textContent = event.data.text;
+    completedPreview = { expression: expression.value, text: event.data.text };
+  };
+  typeWorker.onerror = () =>
+    resetTypePreview('Type inference could not start. Edit the expression to retry.');
+  typeTimeout = setTimeout(() => {
+    resetTypePreview('Type inference took too long. Edit the expression to retry.');
+  }, 15000);
+  typeWorker.postMessage({ id: typeRequestId, expression: expression.value });
+}
+
+function resetTypePreview(text = '—') {
+  clearTimeout(typeTimeout);
+  typeWorker?.terminate();
+  typeWorker = undefined;
+  completedPreview = undefined;
+  document.getElementById('typescript')!.textContent = text;
 }
 
 function restoreLink() {

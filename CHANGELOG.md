@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- Show compiler-inferred parameter types in the playground using the library’s actual TypeScript definitions.
+
 ## [0.2.0] - 2026-10-31
 
 - Add automatic named parameter type inference, with custom type mappings, bounded compiler work, and manual parameter contracts.
