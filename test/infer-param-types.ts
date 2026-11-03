@@ -8,8 +8,8 @@ import { BddExpression, type InferBddParams, type ParameterTypeRegistry } from '
 
 type Equal<A, B> =
   (<T>() => T extends A ? 1 : 2) extends <T>() => T extends B ? 1 : 2 ? true : false;
-type ParamsOf<E extends { matchValues(text: string): unknown }> =
-  NonNullable<Awaited<ReturnType<E['matchValues']>>> extends { params: infer P } ? P : never;
+type ParamsOf<E extends { matchAndResolve(text: string): unknown }> =
+  NonNullable<Awaited<ReturnType<E['matchAndResolve']>>> extends { params: infer P } ? P : never;
 
 // Build a 256-character literal without a long, unreadable line.
 type Text16 = 'abcdefghijklmnop';

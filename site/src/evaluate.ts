@@ -20,7 +20,7 @@ self.onmessage = async (event: MessageEvent<{ expression: string; input: string 
 async function evaluate(source: string, input: string) {
   try {
     const expression = new BddExpression(source, createParameterTypeRegistry());
-    const values = await expression.matchValues(input);
+    const values = await expression.matchAndResolve(input);
     return {
       state: values === null ? 'miss' : 'match',
       message:

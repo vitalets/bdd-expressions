@@ -15,6 +15,6 @@ export type {
   MutableParameterTypeRegistry,
 } from './cucumber-expressions/parameter-types.ts';
 export { BddExpression } from './compiler.ts';
-export type { MatchValues } from './compiler.ts';
+export type { BddExpressionResult } from './compiler.ts';
 export type { Argument, Group } from './cucumber-expressions/matching.ts';
 export type { InferBddParams } from './infer-params.ts';

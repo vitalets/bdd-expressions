@@ -8,7 +8,7 @@ Using BDD Expressions from TypeScript. See the [syntax guide](syntax.md) for exp
 import { BddExpression } from 'bdd-expressions';
 
 const expression = new BddExpression('I create :item( as :owner( in :workspace))', registry);
-const result = (await expression.matchValues('I create "document" as "Alice"'))!;
+const result = (await expression.matchAndResolve('I create "document" as "Alice"'))!;
 
 console.log(result[0]); // 'document'
 console.log(result[1]); // 'Alice'
@@ -25,17 +25,17 @@ console.log(result.params);
 
 ## Matching API
 
-Use `matchValues(text, world?)` to get transformed values by position and by name:
+Use `matchAndResolve(text, world?)` to get transformed values by position and by name:
 
 ```ts
 const expression = new BddExpression('I buy :count{int} apples', registry);
-const result = (await expression.matchValues('I buy 2 apples'))!;
+const result = (await expression.matchAndResolve('I buy 2 apples'))!;
 
 console.log(result[0]); // 2
 console.log(result.params); // { count: 2 }
 ```
 
-The result is an array with a `params` property. `params` has a null prototype and
+The result has type `BddExpressionResult<Params>`: an array with a typed `params` property. `params` has a null prototype and
 is nonenumerable. A failed match returns `null`.
 
 Matching runs once. Transformers run once per present parameter in source order,
@@ -51,6 +51,7 @@ const args = expression.match('I buy 2 apples');
 /*
 [
   {
+    name: 'count',
     parameterType: {
       name: 'int',
       regexpStrings: ['-?\\d+', '\\d+'],
@@ -69,6 +70,11 @@ const args = expression.match('I buy 2 apples');
 ]
 */
 ```
+
+`match()` returns `readonly Argument[] | null`. Each argument exposes a
+TypeScript-readonly `name?: string`: the expression binding name (`count` above),
+or `undefined` for unnamed parameters. Names remain available for absent optional
+parameters and unselected choice branches.
 
 A successful match without parameters returns `[]`. Call `argument.getValue(world?)` to transform a capture;
 repeated calls rerun its transformer.
@@ -172,7 +178,7 @@ registry.defineParameterType(
 );
 
 const point = new BddExpression('Move to :point{Point}', registry);
-const result = (await point.matchValues('Move to 3,-2'))!;
+const result = (await point.matchAndResolve('Move to 3,-2'))!;
 
 console.log(result[0]);
 /*

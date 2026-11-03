@@ -38,7 +38,7 @@ The `BddExpression` constructor automatically infers parameter types from your e
 
 ```ts
 const expression = new BddExpression('I buy :count{int} apples( for :owner)', registry);
-const result = await expression.matchValues('I buy 2 apples');
+const result = await expression.matchAndResolve('I buy 2 apples');
 /*
 {
   count: number;

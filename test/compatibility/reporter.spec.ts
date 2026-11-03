@@ -56,7 +56,7 @@ test('reporter keeps raw string quotes, numeric text and independent inline type
     { group: { start: 10, value: '002' }, parameterTypeName: 'int' },
     { group: { start: 14, value: 'approved' }, parameterTypeName: 'inline-choice' },
   ]);
-  assert.deepEqual([...(await expression.matchValues(text))!], ['same', 2, 'approved']);
+  assert.deepEqual([...(await expression.matchAndResolve(text))!], ['same', 2, 'approved']);
   assert.equal(args[1]!.group.value, '002');
 });
 

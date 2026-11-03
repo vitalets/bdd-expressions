@@ -24,7 +24,7 @@ import { buildArgument, buildGroup, type Argument } from './cucumber-expressions
 import { resolveParams } from './resolve-params.ts';
 import type { InferBddParams } from './infer-params.ts';
 
-export type MatchValues<Params extends object = Record<string, unknown>> = unknown[] & {
+export type BddExpressionResult<Params extends object = Record<string, unknown>> = unknown[] & {
   readonly params: Params;
 };
 
@@ -50,7 +50,6 @@ export class BddExpression<
   readonly ast: Node;
   readonly regexp: RegExp;
   private readonly slots: readonly Slot[];
-  private readonly names: readonly (string | undefined)[];
 
   constructor(pattern: Source, parameterTypeRegistry: ParameterTypeRegistry) {
     this.source = pattern;
@@ -58,7 +57,6 @@ export class BddExpression<
     this.ast = compiled.ast;
     this.regexp = compiled.regexp;
     this.slots = compiled.slots;
-    this.names = this.slots.map((slot) => slot.name);
   }
 
   /**
@@ -67,7 +65,9 @@ export class BddExpression<
   match(text: string) {
     const result = this.regexp.exec(text);
     const args: readonly Argument[] | null = result
-      ? this.slots.map((slot) => buildArgument(buildGroup(slot.capture, result), slot.type))
+      ? this.slots.map((slot) =>
+          buildArgument(buildGroup(slot.capture, result), slot.type, slot.name),
+        )
       : null;
     return args;
   }
@@ -75,12 +75,12 @@ export class BddExpression<
   /**
    * Resolves positional and named values with the supplied transformer context.
    */
-  async matchValues(text: string, world?: unknown) {
+  async matchAndResolve(text: string, world?: unknown) {
     const args = this.match(text);
     if (args === null) return null;
-    const { positional, named } = await resolveParams(args, this.names, world);
+    const { positional, named } = await resolveParams(args, world);
     Object.defineProperty(positional, 'params', { value: named, enumerable: false });
-    return positional as MatchValues<Values>;
+    return positional as BddExpressionResult<Values>;
   }
 }
 

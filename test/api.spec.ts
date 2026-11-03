@@ -6,7 +6,7 @@ import {
   createParameterTypeRegistry,
   parseExpression,
   type Argument,
-  type MatchValues,
+  type BddExpressionResult,
   type ParameterTypeRegistry,
   type Node,
   type Group,
@@ -18,8 +18,8 @@ type Equal<A, B> =
 test('public expression members and TypeScript return contracts', async () => {
   const matchContract: Equal<ReturnType<BddExpression['match']>, readonly Argument[] | null> = true;
   const valuesContract: Equal<
-    ReturnType<BddExpression['matchValues']>,
-    Promise<MatchValues | null>
+    ReturnType<BddExpression['matchAndResolve']>,
+    Promise<BddExpressionResult | null>
   > = true;
   const astContract: Equal<BddExpression['ast'], Node> = true;
   const constructorContract: Equal<
@@ -27,6 +27,8 @@ test('public expression members and TypeScript return contracts', async () => {
     [string, ParameterTypeRegistry]
   > = true;
   assert.ok(matchContract && valuesContract && astContract && constructorContract);
+  const nameContract: Equal<Pick<Argument, 'name'>, { readonly name?: string }> = true;
+  assert.ok(nameContract);
 
   const source = 'I open :page';
   const expression: BddExpression = new BddExpression(source, createParameterTypeRegistry());
@@ -34,7 +36,7 @@ test('public expression members and TypeScript return contracts', async () => {
   assert.ok(expression.regexp instanceof RegExp);
   assert.equal(expression.regexp.hasIndices, true);
   assert.deepEqual(expression.ast, parseExpression(source));
-  const pending = expression.matchValues('I open "Settings"');
+  const pending = expression.matchAndResolve('I open "Settings"');
   assert.ok(pending instanceof Promise);
   await pending;
 });
@@ -59,7 +61,7 @@ test('named parameter mapping has a null prototype and is nonenumerable', async 
     'I open :page with :count{int} :__proto__ :constructor',
     createParameterTypeRegistry(),
   );
-  const result = (await expression.matchValues(`I open "Settings" with 2 'safe' ""`))!;
+  const result = (await expression.matchAndResolve(`I open "Settings" with 2 'safe' ""`))!;
   assert.equal(result.params.page, result[0]);
   assert.equal(Object.getPrototypeOf(result.params), null);
   assert.equal(Object.keys(result).includes('params'), false);
@@ -71,6 +73,10 @@ test('nested optional parameters retain absent capture metadata', () => {
   );
   const args = expression.match('I create "x"')!;
   assert.equal(args.length, 3);
+  assert.deepEqual(
+    args.map((arg) => arg.name),
+    ['item', 'owner', 'workspace'],
+  );
   assert.equal(args[1]!.group.value, undefined);
   assert.equal(args[1]!.group.start, undefined);
   assert.equal(args[1]!.group.end, undefined);
@@ -90,7 +96,7 @@ test('backtracking skips transformers and clears all abandoned capture positions
     }),
   });
   const text = 'I send "Alice" confirmed';
-  await expression.matchValues(text);
+  await expression.matchAndResolve(text);
   assert.equal(calls, 1);
   const args = expression.match(text)!;
   assertAbsent(args[0]!.group);
@@ -115,6 +121,10 @@ test('raw UTF-16 captures and nested custom groups use native indices', async ()
   );
   const expression = new BddExpression('😀 :pair{Pair} {word}', registry);
   const args = expression.match('😀 ab-ab ab')!;
+  assert.deepEqual(
+    args.map((arg) => arg.name),
+    ['pair', undefined],
+  );
   const group = args[0]!.group;
   assert.equal(group.value, 'ab-ab');
   assert.deepEqual([group.start, group.end], [3, 8]);
@@ -171,11 +181,11 @@ test('world context, PromiseLike, ordered transformations, no calls for absent p
     execs++;
     return originalExec(text);
   };
-  const result = (await expression.matchValues('one two', { prefix: '!' }))!;
+  const result = (await expression.matchAndResolve('one two', { prefix: '!' }))!;
   assert.deepEqual([...result], ['!one', '!two', undefined]);
   assert.deepEqual(calls, ['one', 'two']);
   assert.equal(execs, 1);
-  assert.equal(await expression.matchValues('???', {}), null);
+  assert.equal(await expression.matchAndResolve('???', {}), null);
   assert.deepEqual(calls, ['one', 'two']);
 });
 test('transformer errors propagate', async () => {
@@ -187,7 +197,10 @@ test('transformer errors propagate', async () => {
       transformer: () => Promise.reject(new Error('transform failed')),
     }),
   );
-  await assert.rejects(new BddExpression('{Fail}', registry).matchValues('x'), /transform failed/);
+  await assert.rejects(
+    new BddExpression('{Fail}', registry).matchAndResolve('x'),
+    /transform failed/,
+  );
 });
 
 test('transformers can return real null independently of absent parameters', async () => {
@@ -199,9 +212,10 @@ test('transformers can return real null independently of absent parameters', asy
       transformer: () => null,
     }),
   );
-  const result = (await new BddExpression(':present{Null}( :absent{Null})', registry).matchValues(
-    'x',
-  ))!;
+  const result = (await new BddExpression(
+    ':present{Null}( :absent{Null})',
+    registry,
+  ).matchAndResolve('x'))!;
   assert.deepEqual([...result], [null, undefined]);
   assert.equal(result.params.present, null);
   assert.equal(result.params.absent, undefined);
@@ -244,7 +258,7 @@ test('biginteger preserves integer precision', async () => {
     assert.ok(args);
     assert.equal(args.length, 1);
     assert.equal(args[0]!.parameterType.name, 'biginteger');
-    assert.deepEqual(await expression.matchValues(input), [expected]);
+    assert.deepEqual(await expression.matchAndResolve(input), [expected]);
   }
 });
 
@@ -262,11 +276,15 @@ test('unselected choice parameters do not invoke transformers', async () => {
     }),
   );
   const expression = new BddExpression('(:first{Tracked}//:second{int}/)', registry);
-  await expression.matchValues('');
-  await expression.matchValues('2');
+  await expression.matchAndResolve('');
+  await expression.matchAndResolve('2');
   assert.equal(calls, 0);
   assertAbsent(expression.match('2')![0]!.group);
-  await expression.matchValues('abc');
+  assert.deepEqual(
+    expression.match('2')!.map((arg) => arg.name),
+    ['first', 'second'],
+  );
+  await expression.matchAndResolve('abc');
   assert.equal(calls, 1);
 });
 

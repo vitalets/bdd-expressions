@@ -15,7 +15,7 @@ import {
   BddExpression,
   createParameterTypeRegistry,
   ExpressionError,
-  type MatchValues,
+  type BddExpressionResult,
 } from '../../src/index.ts';
 
 type Value = string | number | boolean | null;
@@ -44,7 +44,7 @@ async function runTestCase(testCase: TestCase) {
   }
   const expression = new BddExpression(testCase.expression, createParameterTypeRegistry());
   const args = expression.match(testCase.text);
-  const result = await expression.matchValues(testCase.text);
+  const result = await expression.matchAndResolve(testCase.text);
   if (testCase.match === false) {
     assert.equal(args, null);
     assert.equal(result, null);
@@ -70,7 +70,7 @@ function assertExpressionError(source: string, expected: ExpectedError) {
   );
 }
 
-function assertParams(actual: MatchValues, expected: Params) {
+function assertParams(actual: BddExpressionResult, expected: Params) {
   assert.equal(actual.length, expected.positional.length);
   expected.positional.forEach((value, index) => {
     assert.ok(Object.hasOwn(actual, index), `missing positional slot ${index}`);

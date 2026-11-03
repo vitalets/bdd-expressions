@@ -15,6 +15,7 @@ export type Group = {
   readonly values: (string | undefined)[];
 };
 export type Argument = {
+  readonly name?: string;
   readonly group: Group;
   readonly parameterType: ParameterType;
   getValue(world?: unknown): unknown;
@@ -42,8 +43,9 @@ export function buildGroup(capture: Capture, match: RegExpExecArray): Group {
 /**
  * Connects capture metadata to its type, skipping transformation for absent parameters.
  */
-export function buildArgument(group: Group, parameterType: ParameterType) {
+export function buildArgument(group: Group, parameterType: ParameterType, name?: string) {
   const argument: Argument = {
+    name,
     group,
     parameterType,
     getValue(world) {
