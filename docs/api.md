@@ -38,9 +38,12 @@ console.log(result.params); // { count: 2 }
 The result has type `BddExpressionResult<Params>`: an array with a typed `params` property. `params` has a null prototype and
 is nonenumerable. A failed match returns `null`.
 
-Matching runs once. Transformers run once per present parameter in source order,
-awaiting each result. The optional `world` argument supplies their context;
-transformer errors propagate.
+Matching runs once. Transformers are invoked once per present parameter in source
+order, and their results are awaited concurrently with `Promise.all`, matching
+Cucumber.js. Positional values retain expression order regardless of completion
+order. The optional `world` argument supplies transformer context. Errors propagate:
+a synchronous throw stops further invocations, while an asynchronous rejection
+does not cancel transformers already started.
 
 For integrations and reporters, use synchronous `match(text)` to inspect raw
 captures without running transformers:

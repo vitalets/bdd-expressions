@@ -160,7 +160,7 @@ test('capture scanner handles classes, escaped parentheses, lookarounds, repeate
     [7, 7, 11],
   );
 });
-test('world context, PromiseLike, ordered transformations, no calls for absent parameters or failures', async () => {
+test('world context, PromiseLike, invocation order, no calls for absent parameters or mismatches', async () => {
   const registry = createParameterTypeRegistry();
   const calls: string[] = [];
   registry.defineParameterType(
