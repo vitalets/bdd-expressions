@@ -174,4 +174,7 @@ type AddParam<Params, Name extends string, Value, Depth extends 0[]> = Params & 
   [Key in Name]: Value | (Depth extends [] ? never : undefined);
 };
 
-type Simplify<T> = { [Key in keyof T]: T[Key] };
+/**
+ * The empty intersection makes editor hovers expand the mapped parameter object.
+ */
+type Simplify<T> = { [Key in keyof T]: T[Key] } & {};
