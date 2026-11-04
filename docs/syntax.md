@@ -62,6 +62,9 @@ For example, `:count{int}` captures an integer as `count`:
 | Captured params (positional) | `[2]`                                                                 |
 | Captured params (named)      | <code>{</code><br>&nbsp;&nbsp;<code>count: 2</code><br><code>}</code> |
 
+> [!NOTE]
+> No space is required before a parameter: `v:major{int}.:minor{int}` captures two integers. To include a literal colon followed by text, escape it with `\` (double `\\` in a JavaScript string, e.g. `'status\\:active'`). See [Escaping](#escaping).
+
 ### Named parameters without type
 
 Untyped `:name` parameters default to `{string}` and require single or double quotes in the input. The transformer removes the surrounding quotes and unescapes `\"` and `\'`; it leaves other backslashes unchanged. Empty quoted strings are allowed. Quotes written explicitly in the expression are literal: `":page"` requires an extra pair of literal quotes around the quoted parameter. There is no automatic number inference.
@@ -75,9 +78,12 @@ Untyped `:name` parameters default to `{string}` and require single or double qu
 
 Parameter names use ASCII letters, digits, `_`, and `$`, and cannot start with a digit. They are case sensitive and must be unique across the entire expression, including mutually exclusive branches. `{page}` looks up a registered type named `page`; it never declares a named parameter. Unknown types are errors.
 
+> [!NOTE]
+> No space is required before a parameter: `foo:bar` contains the parameter `bar`. To match literal `foo:bar`, escape the colon with `\` (double `\\` in a JavaScript string, e.g. `'foo\\:bar'`). See [Escaping](#escaping).
+
 ### Inline choice parameters
 
-Put slash-separated literals inside curly braces to capture the selected text. No custom type registration is needed. Empty branches are allowed: `:status{pending/}` captures either `'pending'` or `''`.
+Put slash-separated literals inside curly braces to capture the selected text. No custom type registration is needed.
 
 |                              |                                   |
 | ---------------------------- | --------------------------------- |
@@ -112,7 +118,7 @@ This infers `{ permanent: 'permanently' | undefined }`. The optional group inclu
 
 The explicit marker also supports multiple choices (`{=pending/approved}`), whole phrases (`{=for good}`), and the empty literal (`{=}`). It always takes an explicit value; it never reuses the parameter name. Existing escaping rules apply: `{=a\/b}` captures `a/b`. To capture a value beginning with `=`, put it after the marker: `{==pending}` captures `=pending`.
 
-Empty choices capture `''`, whereas an omitted optional group produces `undefined`. For example, `( :status{pending/})` can capture `''` when the group matches just its space.
+Empty branches are allowed: `:status{pending/}` captures either `'pending'` or `''`. Empty choices capture `''`, whereas an omitted optional group produces `undefined`. For example, `( :status{pending/})` can capture `''` when the group matches just its space.
 
 ### Arbitrary text
 
@@ -413,6 +419,8 @@ Use a backslash to make special characters literal. Expression-language escapes 
 | `\{name\}`              | `{name}`              |
 | `a\\b`                  | `a\b`                 |
 
-An unescaped colon starts a parameter only when followed by a valid name-start character. Colons in `12:30` and `https:` are already literal; URL slashes still need escaping. Inside braces, colons are literal, and literal parentheses or opening braces must be escaped. Braces cannot be nested.
+An unescaped colon starts a parameter only when followed by a valid name-start character. No preceding whitespace is required: `foo:bar` contains the parameter `bar`, and `v:major{int}.:minor{int}` contains two integer parameters. To match literal `foo:bar`, write `foo\:bar`.
+
+Colons in `12:30` and `https:` are already literal; URL slashes still need escaping. Inside braces, colons are literal, and literal parentheses or opening braces must be escaped. Braces cannot be nested.
 
 For escaping expression strings in TypeScript, see [Escaping in string literals](api.md#escaping-in-string-literals).

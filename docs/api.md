@@ -114,7 +114,10 @@ remain `unknown`.
 Custom parameter types default to `unknown`. Supply an explicit params type when
 you know the transformer's result; it must match your registry.
 
-To bound compiler cost, dynamic strings (including ordinary `String.raw` results)
+> [!IMPORTANT]
+> `String.raw` breaks automatic named parameter type inference: its result has type `string` rather than a string literal type, so named parameters fall back to `Record<string, unknown>`.
+
+To bound compiler cost, dynamic strings
 and expressions longer than **256 TypeScript string characters** fall back to
 `Record<string, unknown>`. Large literal unions also increase compiler work.
 To disable parameter inference, explicitly pass `Record<string, unknown>`:
@@ -209,12 +212,19 @@ An existing Cucumber registry can be passed directly if it exposes `lookupByType
 
 ## Escaping in string literals
 
-JavaScript string literals add their own escaping layer. `String.raw` lets you write expression escapes directly:
+JavaScript string literals add their own escaping layer, including ordinary backtick template literals. Use `\\:` to pass `\:` to the expression parser; writing `\:` in an ordinary string or template literal loses the backslash.
+
+```ts
+'label\\:value'; // Single-quoted string
+`label\\:value`; // Ordinary template literal
+```
+
+Both produce the expression text `label\:value`, which matches literal `label:value`.
 
 ```ts
 import { BddExpression } from 'bdd-expressions';
 
-const url = new BddExpression(String.raw`Visit https:\/\/example.com label\:value`, registry);
+const url = new BddExpression('Visit https:\\/\\/example.com label\\:value', registry);
 url.match('Visit https://example.com label:value');
 /*
 []
