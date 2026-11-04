@@ -289,3 +289,21 @@ void owner;
  * Requires a comparison to evaluate to true at compile time.
  */
 declare function expectType<T extends true>(): T;
+
+// Explicit literals and empty alternatives retain exact values.
+expectType<Equal<InferBddParams<':flag{=permanently}'>, { flag: 'permanently' }>>();
+expectType<
+  Equal<
+    InferBddParams<'I delete the account( :permanent{=permanently})'>,
+    { permanent: 'permanently' | undefined }
+  >
+>();
+expectType<Equal<InferBddParams<':flag{permanently/}'>, { flag: 'permanently' | '' }>>();
+expectType<Equal<InferBddParams<':flag{/permanently/}'>, { flag: 'permanently' | '' }>>();
+expectType<Equal<InferBddParams<':flag{=}'>, { flag: '' }>>();
+expectType<Equal<InferBddParams<':flag{=pending/approved}'>, { flag: 'pending' | 'approved' }>>();
+expectType<Equal<InferBddParams<':flag{=for good}'>, { flag: 'for good' }>>();
+expectType<Equal<InferBddParams<':flag{==pending}'>, { flag: '=pending' }>>();
+expectType<Equal<InferBddParams<':flag{=word}'>, { flag: 'word' }>>();
+expectType<Equal<InferBddParams<':flag{=永久に}'>, { flag: '永久に' }>>();
+expectType<Equal<InferBddParams<':flag{=a\\/b}'>, { flag: 'a/b' }>>();

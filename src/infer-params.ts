@@ -150,18 +150,27 @@ type ReadName<S extends string, Name extends string> = S extends `${infer First}
  * Decode escapes before constructing choice literals; escaped slashes do not
  * split choices. Unnamed braces are consumed too, hiding their literal colons.
  */
-type ReadBraces<
+type ReadBraces<S extends string> = S extends `=${infer Rest}`
+  ? ReadBracesContent<Rest, '', never, true>
+  : ReadBracesContent<S>;
+
+type ReadBracesContent<
   S extends string,
   Text extends string = '',
   Choices extends string = never,
+  Explicit extends boolean = false,
 > = S extends `\\${infer Escaped}${infer Rest}`
-  ? ReadBraces<Rest, `${Text}${Escaped}`, Choices>
+  ? ReadBracesContent<Rest, `${Text}${Escaped}`, Choices, Explicit>
   : S extends `}${infer Rest}`
-    ? [Text, [Choices] extends [never] ? never : Choices | Text, Rest]
+    ? [
+        Text,
+        Explicit extends true ? Choices | Text : [Choices] extends [never] ? never : Choices | Text,
+        Rest,
+      ]
     : S extends `/${infer Rest}`
-      ? ReadBraces<Rest, '', Choices | Text>
+      ? ReadBracesContent<Rest, '', Choices | Text, Explicit>
       : S extends `${infer First}${infer Rest}`
-        ? ReadBraces<Rest, `${Text}${First}`, Choices>
+        ? ReadBracesContent<Rest, `${Text}${First}`, Choices, Explicit>
         : false;
 
 type ResolveType<Name extends string, Custom extends object> = Name extends keyof Custom

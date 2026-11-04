@@ -77,7 +77,7 @@ Parameter names use ASCII letters, digits, `_`, and `$`, and cannot start with a
 
 ### Inline choice parameters
 
-Put slash-separated literals inside curly braces to capture the selected text. No custom type registration is needed. Every branch must be nonempty; wrap the parameter in an optional group to allow absence.
+Put slash-separated literals inside curly braces to capture the selected text. No custom type registration is needed. Empty branches are allowed: `:status{pending/}` captures either `'pending'` or `''`.
 
 |                              |                                   |
 | ---------------------------- | --------------------------------- |
@@ -101,6 +101,18 @@ Inline choice parameters can contain whole phrases. Spaces inside each branch ar
 | Input                        | `I press and hold`                                                                    |
 | Captured params (positional) | `['press and hold']`                                                                  |
 | Captured params (named)      | <code>{</code><br>&nbsp;&nbsp;<code>action: "press and hold"</code><br><code>}</code> |
+
+Prefix the contents with `=` to capture a single literal instead of looking up a registered type:
+
+```text
+I delete the account( :permanent{=permanently})
+```
+
+This infers `{ permanent: 'permanently' | undefined }`. The optional group includes the leading space, so it is not captured. Check `if (permanent)` in the handler to detect the suffix.
+
+The explicit marker also supports multiple choices (`{=pending/approved}`), whole phrases (`{=for good}`), and the empty literal (`{=}`). It always takes an explicit value; it never reuses the parameter name. Existing escaping rules apply: `{=a\/b}` captures `a/b`. To capture a value beginning with `=`, put it after the marker: `{==pending}` captures `=pending`.
+
+Empty choices capture `''`, whereas an omitted optional group produces `undefined`. For example, `( :status{pending/})` can capture `''` when the group matches just its space.
 
 ### Arbitrary text
 

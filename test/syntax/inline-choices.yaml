@@ -1,0 +1,151 @@
+- name: explicit literal
+  expression: :flag{=permanently}
+  text: permanently
+  params:
+    positional:
+      - permanently
+    named:
+      flag: permanently
+- name: explicit literal rejects other text
+  expression: :flag{=permanently}
+  text: temporarily
+  match: false
+- name: literal type name
+  expression: :flag{=word}
+  text: word
+  params:
+    positional:
+      - word
+    named:
+      flag: word
+- name: literal type name rejects other words
+  expression: :flag{=word}
+  text: other
+  match: false
+- name: explicit phrase
+  expression: :flag{=for good}
+  text: for good
+  params:
+    positional:
+      - for good
+    named:
+      flag: for good
+- name: explicit unicode
+  expression: :flag{=永久に}
+  text: 永久に
+  params:
+    positional:
+      - 永久に
+    named:
+      flag: 永久に
+- name: explicit escaped slash
+  expression: :flag{=a\/b}
+  text: a/b
+  params:
+    positional:
+      - a/b
+    named:
+      flag: a/b
+- name: explicit leading equals
+  expression: :flag{==pending}
+  text: =pending
+  params:
+    positional:
+      - =pending
+    named:
+      flag: =pending
+- name: explicit multiple choices
+  expression: :flag{=pending/approved}
+  text: approved
+  params:
+    positional:
+      - approved
+    named:
+      flag: approved
+- name: explicit empty literal
+  expression: :flag{=}
+  text: ''
+  params:
+    positional:
+      - ''
+    named:
+      flag: ''
+- name: explicit empty rejects text
+  expression: :flag{=}
+  text: x
+  match: false
+- name: trailing empty alternative
+  expression: :flag{permanently/}
+  text: ''
+  params:
+    positional:
+      - ''
+    named:
+      flag: ''
+- name: nonempty alternative
+  expression: :flag{permanently/}
+  text: permanently
+  params:
+    positional:
+      - permanently
+    named:
+      flag: permanently
+- name: leading empty alternative
+  expression: :flag{/permanently}
+  text: ''
+  params:
+    positional:
+      - ''
+    named:
+      flag: ''
+- name: middle empty alternative
+  expression: :flag{a//b}
+  text: ''
+  params:
+    positional:
+      - ''
+    named:
+      flag: ''
+- name: all empty alternatives
+  expression: :flag{/}
+  text: ''
+  params:
+    positional:
+      - ''
+    named:
+      flag: ''
+- name: optional literal present
+  expression: I delete the account( :flag{=permanently})
+  text: I delete the account permanently
+  params:
+    positional:
+      - permanently
+    named:
+      flag: permanently
+- name: optional literal absent
+  expression: I delete the account( :flag{=permanently})
+  text: I delete the account
+  params:
+    positional:
+      - null
+    named:
+      flag: null
+- name: optional literal rejects trailing space
+  expression: I delete the account( :flag{=permanently})
+  text: 'I delete the account '
+  match: false
+- name: optional empty choice consumes space
+  expression: I delete the account( :flag{permanently/})
+  text: 'I delete the account '
+  params:
+    positional:
+      - ''
+    named:
+      flag: ''
+- name: anonymous single literal
+  expression: '{=permanently}'
+  text: permanently
+  params:
+    positional:
+      - permanently
+    named: {}

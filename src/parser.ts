@@ -8,7 +8,7 @@
  *   group      = "(", sequence, { "/", sequence }, ")"
  *   sequence   = { literal | parameter | group }
  *   parameter  = [ ":", identifier ], braces | ":", identifier
- *   braces     = "{", braceText, { "/", braceText }, "}"
+ *   braces     = "{", [ "=" ], braceText, { "/", braceText }, "}"
  *
  * Input:  I have :count{int} cucumbers
  * Output (abbreviated):
@@ -133,6 +133,8 @@ export function parseExpression(source: string) {
     let alternatives: string[] | undefined;
     if (source[pos] === '{') {
       const open = pos++;
+      const explicitChoice = source[pos] === '=';
+      if (explicitChoice) pos++;
       const branches = [''];
       while (pos < source.length && source[pos] !== '}') {
         const char = source[pos]!;
@@ -148,8 +150,7 @@ export function parseExpression(source: string) {
       }
       if (source[pos] !== '}') fail('Unclosed parameter', open);
       pos++;
-      if (branches.length > 1) {
-        if (branches.some((branch) => branch === '')) fail('Inline choices must be nonempty', open);
+      if (explicitChoice || branches.length > 1) {
         type = 'inline-choice';
         alternatives = branches;
       } else {
