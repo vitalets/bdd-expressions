@@ -12,7 +12,12 @@
  *   }
  */
 
-import type { StepArgumentPlan } from './step-argument.ts';
+import {
+  EXPRESSION_VARIANTS,
+  getExpressionVariant,
+  type ExpressionVariant,
+} from './variants/definitions.ts';
+import type { StepArgumentAnalysis } from './variants/analyze.ts';
 import { ExpressionError, type Node } from './parser.ts';
 import { normalizeParameterPattern } from './param-types/normalize-pattern.ts';
 import type { ParameterType, TextParameterType } from './param-types/create-type.ts';
@@ -32,38 +37,52 @@ export function compileExpression<Table>(
   source: string,
   registry: ParameterTypeRegistry<Table>,
   ast: Node,
-  plan: StepArgumentPlan,
-  stepArguments: { dataTable?: boolean; docString?: boolean },
+  analysis: StepArgumentAnalysis,
+  variant: ExpressionVariant,
 ) {
-  const mask = (stepArguments.dataTable ? 1 : 0) | (stepArguments.docString ? 2 : 0);
+  const stepArguments = EXPRESSION_VARIANTS[variant];
   const slots: Slot[] = [];
   let captureCount = 0;
   const regexp = new RegExp(`^(?:${compile(ast)})(?![\\s\\S])`, 'd');
   return { ast, regexp, slots };
 
-  function compile(node: Node, requiredMask?: number): string {
-    const possible = plan.masks.get(node)!;
-    const subtreeKinds = [...possible].reduce((a, b) => a | b, 0);
-    const wanted = requiredMask ?? mask & subtreeKinds;
-    const disabled = !possible.has(wanted) || (node === ast && (mask & ~plan.all) !== 0);
+  function compile(node: Node, requiredVariant?: ExpressionVariant): string {
+    const { supportedVariants } = analysis.byNode.get(node)!;
+    const possibleInputs = [...supportedVariants].map((name) => EXPRESSION_VARIANTS[name]);
+    const wanted =
+      requiredVariant ??
+      (node === ast
+        ? variant
+        : getExpressionVariant({
+            hasDataTable:
+              stepArguments.dataTable && possibleInputs.some((input) => input.dataTable),
+            hasDocString:
+              stepArguments.docString && possibleInputs.some((input) => input.docString),
+          }));
     const pattern = compileNode(node, wanted);
-    return disabled ? `(?!)${pattern}` : pattern;
+    return supportedVariants.has(wanted) ? pattern : `(?!)${pattern}`;
   }
 
-  function compileNode(node: Node, wanted: number): string {
+  function compileNode(node: Node, wanted: ExpressionVariant): string {
     switch (node.kind) {
       case 'literal':
         return escapeRegexp(node.value);
       case 'sequence':
         return node.children.map((child) => compile(child)).join('');
       case 'optional':
-        return wanted ? `(?:${compile(node.body)})` : `(?:${compile(node.body)})?`;
+        return wanted !== 'withoutStepArguments'
+          ? `(?:${compile(node.body)})`
+          : `(?:${compile(node.body)})?`;
       case 'choice':
         return `(?:${node.branches.map((branch) => compile(branch, wanted)).join('|')})`;
       case 'parameter': {
         const { type, pattern } = compileParameter(node, source, registry);
-        const stepArgument = plan.kinds.get(node);
-        const resolvedPattern = stepArgument ? (mask & stepArgument ? '()' : '((?!))') : pattern;
+        const stepArgument = analysis.byNode.get(node)!.parameterKind;
+        const resolvedPattern = stepArgument
+          ? stepArguments[stepArgument]
+            ? '()'
+            : '((?!))'
+          : pattern;
         const tree = captureTree(resolvedPattern, captureCount);
         captureCount += tree.count;
         slots.push({ name: node.name, type, capture: tree.roots[0]! });

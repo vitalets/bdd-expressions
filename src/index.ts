@@ -6,7 +6,7 @@ import type { IDataTable } from './param-types/data-table.ts';
 import type { StepArguments } from './step-argument.ts';
 import { parseExpression, type Node } from './parser.ts';
 import type { ParameterTypeRegistry } from './param-types/registry.ts';
-import { compileExpressionVariants, selectExpressionVariant } from './variants.ts';
+import { compileExpressionVariants, selectExpressionVariant } from './variants/index.ts';
 import { buildArgumentForSlot, resolveParams, type Argument } from './argument.ts';
 import type { InferBddParams, InferBddStepArguments } from './infer-params.ts';
 
