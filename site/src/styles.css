@@ -461,6 +461,16 @@ summary {
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;
 }
+.prose strong > code {
+  font-weight: 700;
+}
+.prose td[align='center'] {
+  text-align: center;
+}
+.prose th[scope='row'] {
+  font-weight: 400;
+  vertical-align: top;
+}
 .syntax-index a[aria-current='location'] {
   color: var(--accent);
   background: var(--accent-soft);

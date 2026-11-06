@@ -53,21 +53,49 @@ Put a type name in curly braces to capture a value by position, for example `{in
 
 For example, `{int}` captures an integer:
 
-|                              |                          |
-| ---------------------------- | ------------------------ |
-| Expression                   | `I have {int} cucumbers` |
-| Input                        | `I have 2 cucumbers`     |
-| Captured params (positional) | `[2]`                    |
-| Captured params (named)      | —                        |
+<table>
+  <tbody>
+    <tr>
+      <td></td>
+      <td align="center"><strong><code>I have {int} cucumbers</code></strong></td>
+    </tr>
+    <tr>
+      <th scope="row">Input</th>
+      <td><code>I have 2 cucumbers</code></td>
+    </tr>
+    <tr>
+      <th scope="row">Captured params (positional)</th>
+      <td><code>[2]</code></td>
+    </tr>
+    <tr>
+      <th scope="row">Captured params (named)</th>
+      <td>—</td>
+    </tr>
+  </tbody>
+</table>
 
 Use `{string}` to capture a single- or double-quoted string. The surrounding quotes are removed from the captured value:
 
-|                              |                     |
-| ---------------------------- | ------------------- |
-| Expression                   | `I open {string}`   |
-| Input                        | `I open "Settings"` |
-| Captured params (positional) | `['Settings']`      |
-| Captured params (named)      | —                   |
+<table>
+  <tbody>
+    <tr>
+      <td></td>
+      <td align="center"><strong><code>I open {string}</code></strong></td>
+    </tr>
+    <tr>
+      <th scope="row">Input</th>
+      <td><code>I open "Settings"</code></td>
+    </tr>
+    <tr>
+      <th scope="row">Captured params (positional)</th>
+      <td><code>['Settings']</code></td>
+    </tr>
+    <tr>
+      <th scope="row">Captured params (named)</th>
+      <td>—</td>
+    </tr>
+  </tbody>
+</table>
 
 ### Named parameters with type
 
@@ -75,12 +103,28 @@ Add `:name` before the type in curly braces to give the captured value a name. T
 
 For example, `:count{int}` captures an integer as `count`:
 
-|                              |                                                                       |
-| ---------------------------- | --------------------------------------------------------------------- |
-| Expression                   | `I have :count{int} cucumbers`                                        |
-| Input                        | `I have 2 cucumbers`                                                  |
-| Captured params (positional) | `[2]`                                                                 |
-| Captured params (named)      | <code>{</code><br>&nbsp;&nbsp;<code>count: 2</code><br><code>}</code> |
+<table>
+  <tbody>
+    <tr>
+      <td></td>
+      <td align="center"><strong><code>I have :count{int} cucumbers</code></strong></td>
+    </tr>
+    <tr>
+      <th scope="row">Input</th>
+      <td><code>I have 2 cucumbers</code></td>
+    </tr>
+    <tr>
+      <th scope="row">Captured params (positional)</th>
+      <td><code>[2]</code></td>
+    </tr>
+    <tr>
+      <th scope="row">Captured params (named)</th>
+      <td><pre><code>{
+  count: 2
+}</code></pre></td>
+    </tr>
+  </tbody>
+</table>
 
 > [!NOTE]
 > No space is required before a parameter: `v:major{int}.:minor{int}` captures two integers. To include a literal colon followed by text, escape it with `\` (double `\\` in a JavaScript string, e.g. `'status\\:active'`). See [Escaping](#escaping).
@@ -89,12 +133,28 @@ For example, `:count{int}` captures an integer as `count`:
 
 Untyped `:name` parameters default to `{string}` and require single or double quotes in the input. The transformer removes the surrounding quotes and unescapes `\"` and `\'`; it leaves other backslashes unchanged. Empty quoted strings are allowed. Quotes written explicitly in the expression are literal: `":page"` requires an extra pair of literal quotes around the quoted parameter. There is no automatic number inference.
 
-|                              |                                                                               |
-| ---------------------------- | ----------------------------------------------------------------------------- |
-| Expression                   | `I open :page`                                                                |
-| Input                        | `I open 'Settings'`                                                           |
-| Captured params (positional) | `['Settings']`                                                                |
-| Captured params (named)      | <code>{</code><br>&nbsp;&nbsp;<code>page: "Settings"</code><br><code>}</code> |
+<table>
+  <tbody>
+    <tr>
+      <td></td>
+      <td align="center"><strong><code>I open :page</code></strong></td>
+    </tr>
+    <tr>
+      <th scope="row">Input</th>
+      <td><code>I open 'Settings'</code></td>
+    </tr>
+    <tr>
+      <th scope="row">Captured params (positional)</th>
+      <td><code>['Settings']</code></td>
+    </tr>
+    <tr>
+      <th scope="row">Captured params (named)</th>
+      <td><pre><code>{
+  page: "Settings"
+}</code></pre></td>
+    </tr>
+  </tbody>
+</table>
 
 Parameter names use ASCII letters, digits, `_`, and `$`, and cannot start with a digit. They are case sensitive and must be unique across the entire expression, including mutually exclusive branches. `{page}` looks up a registered type named `page`; it never declares a named parameter. Unknown types are errors.
 
@@ -105,28 +165,74 @@ Parameter names use ASCII letters, digits, `_`, and `$`, and cannot start with a
 
 Put slash-separated literals inside curly braces to capture the selected text. No custom type registration is needed.
 
-|                              |                                   |
-| ---------------------------- | --------------------------------- |
-| Expression                   | `Set {pending/approved/rejected}` |
-| Input                        | `Set approved`                    |
-| Captured params (positional) | `['approved']`                    |
-| Captured params (named)      | —                                 |
+<table>
+  <tbody>
+    <tr>
+      <td></td>
+      <td align="center"><strong><code>Set {pending/approved/rejected}</code></strong></td>
+    </tr>
+    <tr>
+      <th scope="row">Input</th>
+      <td><code>Set approved</code></td>
+    </tr>
+    <tr>
+      <th scope="row">Captured params (positional)</th>
+      <td><code>['approved']</code></td>
+    </tr>
+    <tr>
+      <th scope="row">Captured params (named)</th>
+      <td>—</td>
+    </tr>
+  </tbody>
+</table>
 
-|                              |                                                                                 |
-| ---------------------------- | ------------------------------------------------------------------------------- |
-| Expression                   | `Set :status{pending/approved/rejected}`                                        |
-| Input                        | `Set approved`                                                                  |
-| Captured params (positional) | `['approved']`                                                                  |
-| Captured params (named)      | <code>{</code><br>&nbsp;&nbsp;<code>status: "approved"</code><br><code>}</code> |
+<table>
+  <tbody>
+    <tr>
+      <td></td>
+      <td align="center"><strong><code>Set :status{pending/approved/rejected}</code></strong></td>
+    </tr>
+    <tr>
+      <th scope="row">Input</th>
+      <td><code>Set approved</code></td>
+    </tr>
+    <tr>
+      <th scope="row">Captured params (positional)</th>
+      <td><code>['approved']</code></td>
+    </tr>
+    <tr>
+      <th scope="row">Captured params (named)</th>
+      <td><pre><code>{
+  status: "approved"
+}</code></pre></td>
+    </tr>
+  </tbody>
+</table>
 
 Inline choice parameters can contain whole phrases. Spaces inside each branch are literal and need no escaping.
 
-|                              |                                                                                       |
-| ---------------------------- | ------------------------------------------------------------------------------------- |
-| Expression                   | `I :action{click/tap on/press and hold}`                                              |
-| Input                        | `I press and hold`                                                                    |
-| Captured params (positional) | `['press and hold']`                                                                  |
-| Captured params (named)      | <code>{</code><br>&nbsp;&nbsp;<code>action: "press and hold"</code><br><code>}</code> |
+<table>
+  <tbody>
+    <tr>
+      <td></td>
+      <td align="center"><strong><code>I :action{click/tap on/press and hold}</code></strong></td>
+    </tr>
+    <tr>
+      <th scope="row">Input</th>
+      <td><code>I press and hold</code></td>
+    </tr>
+    <tr>
+      <th scope="row">Captured params (positional)</th>
+      <td><code>['press and hold']</code></td>
+    </tr>
+    <tr>
+      <th scope="row">Captured params (named)</th>
+      <td><pre><code>{
+  action: "press and hold"
+}</code></pre></td>
+    </tr>
+  </tbody>
+</table>
 
 Prefix the contents with `=` to capture a single literal instead of looking up a registered type:
 
@@ -144,19 +250,49 @@ Empty branches are allowed: `:status{pending/}` captures either `'pending'` or `
 
 Use `{}` or `:name{}` to capture arbitrary text, including an empty string, without spanning newlines.
 
-|                              |                      |
-| ---------------------------- | -------------------- |
-| Expression                   | `I send {}`          |
-| Input                        | `I send hello there` |
-| Captured params (positional) | `['hello there']`    |
-| Captured params (named)      | —                    |
+<table>
+  <tbody>
+    <tr>
+      <td></td>
+      <td align="center"><strong><code>I send {}</code></strong></td>
+    </tr>
+    <tr>
+      <th scope="row">Input</th>
+      <td><code>I send hello there</code></td>
+    </tr>
+    <tr>
+      <th scope="row">Captured params (positional)</th>
+      <td><code>['hello there']</code></td>
+    </tr>
+    <tr>
+      <th scope="row">Captured params (named)</th>
+      <td>—</td>
+    </tr>
+  </tbody>
+</table>
 
-|                              |                                                                                     |
-| ---------------------------- | ----------------------------------------------------------------------------------- |
-| Expression                   | `I send :message{}`                                                                 |
-| Input                        | `I send hello there`                                                                |
-| Captured params (positional) | `['hello there']`                                                                   |
-| Captured params (named)      | <code>{</code><br>&nbsp;&nbsp;<code>message: "hello there"</code><br><code>}</code> |
+<table>
+  <tbody>
+    <tr>
+      <td></td>
+      <td align="center"><strong><code>I send :message{}</code></strong></td>
+    </tr>
+    <tr>
+      <th scope="row">Input</th>
+      <td><code>I send hello there</code></td>
+    </tr>
+    <tr>
+      <th scope="row">Captured params (positional)</th>
+      <td><code>['hello there']</code></td>
+    </tr>
+    <tr>
+      <th scope="row">Captured params (named)</th>
+      <td><pre><code>{
+  message: "hello there"
+}</code></pre></td>
+    </tr>
+  </tbody>
+</table>
 
 > This syntax is not recommended because matching is greedy and can make capture boundaries ambiguous. For example, `I send {} to {}` can split at a later `to` than intended. Prefer a specific parameter type.
 
@@ -166,19 +302,49 @@ Register a custom type to match and transform domain-specific values, then use i
 
 These examples use the `Point` transformer defined in [Custom parameter types](api.md#custom-parameter-types).
 
-|                              |                     |
-| ---------------------------- | ------------------- |
-| Expression                   | `Move to {Point}`   |
-| Input                        | `Move to 3,-2`      |
-| Captured params (positional) | `[{ x: 3, y: -2 }]` |
-| Captured params (named)      | —                   |
+<table>
+  <tbody>
+    <tr>
+      <td></td>
+      <td align="center"><strong><code>Move to {Point}</code></strong></td>
+    </tr>
+    <tr>
+      <th scope="row">Input</th>
+      <td><code>Move to 3,-2</code></td>
+    </tr>
+    <tr>
+      <th scope="row">Captured params (positional)</th>
+      <td><code>[{ x: 3, y: -2 }]</code></td>
+    </tr>
+    <tr>
+      <th scope="row">Captured params (named)</th>
+      <td>—</td>
+    </tr>
+  </tbody>
+</table>
 
-|                              |                                                                                     |
-| ---------------------------- | ----------------------------------------------------------------------------------- |
-| Expression                   | `Move to :point{Point}`                                                             |
-| Input                        | `Move to 3,-2`                                                                      |
-| Captured params (positional) | `[{ x: 3, y: -2 }]`                                                                 |
-| Captured params (named)      | <code>{</code><br>&nbsp;&nbsp;<code>point: { x: 3, y: -2 }</code><br><code>}</code> |
+<table>
+  <tbody>
+    <tr>
+      <td></td>
+      <td align="center"><strong><code>Move to :point{Point}</code></strong></td>
+    </tr>
+    <tr>
+      <th scope="row">Input</th>
+      <td><code>Move to 3,-2</code></td>
+    </tr>
+    <tr>
+      <th scope="row">Captured params (positional)</th>
+      <td><code>[{ x: 3, y: -2 }]</code></td>
+    </tr>
+    <tr>
+      <th scope="row">Captured params (named)</th>
+      <td><pre><code>{
+  point: { x: 3, y: -2 }
+}</code></pre></td>
+    </tr>
+  </tbody>
+</table>
 
 ### Built-in parameter types
 
@@ -204,67 +370,95 @@ Parentheses always make their contents optional, including when they contain sla
 
 Wrap a suffix in parentheses to accept a word with or without that suffix. The optional text does not create a captured parameter.
 
-Input without the suffix:
-
-|                              |                            |
-| ---------------------------- | -------------------------- |
-| Expression                   | `I have {int} cucumber(s)` |
-| Input                        | `I have 1 cucumber`        |
-| Captured params (positional) | `[1]`                      |
-| Captured params (named)      | —                          |
-
-Input with the suffix:
-
-|                              |                            |
-| ---------------------------- | -------------------------- |
-| Expression                   | `I have {int} cucumber(s)` |
-| Input                        | `I have 2 cucumbers`       |
-| Captured params (positional) | `[2]`                      |
-| Captured params (named)      | —                          |
+<table>
+  <tbody>
+    <tr>
+      <td></td>
+      <td colspan="2" align="center"><strong><code>I have {int} cucumber(s)</code></strong></td>
+    </tr>
+    <tr>
+      <th scope="row">Input</th>
+      <td><code>I have 1 cucumber</code></td>
+      <td><code>I have 2 cucumbers</code></td>
+    </tr>
+    <tr>
+      <th scope="row">Captured params (positional)</th>
+      <td><code>[1]</code></td>
+      <td><code>[2]</code></td>
+    </tr>
+    <tr>
+      <th scope="row">Captured params (named)</th>
+      <td>—</td>
+      <td>—</td>
+    </tr>
+  </tbody>
+</table>
 
 ### Optional text
 
 Wrap text in parentheses to make it optional. Include its leading space inside the group so the space is optional too.
 
-Without the optional text:
-
-|                              |                                                                               |
-| ---------------------------- | ----------------------------------------------------------------------------- |
-| Expression                   | `I open :page( again)`                                                        |
-| Input                        | `I open "Settings"`                                                           |
-| Captured params (positional) | `['Settings']`                                                                |
-| Captured params (named)      | <code>{</code><br>&nbsp;&nbsp;<code>page: "Settings"</code><br><code>}</code> |
-
-With the optional text:
-
-|                              |                                                                               |
-| ---------------------------- | ----------------------------------------------------------------------------- |
-| Expression                   | `I open :page( again)`                                                        |
-| Input                        | `I open "Settings" again`                                                     |
-| Captured params (positional) | `['Settings']`                                                                |
-| Captured params (named)      | <code>{</code><br>&nbsp;&nbsp;<code>page: "Settings"</code><br><code>}</code> |
+<table>
+  <tbody>
+    <tr>
+      <td></td>
+      <td colspan="2" align="center"><strong><code>I open :page( again)</code></strong></td>
+    </tr>
+    <tr>
+      <th scope="row">Input</th>
+      <td><code>I open "Settings"</code></td>
+      <td><code>I open "Settings" again</code></td>
+    </tr>
+    <tr>
+      <th scope="row">Captured params (positional)</th>
+      <td><code>['Settings']</code></td>
+      <td><code>['Settings']</code></td>
+    </tr>
+    <tr>
+      <th scope="row">Captured params (named)</th>
+      <td><pre><code>{
+  page: "Settings"
+}</code></pre></td>
+      <td><pre><code>{
+  page: "Settings"
+}</code></pre></td>
+    </tr>
+  </tbody>
+</table>
 
 ### Optional text with parameters
 
 An optional group can contain parameters. When the group is absent, those parameters keep their positions and have `undefined` values.
 
-Without an owner:
-
-|                              |                                                                                                                             |
-| ---------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| Expression                   | `I create :item( as :owner)`                                                                                                |
-| Input                        | `I create "document"`                                                                                                       |
-| Captured params (positional) | `['document', undefined]`                                                                                                   |
-| Captured params (named)      | <code>{</code><br>&nbsp;&nbsp;<code>item: "document",</code><br>&nbsp;&nbsp;<code>owner: undefined</code><br><code>}</code> |
-
-With an owner:
-
-|                              |                                                                                                                           |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| Expression                   | `I create :item( as :owner)`                                                                                              |
-| Input                        | `I create "document" as "Alice"`                                                                                          |
-| Captured params (positional) | `['document', 'Alice']`                                                                                                   |
-| Captured params (named)      | <code>{</code><br>&nbsp;&nbsp;<code>item: "document",</code><br>&nbsp;&nbsp;<code>owner: "Alice"</code><br><code>}</code> |
+<table>
+  <tbody>
+    <tr>
+      <td></td>
+      <td colspan="2" align="center"><strong><code>I create :item( as :owner)</code></strong></td>
+    </tr>
+    <tr>
+      <th scope="row">Input</th>
+      <td><code>I create "document"</code></td>
+      <td><code>I create "document" as "Alice"</code></td>
+    </tr>
+    <tr>
+      <th scope="row">Captured params (positional)</th>
+      <td><code>['document', undefined]</code></td>
+      <td><code>['document', 'Alice']</code></td>
+    </tr>
+    <tr>
+      <th scope="row">Captured params (named)</th>
+      <td><pre><code>{
+  item: "document",
+  owner: undefined
+}</code></pre></td>
+      <td><pre><code>{
+  item: "document",
+  owner: "Alice"
+}</code></pre></td>
+    </tr>
+  </tbody>
+</table>
 
 ### Nested optional text
 
@@ -272,52 +466,70 @@ Nest optional groups to make a suffix depend on an optional phrase. In `I send a
 
 The expression accepts `I send a message`, `I send a message with attachment`, and `I send a message with attachments`.
 
-|                              |                                         |
-| ---------------------------- | --------------------------------------- |
-| Expression                   | `I send a message( with attachment(s))` |
-| Input                        | `I send a message with attachments`     |
-| Captured params (positional) | —                                       |
-| Captured params (named)      | —                                       |
+<table>
+  <tbody>
+    <tr>
+      <td></td>
+      <td colspan="2" align="center"><strong><code>I send a message( with attachment(s))</code></strong></td>
+    </tr>
+    <tr>
+      <th scope="row">Input</th>
+      <td><code>I send a message with attachments</code></td>
+      <td><code>I send a message with</code></td>
+    </tr>
+    <tr>
+      <th scope="row">Matched</th>
+      <td>✅</td>
+      <td>❌</td>
+    </tr>
+  </tbody>
+</table>
 
 ### Consecutive optional text
 
 Place optional groups next to each other to allow either, both, or neither. Distinct literal prefixes make it clear which parameter each input value belongs to.
 
-Neither optional group is present:
-
-|                              |                                                                                                                                   |
-| ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| Expression                   | `I send( message :message)( to :recipient)`                                                                                       |
-| Input                        | `I send`                                                                                                                          |
-| Captured params (positional) | `[undefined, undefined]`                                                                                                          |
-| Captured params (named)      | <code>{</code><br>&nbsp;&nbsp;<code>message: undefined,</code><br>&nbsp;&nbsp;<code>recipient: undefined</code><br><code>}</code> |
-
-Only the message is present:
-
-|                              |                                                                                                                                 |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| Expression                   | `I send( message :message)( to :recipient)`                                                                                     |
-| Input                        | `I send message "Hello"`                                                                                                        |
-| Captured params (positional) | `['Hello', undefined]`                                                                                                          |
-| Captured params (named)      | <code>{</code><br>&nbsp;&nbsp;<code>message: "Hello",</code><br>&nbsp;&nbsp;<code>recipient: undefined</code><br><code>}</code> |
-
-Only the recipient is present:
-
-|                              |                                                                                                                                 |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| Expression                   | `I send( message :message)( to :recipient)`                                                                                     |
-| Input                        | `I send to "Alice"`                                                                                                             |
-| Captured params (positional) | `[undefined, 'Alice']`                                                                                                          |
-| Captured params (named)      | <code>{</code><br>&nbsp;&nbsp;<code>message: undefined,</code><br>&nbsp;&nbsp;<code>recipient: "Alice"</code><br><code>}</code> |
-
-Both optional groups are present:
-
-|                              |                                                                                                                               |
-| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| Expression                   | `I send( message :message)( to :recipient)`                                                                                   |
-| Input                        | `I send message "Hello" to "Alice"`                                                                                           |
-| Captured params (positional) | `['Hello', 'Alice']`                                                                                                          |
-| Captured params (named)      | <code>{</code><br>&nbsp;&nbsp;<code>message: "Hello",</code><br>&nbsp;&nbsp;<code>recipient: "Alice"</code><br><code>}</code> |
+<table>
+  <tbody>
+    <tr>
+      <td></td>
+      <td colspan="4" align="center"><strong><code>I send( message :message)( to :recipient)</code></strong></td>
+    </tr>
+    <tr>
+      <th scope="row">Input</th>
+      <td><code>I send</code></td>
+      <td><code>I send message "Hello"</code></td>
+      <td><code>I send to "Alice"</code></td>
+      <td><code>I send message "Hello" to "Alice"</code></td>
+    </tr>
+    <tr>
+      <th scope="row">Captured params (positional)</th>
+      <td><code>[undefined, undefined]</code></td>
+      <td><code>['Hello', undefined]</code></td>
+      <td><code>[undefined, 'Alice']</code></td>
+      <td><code>['Hello', 'Alice']</code></td>
+    </tr>
+    <tr>
+      <th scope="row">Captured params (named)</th>
+      <td><pre><code>{
+  message: undefined,
+  recipient: undefined
+}</code></pre></td>
+      <td><pre><code>{
+  message: "Hello",
+  recipient: undefined
+}</code></pre></td>
+      <td><pre><code>{
+  message: undefined,
+  recipient: "Alice"
+}</code></pre></td>
+      <td><pre><code>{
+  message: "Hello",
+  recipient: "Alice"
+}</code></pre></td>
+    </tr>
+  </tbody>
+</table>
 
 Put optional spaces **inside** the group. `I create :item (as :owner)` always requires a space after the item, even when the group is absent. Whitespace is never trimmed or normalized.
 
@@ -334,23 +546,26 @@ Use `/` to choose between words or phrases. Structural choices match text withou
 
 Separate words with `/` to accept either spelling without capturing it as a parameter. Outside groups, alternatives are bounded by unescaped ASCII spaces (`U+0020`), direct parameters, or the expression edges. Tabs, newlines, and Unicode whitespace remain literal branch text; punctuation and adjacent groups do not end a bare alternative. A space can be escaped to include it in a branch, for example `click/tap\ on`.
 
-Paying by card:
-
-|                              |                      |
-| ---------------------------- | -------------------- |
-| Expression                   | `I pay by card/cash` |
-| Input                        | `I pay by card`      |
-| Captured params (positional) | —                    |
-| Captured params (named)      | —                    |
-
-Paying by cash:
-
-|                              |                      |
-| ---------------------------- | -------------------- |
-| Expression                   | `I pay by card/cash` |
-| Input                        | `I pay by cash`      |
-| Captured params (positional) | —                    |
-| Captured params (named)      | —                    |
+<table>
+  <tbody>
+    <tr>
+      <td></td>
+      <td colspan="3" align="center"><strong><code>I pay by card/cash</code></strong></td>
+    </tr>
+    <tr>
+      <th scope="row">Input</th>
+      <td><code>I pay by card</code></td>
+      <td><code>I pay by cash</code></td>
+      <td><code>I pay by cheque</code></td>
+    </tr>
+    <tr>
+      <th scope="row">Matched</th>
+      <td>✅</td>
+      <td>✅</td>
+      <td>❌</td>
+    </tr>
+  </tbody>
+</table>
 
 A direct parameter ends a bare alternative: `a/b:count{int}` requires a count after either letter. Prefer `[a/b]:count{int}` to make this shared scope explicit. Inside brackets, branches can include parameters: `[a:count{int}/b]` requires a count only after `a`, and `[a/b:count{int}]` requires one only after `b`. An adjacent group stays within its bare branch: `a/b[:count{int}]` also requires a count only after `b`.
 
@@ -369,63 +584,55 @@ Spaces are literal. Only slashes at the current nesting level separate branches;
 
 Use parentheses to allow no text or one of the listed phrases. Adding another alternative preserves omission: both `I send message( to my boss)` and `I send message( to my boss/ later)` accept `I send message`.
 
-With the group omitted:
-
-|                              |                                      |
-| ---------------------------- | ------------------------------------ |
-| Expression                   | `I send message( to my boss/ later)` |
-| Input                        | `I send message`                     |
-| Captured params (positional) | —                                    |
-| Captured params (named)      | —                                    |
-
-With the first branch:
-
-|                              |                                      |
-| ---------------------------- | ------------------------------------ |
-| Expression                   | `I send message( to my boss/ later)` |
-| Input                        | `I send message to my boss`          |
-| Captured params (positional) | —                                    |
-| Captured params (named)      | —                                    |
-
-With the second branch:
-
-|                              |                                      |
-| ---------------------------- | ------------------------------------ |
-| Expression                   | `I send message( to my boss/ later)` |
-| Input                        | `I send message later`               |
-| Captured params (positional) | —                                    |
-| Captured params (named)      | —                                    |
+<table>
+  <tbody>
+    <tr>
+      <td></td>
+      <td colspan="4" align="center"><strong><code>I send message( to my boss/ later)</code></strong></td>
+    </tr>
+    <tr>
+      <th scope="row">Input</th>
+      <td><code>I send message</code></td>
+      <td><code>I send message to my boss</code></td>
+      <td><code>I send message later</code></td>
+      <td><code>I send message to my boss later</code></td>
+    </tr>
+    <tr>
+      <th scope="row">Matched</th>
+      <td>✅</td>
+      <td>✅</td>
+      <td>✅</td>
+      <td>❌</td>
+    </tr>
+  </tbody>
+</table>
 
 #### Required alternatives
 
 Use square brackets to require one of the phrases. A single-branch group such as `[click]` is also required. Bare single-word choices such as `click/tap` remain required.
 
-With the `click` branch:
-
-|                              |                                          |
-| ---------------------------- | ---------------------------------------- |
-| Expression                   | `I [click/tap on/press and hold] button` |
-| Input                        | `I click button`                         |
-| Captured params (positional) | —                                        |
-| Captured params (named)      | —                                        |
-
-With the `tap on` branch:
-
-|                              |                                          |
-| ---------------------------- | ---------------------------------------- |
-| Expression                   | `I [click/tap on/press and hold] button` |
-| Input                        | `I tap on button`                        |
-| Captured params (positional) | —                                        |
-| Captured params (named)      | —                                        |
-
-With the `press and hold` branch:
-
-|                              |                                          |
-| ---------------------------- | ---------------------------------------- |
-| Expression                   | `I [click/tap on/press and hold] button` |
-| Input                        | `I press and hold button`                |
-| Captured params (positional) | —                                        |
-| Captured params (named)      | —                                        |
+<table>
+  <tbody>
+    <tr>
+      <td></td>
+      <td colspan="4" align="center"><strong><code>I [click/tap on/press and hold] button</code></strong></td>
+    </tr>
+    <tr>
+      <th scope="row">Input</th>
+      <td><code>I click button</code></td>
+      <td><code>I tap on button</code></td>
+      <td><code>I press and hold button</code></td>
+      <td><code>I hover over the button</code></td>
+    </tr>
+    <tr>
+      <th scope="row">Matched</th>
+      <td>✅</td>
+      <td>✅</td>
+      <td>✅</td>
+      <td>❌</td>
+    </tr>
+  </tbody>
+</table>
 
 #### Empty branches and nested groups
 
@@ -437,23 +644,35 @@ Repeated empty branches are allowed. `[/]`, `[]`, `(/)`, and `()` match empty te
 
 Each choice branch can declare its own parameters. Positional slots follow source order, and parameters in unselected branches remain `undefined`. Indexes never shift with the chosen branch.
 
-The number branch captures `count`:
-
-|                              |                                                                                                                     |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| Expression                   | `I choose [number :count{int}/label :label]`                                                                        |
-| Input                        | `I choose number 2`                                                                                                 |
-| Captured params (positional) | `[2, undefined]`                                                                                                    |
-| Captured params (named)      | <code>{</code><br>&nbsp;&nbsp;<code>count: 2,</code><br>&nbsp;&nbsp;<code>label: undefined</code><br><code>}</code> |
-
-The label branch captures `label`:
-
-|                              |                                                                                                                         |
-| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| Expression                   | `I choose [number :count{int}/label :label]`                                                                            |
-| Input                        | `I choose label "two"`                                                                                                  |
-| Captured params (positional) | `[undefined, 'two']`                                                                                                    |
-| Captured params (named)      | <code>{</code><br>&nbsp;&nbsp;<code>count: undefined,</code><br>&nbsp;&nbsp;<code>label: "two"</code><br><code>}</code> |
+<table>
+  <tbody>
+    <tr>
+      <td></td>
+      <td colspan="2" align="center"><strong><code>I choose [number :count{int}/label :label]</code></strong></td>
+    </tr>
+    <tr>
+      <th scope="row">Input</th>
+      <td><code>I choose number 2</code></td>
+      <td><code>I choose label "two"</code></td>
+    </tr>
+    <tr>
+      <th scope="row">Captured params (positional)</th>
+      <td><code>[2, undefined]</code></td>
+      <td><code>[undefined, 'two']</code></td>
+    </tr>
+    <tr>
+      <th scope="row">Captured params (named)</th>
+      <td><pre><code>{
+  count: 2,
+  label: undefined
+}</code></pre></td>
+      <td><pre><code>{
+  count: undefined,
+  label: "two"
+}</code></pre></td>
+    </tr>
+  </tbody>
+</table>
 
 ## Escaping
 
