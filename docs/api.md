@@ -38,7 +38,7 @@ console.log(result.params); // { count: 2 }
 The result has type `BddExpressionResult<Params, Table, Source>`: an array with readonly,
 nonenumerable `params`, `docString`, and `dataTable` properties. `params` has a null
 prototype and contains transformed named values. `docString` and `dataTable` contain
-the original attachment inputs, before transformation, or `undefined` when absent.
+the original step argument inputs, before transformation, or `undefined` when absent.
 A failed match returns `null`.
 
 Matching runs once. Transformers are invoked once per present parameter in source
@@ -252,8 +252,8 @@ Use `match(text, { docString, dataTable })` for raw arguments, or `matchAndResol
 
 The default table type supports `hashes()`, `raw()`, `rows()`, `rowsHash()`, and `transpose()`. Supply your runner's table instance. For another representation, override the generic—for example, `createParameterTypeRegistry<string[][]>()`.
 
-On a successful result, required built-in attachments exclude `undefined` from
-their property types; attachments inside groups include it:
+On a successful result, required built-in step arguments exclude `undefined` from
+their property types; step arguments inside groups include it:
 
 ```ts
 const registry = createParameterTypeRegistry<string[][]>();
@@ -268,10 +268,10 @@ if (result) {
 }
 ```
 
-Attachment presence inference uses expression literals up to 256 TypeScript string
-characters. Dynamic or longer expressions, and custom attachment type names, retain
+Step argument presence inference uses expression literals up to 256 TypeScript string
+characters. Dynamic or longer expressions, and custom step argument type names, retain
 `undefined` in the property types. Supplying only an explicit `Params` generic also
-defaults `Source` to `string`, so attachment properties retain `undefined`.
+defaults `Source` to `string`, so step argument properties retain `undefined`.
 
 ### Custom DocString and DataTable types
 
@@ -294,7 +294,7 @@ registry.defineParameterType({
 Use custom types by name: `I create users(::users{UsersDataTable})`. The first colon is literal; the second names the parameter. Custom result types default to `unknown`; see [named parameter inference](#named-parameter-inference) for explicit types. Transformers do not run for absent optional values.
 
 Transformers affect positional values and `result.params`, but not the original
-attachments: for `UsersDataTable` above, `result.params.users` contains the hashes,
+step arguments: for `UsersDataTable` above, `result.params.users` contains the hashes,
 while `result.dataTable` retains the supplied table instance. Likewise,
 `result.docString` retains the original string when using `JsonDocString`.
 

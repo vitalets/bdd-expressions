@@ -12,7 +12,7 @@
  *   }
  */
 
-import type { AttachmentPlan } from './attachments.ts';
+import type { StepArgumentPlan } from './step-arguments.ts';
 import { ExpressionError, type Node } from './parser.ts';
 import { normalizeParameterPattern } from './parameter-types/normalize-pattern.ts';
 import type { ParameterType, TextParameterType } from './parameter-types/create-type.ts';
@@ -26,16 +26,16 @@ type Slot = {
 };
 
 /**
- * Compiles an expression for a specific combination of available attachments.
+ * Compiles an expression for a specific combination of available step arguments.
  */
 export function compileExpression<Table>(
   source: string,
   registry: ParameterTypeRegistry<Table>,
   ast: Node,
-  plan: AttachmentPlan,
-  attachments: { dataTable?: boolean; docString?: boolean },
+  plan: StepArgumentPlan,
+  stepArguments: { dataTable?: boolean; docString?: boolean },
 ) {
-  const mask = (attachments.dataTable ? 1 : 0) | (attachments.docString ? 2 : 0);
+  const mask = (stepArguments.dataTable ? 1 : 0) | (stepArguments.docString ? 2 : 0);
   const slots: Slot[] = [];
   let captureCount = 0;
   const regexp = new RegExp(`^(?:${compile(ast)})(?![\\s\\S])`, 'd');
@@ -62,8 +62,8 @@ export function compileExpression<Table>(
         return `(?:${node.branches.map((branch) => compile(branch, wanted)).join('|')})`;
       case 'parameter': {
         const { type, pattern } = compileParameter(node, source, registry);
-        const attachment = plan.kinds.get(node);
-        const resolvedPattern = attachment ? (mask & attachment ? '()' : '((?!))') : pattern;
+        const stepArgument = plan.kinds.get(node);
+        const resolvedPattern = stepArgument ? (mask & stepArgument ? '()' : '((?!))') : pattern;
         const tree = captureTree(resolvedPattern, captureCount);
         captureCount += tree.count;
         slots.push({ name: node.name, type, capture: tree.roots[0]! });

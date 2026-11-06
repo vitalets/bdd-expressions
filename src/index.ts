@@ -3,13 +3,13 @@
  */
 
 import type { IDataTable } from './parameter-types/data-table.ts';
-import type { AttachmentInputs } from './attachments.ts';
+import type { StepArguments } from './step-arguments.ts';
 import { parseExpression, type Node } from './parser.ts';
 import type { ParameterTypeRegistry } from './parameter-types/registry.ts';
 import { compileExpressionVariants, selectExpressionVariant } from './variants.ts';
 import { buildArgument, buildGroup, type Argument } from './cucumber-expressions/matching.ts';
 import { resolveParams } from './resolve-params.ts';
-import type { InferBddParams, InferBddAttachments } from './infer-params.ts';
+import type { InferBddParams, InferBddStepArguments } from './infer-params.ts';
 
 export type BddExpressionResult<
   Params extends object = Record<string, unknown>,
@@ -17,7 +17,7 @@ export type BddExpressionResult<
   Source extends string = string,
 > = unknown[] & {
   readonly params: Params;
-} & InferBddAttachments<Source, Table>;
+} & InferBddStepArguments<Source, Table>;
 
 export { parseExpression, ExpressionError } from './parser.ts';
 export type { Node, SourceRange } from './parser.ts';
@@ -43,7 +43,7 @@ export type {
 } from './parameter-types/registry.ts';
 export type { Argument, Group } from './cucumber-expressions/matching.ts';
 export type { InferBddParams } from './infer-params.ts';
-export type { AttachmentInputs } from './attachments.ts';
+export type { StepArguments } from './step-arguments.ts';
 
 /**
  * Matches a parsed expression using a compiled regexp and source-ordered parameters.
@@ -81,7 +81,7 @@ export class BddExpression<
   /**
    * Matches the whole input and retains metadata for absent parameters.
    */
-  match(text: string, inputs: AttachmentInputs<Table> = {}) {
+  match(text: string, inputs: StepArguments<Table> = {}) {
     const variant = selectExpressionVariant(this.variants, inputs);
     const result = variant.regexp.exec(text);
     const args: readonly Argument[] | null = result
@@ -120,7 +120,7 @@ export class BddExpression<
   /**
    * Resolves positional and named values with the supplied transformer context.
    */
-  async matchAndResolve(text: string, world?: unknown, inputs: AttachmentInputs<Table> = {}) {
+  async matchAndResolve(text: string, world?: unknown, inputs: StepArguments<Table> = {}) {
     const args = this.match(text, inputs);
     if (args === null) return null;
     const { positional, named } = await resolveParams(args, world);

@@ -1,14 +1,14 @@
 /**
- * Prepares and selects named expression variants for external attachments.
+ * Prepares and selects named expression variants for external step arguments.
  */
 
-import { analyzeAttachments, type AttachmentInputs } from './attachments.ts';
+import { analyzeStepArguments, type StepArguments } from './step-arguments.ts';
 import { compileExpression } from './compiler.ts';
 import type { Node } from './parser.ts';
 import type { ParameterTypeRegistry } from './parameter-types/registry.ts';
 
 /**
- * Defines the attachment presence required by each expression variant.
+ * Defines the step argument presence required by each expression variant.
  */
 const EXPRESSION_VARIANTS = {
   textOnly: { dataTable: false, docString: false },
@@ -18,35 +18,35 @@ const EXPRESSION_VARIANTS = {
 } as const;
 
 /**
- * Compiles the four attachment combinations during expression construction.
- * Expressions without attachment parameters reject all supplied attachments.
+ * Compiles the four step argument combinations during expression construction.
+ * Expressions without step argument parameters reject all supplied step arguments.
  */
 export function compileExpressionVariants<Table>(
   source: string,
   registry: ParameterTypeRegistry<Table>,
   ast: Node,
 ) {
-  const plan = analyzeAttachments(ast, registry, source);
+  const plan = analyzeStepArguments(ast, registry, source);
   const textOnly = compileExpression(source, registry, ast, plan, EXPRESSION_VARIANTS.textOnly);
   return {
     textOnly,
-    withDataTable: compileAttached(EXPRESSION_VARIANTS.withDataTable),
-    withDocString: compileAttached(EXPRESSION_VARIANTS.withDocString),
-    withBoth: compileAttached(EXPRESSION_VARIANTS.withBoth),
+    withDataTable: compileWithStepArguments(EXPRESSION_VARIANTS.withDataTable),
+    withDocString: compileWithStepArguments(EXPRESSION_VARIANTS.withDocString),
+    withBoth: compileWithStepArguments(EXPRESSION_VARIANTS.withBoth),
   };
 
-  function compileAttached(attachments: { dataTable?: boolean; docString?: boolean }) {
+  function compileWithStepArguments(stepArguments: { dataTable?: boolean; docString?: boolean }) {
     if (!plan.all) return { ...textOnly, regexp: /(?!)/ };
-    return compileExpression(source, registry, ast, plan, attachments);
+    return compileExpression(source, registry, ast, plan, stepArguments);
   }
 }
 
 /**
- * Selects by attachment presence, including empty DocStrings as present.
+ * Selects by step argument presence, including empty DocStrings as present.
  */
 export function selectExpressionVariant(
   variants: ReturnType<typeof compileExpressionVariants>,
-  inputs: AttachmentInputs<unknown>,
+  inputs: StepArguments<unknown>,
 ) {
   if (inputs.dataTable !== undefined) {
     return inputs.docString !== undefined ? variants.withBoth : variants.withDataTable;

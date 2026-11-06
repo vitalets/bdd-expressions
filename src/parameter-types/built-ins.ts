@@ -1,5 +1,5 @@
 /**
- * Installs built-in text conversions and identity attachment types.
+ * Installs built-in text conversions and identity step argument types.
  * Text patterns are ported from Cucumber Expressions 20.1.0; see THIRD_PARTY_NOTICES.md.
  */
 

@@ -1,5 +1,5 @@
 /**
- * Defines the shared parameter contract and creates text or attachment parameter types.
+ * Defines the shared parameter contract and creates text or step argument parameter types.
  */
 
 import type { IDataTable } from './data-table.ts';

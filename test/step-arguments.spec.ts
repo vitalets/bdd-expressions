@@ -7,7 +7,7 @@ function registry() {
   return createParameterTypeRegistry<string[][]>();
 }
 
-test('optional attachment couples colon and presence without exposing input to text captures', async () => {
+test('optional step argument couples colon and presence without exposing input to text captures', async () => {
   const types = registry();
   types.defineParameterType({ name: 'Everything', regexp: /[\s\S]*/ });
   const expression = new BddExpression('I create :name{Everything}(::users{DataTable})', types);
@@ -20,7 +20,7 @@ test('optional attachment couples colon and presence without exposing input to t
   assert.equal((await expression.matchAndResolve('I create Alice'))!.params.users, undefined);
 });
 
-test('four variants bind both attachments in expression order, including empty docstrings', async () => {
+test('four variants bind both step arguments in expression order, including empty docstrings', async () => {
   const expression = new BddExpression('Create(::table{DataTable})(::body{DocString})', registry());
   for (const [text, inputs, expected] of [
     ['Create', {}, [undefined, undefined]],
@@ -37,7 +37,7 @@ test('four variants bind both attachments in expression order, including empty d
   assert.equal(expression.match('Create:', {}), null);
 });
 
-test('required attachments, independent optionals and nested groups', () => {
+test('required step arguments, independent optionals and nested groups', () => {
   const required = new BddExpression('Create(:){DataTable}{DocString}', registry());
   assert.equal(required.match('Create', { dataTable: table }), null);
   assert.ok(required.match('Create', { dataTable: table, docString: '' }));
@@ -47,7 +47,7 @@ test('required attachments, independent optionals and nested groups', () => {
   assert.ok(nested.match('Create::', { dataTable: table, docString: '' }));
 });
 
-test('alternatives retain argument slots and select branches by attachment kind', async () => {
+test('alternatives retain argument slots and select branches by step argument kind', async () => {
   const expression = new BddExpression('Create(table:{DataTable}/body:{DocString})', registry());
   assert.deepEqual(
     [...(await expression.matchAndResolve('Createtable:', undefined, { dataTable: table }))!],
@@ -60,7 +60,7 @@ test('alternatives retain argument slots and select branches by attachment kind'
   assert.equal(expression.match('Createtable:', { dataTable: table, docString: '' }), null);
 });
 
-test('custom attachment transformers preserve world and skip absent values', async () => {
+test('custom step argument transformers preserve world and skip absent values', async () => {
   const types = registry();
   let calls = 0;
   types.defineParameterType({
@@ -84,7 +84,7 @@ test('custom attachment transformers preserve world and skip absent values', asy
   assert.equal(calls, 1);
 });
 
-test('reject invalid placement and duplicate attachment kinds at construction', () => {
+test('reject invalid placement and duplicate step argument kinds at construction', () => {
   for (const pattern of [
     'Create {DataTable} now',
     'Create {DataTable}:name',
@@ -96,7 +96,7 @@ test('reject invalid placement and duplicate attachment kinds at construction', 
   }
 });
 
-test('attachment metadata has no fabricated text positions and extra input cannot be ignored', () => {
+test('step argument metadata has no fabricated text positions and extra input cannot be ignored', () => {
   const expression = new BddExpression('Create{DataTable}', registry());
   const [argument] = expression.match('Create', { dataTable: table })!;
   assert.equal(argument!.group.start, undefined);
@@ -106,7 +106,7 @@ test('attachment metadata has no fabricated text positions and extra input canno
   assert.equal(new BddExpression('Create', registry()).match('Create', { dataTable: table }), null);
 });
 
-test('a supplied attachment cannot choose an alternative that leaves it unconsumed', () => {
+test('a supplied step argument cannot choose an alternative that leaves it unconsumed', () => {
   const expression = new BddExpression('Create( plain/:{DataTable})', registry());
   assert.ok(expression.match('Create plain'));
   assert.equal(expression.match('Create plain', { dataTable: table }), null);
@@ -114,7 +114,7 @@ test('a supplied attachment cannot choose an alternative that leaves it unconsum
   assert.equal(expression.match('Create:'), null);
 });
 
-test('attachment order is independent of input object order and parameter slots stay stable', async () => {
+test('step argument order is independent of input object order and parameter slots stay stable', async () => {
   const expression = new BddExpression('Create :count{int}{DocString}{DataTable}', registry());
   const result = await expression.matchAndResolve('Create 2', undefined, {
     dataTable: table,
@@ -123,7 +123,7 @@ test('attachment order is independent of input object order and parameter slots 
   assert.deepEqual([...result!], [2, 'body\ntext', table]);
 });
 
-test('attachment transformers can be asynchronous and failures propagate during resolution only', async () => {
+test('step argument transformers can be asynchronous and failures propagate during resolution only', async () => {
   const types = registry();
   types.defineParameterType({
     docString: true,
@@ -142,21 +142,21 @@ test('attachment transformers can be asynchronous and failures propagate during 
   );
 });
 
-test('attachment registration validates options, names, and duplicate built-ins', () => {
+test('step argument registration validates options, names, and duplicate built-ins', () => {
   const types = registry();
   assert.throws(
     () =>
       types.defineParameterType(
-        // @ts-expect-error Attachment kinds are mutually exclusive.
+        // @ts-expect-error Step argument kinds are mutually exclusive.
         { dataTable: true, name: 'Bad', docString: true },
       ),
-    /exactly one attachment flag and no regexp/,
+    /exactly one step argument flag and no regexp/,
   );
   assert.throws(
     () =>
-      // @ts-expect-error Attachment types do not accept regexps.
+      // @ts-expect-error Step argument types do not accept regexps.
       types.defineParameterType({ docString: true, name: 'Bad', regexp: /x/ }),
-    /exactly one attachment flag and no regexp/,
+    /exactly one step argument flag and no regexp/,
   );
   assert.throws(
     () => types.defineParameterType({ dataTable: true, name: 'DataTable' }),
@@ -172,7 +172,7 @@ test('attachment registration validates options, names, and duplicate built-ins'
   );
 });
 
-test('attachment flags provide identity defaults for custom names', async () => {
+test('step argument flags provide identity defaults for custom names', async () => {
   const types = registry();
   types.defineParameterType({ dataTable: true, name: 'UsersDataTable' });
   types.defineParameterType({ docString: true, name: 'BodyDocString' });

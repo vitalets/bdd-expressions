@@ -35,7 +35,7 @@ export function validateParameterTypeKind(value: object) {
       'regexp' in value ||
       'regexpStrings' in value
     ) {
-      throw new Error('Attachment types require exactly one attachment flag and no regexp');
+      throw new Error('Step argument types require exactly one step argument flag and no regexp');
     }
   }
 }

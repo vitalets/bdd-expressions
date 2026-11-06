@@ -2,7 +2,7 @@
 
 ## [Unreleased]
 
-- Support built-in trailing DataTable and DocString parameters with typed attachment inputs and result properties, optional groups, and attachment flags for custom parameter types.
+- Support built-in trailing DataTable and DocString parameters with typed step argument inputs and result properties, optional groups, and step argument flags for custom parameter types.
 
 - Support explicit inline literals with `{=value}` and empty inline choice alternatives, with inferred literal types.
 

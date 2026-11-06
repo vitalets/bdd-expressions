@@ -1,5 +1,5 @@
 /**
- * Defines DataTable attachment options and resolves supplied table values.
+ * Defines DataTable step argument options and resolves supplied table values.
  */
 
 /**
@@ -27,7 +27,7 @@ export type DataTableParameterTypeOptions<Table = IDataTable, T = Table, World =
   transformer?: (this: World, table: Table) => T | PromiseLike<T>;
 };
 /**
- * Creates an attachment binding that preserves table identity unless transformed.
+ * Creates a step argument binding that preserves table identity unless transformed.
  */
 export function createDataTableParameterType<Table, T = Table, World = unknown>(
   options: DataTableParameterTypeOptions<Table, T, World>,

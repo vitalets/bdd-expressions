@@ -21,21 +21,24 @@ export type InferBddParams<
   : never;
 
 /**
- * Infers original attachment values from required built-in parameters.
- * Custom attachment names and dynamic sources conservatively allow absence.
+ * Infers original step argument values from required built-in parameters.
+ * Custom step argument names and dynamic sources conservatively allow absence.
  */
-export type InferBddAttachments<Source extends string, Table = IDataTable> = Source extends unknown
+export type InferBddStepArguments<
+  Source extends string,
+  Table = IDataTable,
+> = Source extends unknown
   ? {
       readonly dataTable:
         | Table
-        | (RequiredAttachments<Source> extends infer Required
+        | (RequiredStepArguments<Source> extends infer Required
             ? 'DataTable' extends Required
               ? never
               : undefined
             : undefined);
       readonly docString:
         | string
-        | (RequiredAttachments<Source> extends infer Required
+        | (RequiredStepArguments<Source> extends infer Required
             ? 'DocString' extends Required
               ? never
               : undefined
@@ -43,26 +46,26 @@ export type InferBddAttachments<Source extends string, Table = IDataTable> = Sou
     }
   : never;
 
-type RequiredAttachments<Source extends string> =
-  WithinBudget<Source> extends true ? ScanAttachments<Source> : never;
+type RequiredStepArguments<Source extends string> =
+  WithinBudget<Source> extends true ? ScanStepArguments<Source> : never;
 
-type ScanAttachments<
+type ScanStepArguments<
   S extends string,
   Depth extends 0[] = [],
   Required extends string = never,
 > = S extends `\\${infer _Escaped}${infer Rest}`
-  ? ScanAttachments<Rest, Depth, Required>
+  ? ScanStepArguments<Rest, Depth, Required>
   : S extends `(${infer Rest}`
-    ? ScanAttachments<Rest, [...Depth, 0], Required>
+    ? ScanStepArguments<Rest, [...Depth, 0], Required>
     : S extends `)${infer Rest}`
-      ? ScanAttachments<Rest, Depth extends [0, ...infer Tail extends 0[]] ? Tail : [], Required>
+      ? ScanStepArguments<Rest, Depth extends [0, ...infer Tail extends 0[]] ? Tail : [], Required>
       : S extends `{${infer Rest}`
         ? ReadBraces<Rest> extends [
             infer Type extends string,
             infer Choices,
             infer Tail extends string,
           ]
-          ? ScanAttachments<
+          ? ScanStepArguments<
               Tail,
               Depth,
               | Required
@@ -74,7 +77,7 @@ type ScanAttachments<
             >
           : Required
         : S extends `${infer _First}${infer Rest}`
-          ? ScanAttachments<Rest, Depth, Required>
+          ? ScanStepArguments<Rest, Depth, Required>
           : Required;
 
 type Builtins = {

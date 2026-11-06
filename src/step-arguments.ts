@@ -1,5 +1,5 @@
 /**
- * Analyzes attachment presence and validates trailing attachment sections without
+ * Analyzes step argument presence and validates trailing step argument sections without
  * mixing external values into the text matched by regular expressions.
  */
 
@@ -8,33 +8,33 @@ import { ExpressionError, type Node } from './parser.ts';
 import type { ParameterTypeRegistry } from './parameter-types/registry.ts';
 
 /**
- * Carries external attachment values; the table generic supports runner-specific
+ * Carries external step argument values; the table generic supports runner-specific
  * classes or alternative representations while defaulting to the common class shape.
  */
-export type AttachmentInputs<Table = IDataTable> = {
+export type StepArguments<Table = IDataTable> = {
   dataTable?: Table;
   docString?: string;
 };
-export type AttachmentPlan = {
+export type StepArgumentPlan = {
   masks: ReadonlyMap<Node, ReadonlySet<number>>;
   kinds: ReadonlyMap<Node, number>;
   all: number;
 };
 
 /**
- * Resolves attachment types and computes possible input-presence masks per AST node.
+ * Resolves step argument types and computes possible input-presence masks per AST node.
  */
-export function analyzeAttachments<Table>(
+export function analyzeStepArguments<Table>(
   ast: Node,
   registry: ParameterTypeRegistry<Table>,
   source: string,
-): AttachmentPlan {
+): StepArgumentPlan {
   const masks = new Map<Node, Set<number>>();
   const kinds = new Map<Node, number>();
   let all = 0;
   visit(ast);
   const endings = validate(ast, new Set([0]));
-  if (endings.has(2)) fail(ast, 'Text cannot follow an attachment parameter');
+  if (endings.has(2)) fail(ast, 'Text cannot follow a step argument parameter');
   return { masks, kinds, all };
 
   function fail(node: Node, message: string): never {
@@ -46,7 +46,7 @@ export function analyzeAttachments<Table>(
     if (node.kind === 'parameter') {
       const type = node.alternatives ? undefined : registry.lookupByTypeName(node.type);
       const kind = type && 'dataTable' in type ? 1 : type && 'docString' in type ? 2 : 0;
-      if (kind && all & kind) fail(node, 'Each attachment kind may appear only once');
+      if (kind && all & kind) fail(node, 'Each step argument kind may appear only once');
       all |= kind;
       kinds.set(node, kind);
       values = new Set([kind]);
@@ -65,8 +65,8 @@ export function analyzeAttachments<Table>(
     return values;
   }
 
-  // State 0 is title text; 1 follows an attachment; 2 is punctuation awaiting
-  // another attachment. Validate every path, including omitted optional groups.
+  // State 0 is title text; 1 follows a step argument; 2 is punctuation awaiting
+  // another step argument. Validate every path, including omitted optional groups.
   function validate(node: Node, states: Set<number>): Set<number> {
     if (node.kind === 'sequence') {
       for (const child of node.children) states = validate(child, states);
@@ -79,7 +79,7 @@ export function analyzeAttachments<Table>(
     if (node.kind === 'literal' && !node.value) return states;
     if ([...states].some((state) => state > 0)) {
       if (node.kind === 'parameter' || !/^[\s:]*$/.test(node.value))
-        fail(node, 'Attachment parameters must be last');
+        fail(node, 'Step argument parameters must be last');
       return new Set([...states].map((state) => (state === 0 ? 0 : 2)));
     }
     return states;
