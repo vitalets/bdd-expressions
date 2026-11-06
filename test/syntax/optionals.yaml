@@ -120,3 +120,75 @@
     named:
       message: null
       recipient: Alice
+
+- name: optional choices reject combined branches
+  expression: I send message( to my boss/ later)
+  text: I send message to my boss later
+  match: false
+
+- name: nested optional omission
+  expression: '[send( now)/wait]'
+  text: send
+  params:
+    positional: []
+    named: {}
+
+- name: nested optional present
+  expression: '[send( now)/wait]'
+  text: send now
+  params:
+    positional: []
+    named: {}
+
+- name: nested required does not force outer optional
+  expression: I send( [email/SMS])
+  text: I send
+  params:
+    positional: []
+    named: {}
+
+- name: nested required branch
+  expression: I send( [email/SMS])
+  text: I send SMS
+  params:
+    positional: []
+    named: {}
+
+- name: nested required cannot be omitted alone
+  expression: I send( [email/SMS])
+  text: 'I send '
+  match: false
+
+- name: nested optional can empty required group
+  expression: '[(a)/(b)]'
+  text: ''
+  params:
+    positional: []
+    named: {}
+
+- name: optional parameter choice absent
+  expression: (:count{int}/none)
+  text: ''
+  params:
+    positional:
+      - null
+    named:
+      count: null
+
+- name: optional parameter choice present
+  expression: (:count{int}/none)
+  text: '42'
+  params:
+    positional:
+      - 42
+    named:
+      count: 42
+
+- name: optional choice alternate branch
+  expression: (:count{int}/none)
+  text: none
+  params:
+    positional:
+      - null
+    named:
+      count: null

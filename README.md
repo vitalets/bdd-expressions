@@ -25,13 +25,15 @@ Extended syntax for BDD steps, a superset of [Cucumber Expressions](https://gith
   - `I create :item( as :owner)`
 - Nested optional text
   - `I create :item( as :owner( in :workspace))`
-- Multi-word alternatives without escaping
-  - `I (click/tap on/press and hold) button`
+- Optional alternatives without escaping
+  - `I send message( to my boss/ later)`
+- Required alternatives without escaping
+  - `I [click/tap on/press and hold] button`
 - Alternatives with parameters
-  - `I choose (page :page/label :label)`
+  - `I choose [page :page/label :label]`
 - DocString and DataTable in the expression
   - `I send a message:{DocString}`
-  - `I create users(:{DataTable})` (optional table)
+  - `I create users(:{DataTable})` (optional table!)
 - Full support for Cucumber Expressions syntax
   - `I have {int} cucumber(s) in my belly/stomach`
 
@@ -58,20 +60,21 @@ See the [API guide](docs/api.md#named-parameter-inference) for details and how t
 
 Comparison with the JavaScript implementation, `@cucumber/cucumber-expressions@20.1.0`.
 
-| Capability                               | Cucumber Expressions                                                                                                                                                                                               | BDD Expressions                    |
-| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------- |
-| Named parameters                         | ❌ ([#206](https://github.com/cucumber/cucumber-expressions/issues/206))                                                                                                                                           | ✅ `:page`, `:count{int}`          |
-| Anonymous typed parameters               | ✅ `{int}`, `{string}`, 11 built-ins                                                                                                                                                                               | ✅ Same built-ins                  |
-| Inline choice types                      | ❌ Requires a custom type ([#304](https://github.com/cucumber/cucumber-expressions/issues/304))                                                                                                                    | ✅ `{pending/approved}`            |
-| Optional text with parameters            | ❌ ([#305](https://github.com/cucumber/cucumber-expressions/issues/305), [#166](https://github.com/cucumber/cucumber-expressions/issues/166), [#299](https://github.com/cucumber/cucumber-expressions/issues/299)) | ✅ `( as :owner)`                  |
-| Nested optional text                     | ❌                                                                                                                                                                                                                 | ✅ `( as :owner( in :workspace))`  |
-| Multi-word alternatives without escaping | ❌ Spaces must be escaped ([#41](https://github.com/cucumber/cucumber-expressions/issues/41#issuecomment-963823708), [#75](https://github.com/cucumber/cucumber-expressions/issues/75#issuecomment-1048148209))    | ✅ `(click/tap on/press and hold)` |
-| Alternatives with parameters             | ❌ ([#41](https://github.com/cucumber/cucumber-expressions/issues/41#issuecomment-966888362))                                                                                                                      | ✅ `(page :page/label :label)`     |
-| Optional literal text                    | ✅ `cucumber(s)`                                                                                                                                                                                                   | ✅ `cucumber(s)`                   |
-| Single-word alternatives                 | ✅ `belly/stomach`                                                                                                                                                                                                 | ✅ `belly/stomach`                 |
-| Explicit optional whitespace             | ✅ `( again)`                                                                                                                                                                                                      | ✅ `( again)`                      |
-| Arbitrary text                           | ✅ `{}`                                                                                                                                                                                                            | ✅ `{}`                            |
-| Custom parameter types                   | ✅                                                                                                                                                                                                                 | ✅                                 |
+| Capability                               | Cucumber Expressions                                                                                                                                                                                               | BDD Expressions                           |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------- |
+| Named parameters                         | ❌ ([#206](https://github.com/cucumber/cucumber-expressions/issues/206))                                                                                                                                           | ✅ `:page`, `:count{int}`                 |
+| Anonymous typed parameters               | ✅ 11 built-ins, e.g. `{int}`, `{string}`                                                                                                                                                                          | ✅ Same 11 built-ins                      |
+| Inline choice types                      | ❌ Requires a custom type ([#304](https://github.com/cucumber/cucumber-expressions/issues/304))                                                                                                                    | ✅ `{pending/approved}`                   |
+| Optional text with parameters            | ❌ ([#305](https://github.com/cucumber/cucumber-expressions/issues/305), [#166](https://github.com/cucumber/cucumber-expressions/issues/166), [#299](https://github.com/cucumber/cucumber-expressions/issues/299)) | ✅ `( as :owner)`                         |
+| Nested optional text                     | ❌                                                                                                                                                                                                                 | ✅ `( as :owner( in :workspace))`         |
+| Multi-word alternatives without escaping | ❌ Spaces must be escaped ([#41](https://github.com/cucumber/cucumber-expressions/issues/41#issuecomment-963823708), [#75](https://github.com/cucumber/cucumber-expressions/issues/75#issuecomment-1048148209))    | ✅ `[click/tap on/press and hold]`        |
+| Alternatives with parameters             | ❌ ([#41](https://github.com/cucumber/cucumber-expressions/issues/41#issuecomment-966888362))                                                                                                                      | ✅ `[page :page/label :label]`            |
+| DocString and DataTable in expression    | ❌                                                                                                                                                                                                                 | ✅ Built-in `{DocString}`, `{DataTable}`. |
+| Optional literal text                    | ✅ `cucumber(s)`                                                                                                                                                                                                   | ✅ `cucumber(s)`                          |
+| Single-word alternatives                 | ✅ `belly/stomach`                                                                                                                                                                                                 | ✅ `belly/stomach`                        |
+| Explicit optional whitespace             | ✅ `( again)`                                                                                                                                                                                                      | ✅ `( again)`                             |
+| Arbitrary text                           | ✅ `{}`                                                                                                                                                                                                            | ✅ `{}`                                   |
+| Custom parameter types                   | ✅                                                                                                                                                                                                                 | ✅                                        |
 
 ## IDE support
 

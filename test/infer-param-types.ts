@@ -88,7 +88,7 @@ expectType<Equal<InferBddParams<':kind{int/float}'>, { kind: 'int' | 'float' }>>
 
 // Structural choices do not create named parameters.
 expectType<
-  Equal<InferBddParams<'I (click/tap on/press and hold) :page with mouse/touch'>, { page: string }>
+  Equal<InferBddParams<'I [click/tap on/press and hold] :page with mouse/touch'>, { page: string }>
 >();
 
 // Parameters inside bare alternative groups can be absent.
@@ -307,3 +307,54 @@ expectType<Equal<InferBddParams<':flag{==pending}'>, { flag: '=pending' }>>();
 expectType<Equal<InferBddParams<':flag{=word}'>, { flag: 'word' }>>();
 expectType<Equal<InferBddParams<':flag{=永久に}'>, { flag: '永久に' }>>();
 expectType<Equal<InferBddParams<':flag{=a\\/b}'>, { flag: 'a/b' }>>();
+
+// Required grouping preserves single-branch types and optional choice slots.
+expectType<Equal<InferBddParams<'[:count{int}] :after'>, { count: number; after: string }>>();
+expectType<Equal<InferBddParams<'[[:count{int}]]'>, { count: number }>>();
+expectType<
+  Equal<InferBddParams<'[:count{int}/none] :after'>, { count: number | undefined; after: string }>
+>();
+expectType<Equal<InferBddParams<'[:count{int}/]'>, { count: number | undefined }>>();
+expectType<Equal<InferBddParams<'([:count{int}])'>, { count: number | undefined }>>();
+expectType<Equal<InferBddParams<'[(:count{int})]'>, { count: number | undefined }>>();
+expectType<
+  Equal<InferBddParams<'[:status{pending/approved}]'>, { status: 'pending' | 'approved' }>
+>();
+expectType<Equal<InferBddParams<'[a/b] [:count{int}]'>, { count: number }>>();
+expectType<Equal<InferBddParams<'[a/b][:count{int}]'>, { count: number }>>();
+expectType<Equal<InferBddParams<'a[:count{int}]/b'>, { count: number | undefined }>>();
+expectType<Equal<InferBddParams<'a/b[:count{int}]'>, { count: number | undefined }>>();
+expectType<Equal<InferBddParams<'a/b [:count{int}]'>, { count: number }>>();
+expectType<Equal<InferBddParams<'[a/(b)] [:count{int}]'>, { count: number }>>();
+expectType<
+  Equal<
+    InferBddParams<'[(:first)/:second{int}] :after'>,
+    { first: string | undefined; second: number | undefined; after: string }
+  >
+>();
+
+// Group scanning hides escaped delimiters and slashes from structural inference.
+expectType<Equal<InferBddParams<'[a\\/b :count{int}]'>, { count: number }>>();
+expectType<Equal<InferBddParams<'[a\\]b :count{int}]'>, { count: number }>>();
+expectType<Equal<InferBddParams<'[a/b] :first[:second]'>, { first: string; second: string }>>();
+
+// Deep valid groups stay within the documented 256-character inference budget.
+expectType<
+  Equal<
+    InferBddParams<'[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[:count{int}]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]'>,
+    { count: number }
+  >
+>();
+expectType<
+  Equal<
+    InferBddParams<'((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((:count{int}))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))'>,
+    { count: number | undefined }
+  >
+>();
+
+// Only ASCII space ends a bare alternative, matching the runtime parser.
+expectType<Equal<InferBddParams<'a/b\t[:count{int}]'>, { count: number | undefined }>>();
+expectType<Equal<InferBddParams<'a/b\n[:count{int}]'>, { count: number | undefined }>>();
+expectType<Equal<InferBddParams<'a/b\u00a0[:count{int}]'>, { count: number | undefined }>>();
+expectType<Equal<InferBddParams<'a[:count{int}]\tend/b'>, { count: number | undefined }>>();
+expectType<Equal<InferBddParams<'a[:count{int}] end/b'>, { count: number }>>();

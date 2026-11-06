@@ -18,7 +18,7 @@ Expressions match the entire input and are case sensitive. Ordinary text and whi
   - [Consecutive optional text](#consecutive-optional-text)
 - [Alternatives](#alternatives)
   - [Single-word alternatives](#single-word-alternatives)
-  - [Multi-word alternatives without escaping](#multi-word-alternatives-without-escaping)
+  - [Required alternatives without escaping](#required-alternatives-without-escaping)
   - [Optional alternative](#optional-alternative)
   - [Alternatives with parameters](#alternatives-with-parameters)
 - [Escaping](#escaping)
@@ -178,7 +178,7 @@ Numeric patterns follow the tested Cucumber built-ins: floating-point types acce
 
 ## Optional groups
 
-Parentheses without a slash at their own nesting level make their contents optional.
+Parentheses always make their contents optional, including when they contain slash-separated alternatives. Adding another alternative preserves the option to omit the group.
 
 ### Optional suffix
 
@@ -310,7 +310,7 @@ Use `/` to choose between words or phrases. Structural choices match text withou
 
 ### Single-word alternatives
 
-Separate words with `/` to accept either spelling without capturing it as a parameter. Outside parentheses, alternatives are bounded by whitespace, parameters, or the expression edges. A space can be escaped to include it in a branch, for example `click/tap\ on`.
+Separate words with `/` to accept either spelling without capturing it as a parameter. Outside groups, alternatives are bounded by unescaped ASCII spaces (`U+0020`), direct parameters, or the expression edges. Tabs, newlines, and Unicode whitespace remain literal branch text; punctuation and adjacent groups do not end a bare alternative. A space can be escaped to include it in a branch, for example `click/tap\ on`.
 
 Paying by card:
 
@@ -330,15 +330,17 @@ Paying by cash:
 | Captured params (positional) | —                    |
 | Captured params (named)      | —                    |
 
-### Multi-word alternatives without escaping
+A direct parameter ends a bare alternative: `a/b:count{int}` requires a count after either letter. Prefer `[a/b]:count{int}` to make this shared scope explicit. Inside brackets, branches can include parameters: `[a:count{int}/b]` requires a count only after `a`, and `[a/b:count{int}]` requires one only after `b`. An adjacent group stays within its bare branch: `a/b[:count{int}]` also requires a count only after `b`.
 
-Put slash-separated phrases in parentheses to require one of them. The selected phrase is not captured as a parameter. Spaces are literal and need no escaping. Only slashes at the current nesting level separate branches; slashes inside nested groups or braces do not affect the enclosing group.
+### Required alternatives without escaping
+
+Put slash-separated phrases in square brackets to require one of them. The selected phrase is not captured as a parameter. Spaces are literal and need no escaping. Only slashes at the current nesting level separate branches; slashes inside nested groups or braces do not affect the enclosing group. A single-branch group such as `[click]` is also required. Bare single-word choices such as `click/tap` remain required.
 
 With the `click` branch:
 
 |                              |                                          |
 | ---------------------------- | ---------------------------------------- |
-| Expression                   | `I (click/tap on/press and hold) button` |
+| Expression                   | `I [click/tap on/press and hold] button` |
 | Input                        | `I click button`                         |
 | Captured params (positional) | —                                        |
 | Captured params (named)      | —                                        |
@@ -347,7 +349,7 @@ With the `tap on` branch:
 
 |                              |                                          |
 | ---------------------------- | ---------------------------------------- |
-| Expression                   | `I (click/tap on/press and hold) button` |
+| Expression                   | `I [click/tap on/press and hold] button` |
 | Input                        | `I tap on button`                        |
 | Captured params (positional) | —                                        |
 | Captured params (named)      | —                                        |
@@ -356,20 +358,22 @@ With the `press and hold` branch:
 
 |                              |                                          |
 | ---------------------------- | ---------------------------------------- |
-| Expression                   | `I (click/tap on/press and hold) button` |
+| Expression                   | `I [click/tap on/press and hold] button` |
 | Input                        | `I press and hold button`                |
 | Captured params (positional) | —                                        |
 | Captured params (named)      | —                                        |
 
 ### Optional alternative
 
-Include an empty branch anywhere in parenthesized alternatives to allow no text or one of the listed phrases: `(/again)`, `(again/)`, and `(again//once more)` are valid. An optional group with a single phrase, such as `( again)`, is shorthand for the equivalent alternative with an empty first branch: `(/ again)`.
+Use parentheses to allow no text or one of the listed phrases: `( again/ once more)`. Both `I send message( to my boss)` and `I send message( to my boss/ later)` accept `I send message`.
 
-With the empty branch (no suffix):
+Square brackets can explicitly include an empty branch anywhere: `[/again]`, `[again/]`, and `[again//once more]` all allow omission. `[again]` requires `again`, while `[again/]` accepts either `again` or the empty string. Optional parentheses may also contain empty branches, but these are redundant.
+
+With the optional group omitted (no suffix):
 
 |                              |                                                                               |
 | ---------------------------- | ----------------------------------------------------------------------------- |
-| Expression                   | `I open :page(/ again/ once more)`                                            |
+| Expression                   | `I open :page( again/ once more)`                                             |
 | Input                        | `I open "Settings"`                                                           |
 | Captured params (positional) | `['Settings']`                                                                |
 | Captured params (named)      | <code>{</code><br>&nbsp;&nbsp;<code>page: "Settings"</code><br><code>}</code> |
@@ -378,12 +382,12 @@ With the `again` suffix:
 
 |                              |                                                                               |
 | ---------------------------- | ----------------------------------------------------------------------------- |
-| Expression                   | `I open :page(/ again/ once more)`                                            |
+| Expression                   | `I open :page( again/ once more)`                                             |
 | Input                        | `I open "Settings" again`                                                     |
 | Captured params (positional) | `['Settings']`                                                                |
 | Captured params (named)      | <code>{</code><br>&nbsp;&nbsp;<code>page: "Settings"</code><br><code>}</code> |
 
-Repeated empty branches are allowed. `(/)` and `()` match empty text without capturing parameters.
+Repeated empty branches are allowed. `[/]`, `[]`, `(/)`, and `()` match empty text without capturing parameters. Groups can nest: `I send( [email/SMS])` makes the required choice optional as a whole, while `[send( now)/wait]` requires a branch with an optional suffix in the first branch.
 
 ### Alternatives with parameters
 
@@ -393,7 +397,7 @@ The number branch captures `count`:
 
 |                              |                                                                                                                     |
 | ---------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| Expression                   | `I choose (number :count{int}/label :label)`                                                                        |
+| Expression                   | `I choose [number :count{int}/label :label]`                                                                        |
 | Input                        | `I choose number 2`                                                                                                 |
 | Captured params (positional) | `[2, undefined]`                                                                                                    |
 | Captured params (named)      | <code>{</code><br>&nbsp;&nbsp;<code>count: 2,</code><br>&nbsp;&nbsp;<code>label: undefined</code><br><code>}</code> |
@@ -402,26 +406,27 @@ The label branch captures `label`:
 
 |                              |                                                                                                                         |
 | ---------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| Expression                   | `I choose (number :count{int}/label :label)`                                                                            |
+| Expression                   | `I choose [number :count{int}/label :label]`                                                                            |
 | Input                        | `I choose label "two"`                                                                                                  |
 | Captured params (positional) | `[undefined, 'two']`                                                                                                    |
 | Captured params (named)      | <code>{</code><br>&nbsp;&nbsp;<code>count: undefined,</code><br>&nbsp;&nbsp;<code>label: "two"</code><br><code>}</code> |
 
 ## Escaping
 
-Use a backslash to make special characters literal. Expression-language escapes support `\\`, `\/`, `\:`, `\(`, `\)`, `\{`, `\}`, and whitespace. Other escapes and a trailing backslash are errors. Unmatched closing delimiters are errors too.
+Use a backslash to make special characters literal. Expression-language escapes support `\\`, `\/`, `\:`, `\(`, `\)`, `\[`, `\]`, `\{`, `\}`, and ASCII space. Other whitespace is written literally, without a backslash. Other escapes and a trailing backslash are errors. Unmatched closing delimiters are errors too.
 
 | Expression text         | Matches literally     |
 | ----------------------- | --------------------- |
 | `https:\/\/example.com` | `https://example.com` |
 | `label\:value`          | `label:value`         |
+| `\[draft\]`             | `[draft]`             |
 | `\(draft\)`             | `(draft)`             |
 | `\{name\}`              | `{name}`              |
 | `a\\b`                  | `a\b`                 |
 
 An unescaped colon starts a parameter only when followed by a valid name-start character. No preceding whitespace is required: `foo:bar` contains the parameter `bar`, and `v:major{int}.:minor{int}` contains two integer parameters. To match literal `foo:bar`, write `foo\:bar`.
 
-Colons in `12:30` and `https:` are already literal; URL slashes still need escaping. Inside braces, colons are literal, and literal parentheses or opening braces must be escaped. Braces cannot be nested.
+Colons in `12:30` and `https:` are already literal; URL slashes still need escaping. Inside braces, colons are literal, and literal parentheses, square brackets, or opening braces must be escaped. Braces cannot be nested.
 
 For escaping expression strings in TypeScript, see [Escaping in string literals](api.md#escaping-in-string-literals).
 

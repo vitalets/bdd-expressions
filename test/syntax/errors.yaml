@@ -81,3 +81,79 @@
     start: 2
     end: 11
     message: Unknown parameter type "unknown"
+
+- name: unclosed required group
+  expression: '[x'
+  error:
+    start: 0
+    end: 1
+    message: 'Unclosed group'
+
+- name: unexpected closing bracket
+  expression: 'x]'
+  error:
+    start: 1
+    end: 2
+    message: 'Unexpected "]"'
+
+- name: mismatched optional group
+  expression: '(x]'
+  error:
+    start: 2
+    end: 3
+    message: 'Unexpected "]"'
+
+- name: mismatched required group
+  expression: '[x)'
+  error:
+    start: 2
+    end: 3
+    message: 'Unexpected ")"'
+
+- name: nested mismatched group
+  expression: '[(x]'
+  error:
+    start: 3
+    end: 4
+    message: 'Unexpected "]"'
+
+- name: unescaped bracket in braces
+  expression: '{=a[b}'
+  error:
+    start: 3
+    end: 4
+    message: 'Escape literal delimiters inside braces'
+
+- name: duplicate required branch parameter
+  expression: '[:x/:x]'
+  error:
+    start: 4
+    end: 5
+    message: 'Duplicate parameter name "x"'
+
+- name: rejects escaped tab
+  expression: a\	b
+  error:
+    start: 1
+    end: 2
+    message: Invalid escape
+- name: rejects escaped newline
+  expression: |-
+    a\
+    b
+  error:
+    start: 1
+    end: 2
+    message: Invalid escape
+- name: rejects escaped nonbreaking space
+  expression: a\ b
+  error:
+    start: 1
+    end: 2
+    message: Invalid escape
+- name: rejects escaped ideographic space
+  expression: a\　b
+  error:
+    start: 1
+    end: 2
+    message: Invalid escape

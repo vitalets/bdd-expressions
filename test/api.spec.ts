@@ -312,3 +312,23 @@ test('prebuilt types are validated before registration', () => {
   registry.defineParameterType(valid);
   assert.equal(registry.lookupByTypeName('External'), valid);
 });
+
+test('group ranges include their delimiters and retain parameter source positions', () => {
+  const source = '[:count{int}/(none)]';
+  const ast = parseExpression(source);
+  assert.ok(ast.kind === 'sequence');
+  const run = ast.children[0]!;
+  assert.ok(run.kind === 'sequence');
+  const choice = run.children[0]!;
+  assert.ok(choice.kind === 'choice');
+  assert.equal(source.slice(choice.start, choice.end), source);
+  const branch = choice.branches[0]!;
+  assert.ok(branch.kind === 'sequence');
+  const parameter = branch.children[0]!;
+  assert.equal(source.slice(parameter.start, parameter.end), ':count{int}');
+  const other = choice.branches[1]!;
+  assert.ok(other.kind === 'sequence');
+  const optional = other.children[0]!;
+  assert.ok(optional.kind === 'optional');
+  assert.equal(source.slice(optional.start, optional.end), '(none)');
+});

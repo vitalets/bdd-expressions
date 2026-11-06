@@ -53,32 +53,62 @@ type ScanStepArguments<
   S extends string,
   Depth extends 0[] = [],
   Required extends string = never,
-> = S extends `\\${infer _Escaped}${infer Rest}`
-  ? ScanStepArguments<Rest, Depth, Required>
-  : S extends `(${infer Rest}`
-    ? ScanStepArguments<Rest, [...Depth, 0], Required>
-    : S extends `)${infer Rest}`
-      ? ScanStepArguments<Rest, Depth extends [0, ...infer Tail extends 0[]] ? Tail : [], Required>
-      : S extends `{${infer Rest}`
-        ? ReadBraces<Rest> extends [
-            infer Type extends string,
-            infer Choices,
-            infer Tail extends string,
-          ]
-          ? ScanStepArguments<
-              Tail,
-              Depth,
-              | Required
-              | (Depth extends []
-                  ? [Choices] extends [never]
-                    ? Extract<Type, 'DataTable' | 'DocString'>
-                    : never
-                  : never)
-            >
-          : Required
-        : S extends `${infer _First}${infer Rest}`
-          ? ScanStepArguments<Rest, Depth, Required>
-          : Required;
+  InBareChoice extends boolean = false,
+  Pending extends GroupTail[] = [],
+> = S extends ''
+  ? Pending extends [infer Next extends GroupTail, ...infer Rest extends GroupTail[]]
+    ? ScanStepArguments<Next[0], Next[1], Required, Next[2], Rest>
+    : Required
+  : S extends `\\${infer _Escaped}${infer Rest}`
+    ? ScanStepArguments<Rest, Depth, Required, InBareChoice, Pending>
+    : S extends `${infer Open extends '(' | '['}${infer Rest}`
+      ? ReadGroup<Rest, Open extends '(' ? ')' : ']'> extends [
+          infer Body extends string,
+          infer Tail extends string,
+          infer Choice,
+        ]
+        ? ScanStepArguments<
+            Body,
+            GroupDepth<Open, Choice, Tail, Depth, InBareChoice>,
+            Required,
+            false,
+            [[Tail, Depth, InBareChoice], ...Pending]
+          >
+        : Required
+      : S extends `:${infer First}${infer Rest}`
+        ? First extends NameStart
+          ? ReadName<Rest, First> extends [string, infer Tail extends string]
+            ? ScanStepArguments<Tail, Depth, Required, false, Pending>
+            : Required
+          : ScanStepArguments<`${First}${Rest}`, Depth, Required, InBareChoice, Pending>
+        : S extends `{${infer Rest}`
+          ? ReadBraces<Rest> extends [
+              infer Type extends string,
+              infer Choices,
+              infer Tail extends string,
+            ]
+            ? ScanStepArguments<
+                Tail,
+                Depth,
+                | Required
+                | (Depth extends []
+                    ? [Choices] extends [never]
+                      ? Extract<Type, 'DataTable' | 'DocString'>
+                      : never
+                    : never),
+                false,
+                Pending
+              >
+            : Required
+          : S extends `${infer First}${infer Rest}`
+            ? ScanStepArguments<
+                Rest,
+                Depth,
+                Required,
+                First extends '/' ? true : First extends ' ' ? false : InBareChoice,
+                Pending
+              >
+            : Required;
 
 type Builtins = {
   DataTable: IDataTable;
@@ -149,8 +179,9 @@ type WithinBudget<
         : false;
 
 /**
- * Names are globally unique in valid expressions. Each parameter inside a group
- * can be absent: the group is optional, or another alternative can be selected.
+ * Names are globally unique in valid expressions. Parameters in optional groups
+ * or multi-branch choices can be absent. Single-branch required groups preserve
+ * the enclosing optionality.
  * Bare alternatives cannot contain direct parameters, only grouped parameters.
  */
 type Scan<
@@ -158,25 +189,113 @@ type Scan<
   Custom extends object,
   Depth extends 0[] = [],
   Params = {},
+  InBareChoice extends boolean = false,
+  Pending extends GroupTail[] = [],
 > = S extends ''
-  ? Params
+  ? Pending extends [infer Next extends GroupTail, ...infer Rest extends GroupTail[]]
+    ? Scan<Next[0], Custom, Next[1], Params, Next[2], Rest>
+    : Params
   : S extends `\\${infer _Escaped}${infer Rest}`
-    ? Scan<Rest, Custom, Depth, Params>
-    : S extends `(${infer Rest}`
-      ? Scan<Rest, Custom, [...Depth, 0], Params>
-      : S extends `)${infer Rest}`
-        ? Scan<Rest, Custom, Depth extends [0, ...infer Tail extends 0[]] ? Tail : [], Params>
-        : S extends `:${infer First}${infer Rest}`
-          ? First extends NameStart
-            ? ReadName<Rest, First> extends [infer Name extends string, infer Tail extends string]
-              ? Parameter<Tail, Name, Custom, Depth, Params>
-              : Record<string, unknown>
-            : Scan<`${First}${Rest}`, Custom, Depth, Params>
-          : S extends `{${string}`
-            ? Parameter<S, never, Custom, Depth, Params>
-            : S extends `${infer _First}${infer Rest}`
-              ? Scan<Rest, Custom, Depth, Params>
-              : Record<string, unknown>;
+    ? Scan<Rest, Custom, Depth, Params, InBareChoice, Pending>
+    : S extends `${infer Open extends '(' | '['}${infer Rest}`
+      ? ReadGroup<Rest, Open extends '(' ? ')' : ']'> extends [
+          infer Body extends string,
+          infer Tail extends string,
+          infer Choice,
+        ]
+        ? Scan<
+            Body,
+            Custom,
+            GroupDepth<Open, Choice, Tail, Depth, InBareChoice>,
+            Params,
+            false,
+            [[Tail, Depth, InBareChoice], ...Pending]
+          >
+        : Record<string, unknown>
+      : S extends `:${infer First}${infer Rest}`
+        ? First extends NameStart
+          ? ReadName<Rest, First> extends [infer Name extends string, infer Tail extends string]
+            ? Parameter<Tail, Name, Custom, Depth, Params, Pending>
+            : Record<string, unknown>
+          : Scan<`${First}${Rest}`, Custom, Depth, Params, InBareChoice, Pending>
+        : S extends `{${string}`
+          ? Parameter<S, never, Custom, Depth, Params, Pending>
+          : S extends `${infer First}${infer Rest}`
+            ? Scan<
+                Rest,
+                Custom,
+                Depth,
+                Params,
+                First extends '/' ? true : First extends ' ' ? false : InBareChoice,
+                Pending
+              >
+            : Record<string, unknown>;
+
+type GroupTail = [source: string, depth: 0[], inBareChoice: boolean];
+
+type GroupDepth<
+  Open,
+  Choice,
+  Tail extends string,
+  Depth extends 0[],
+  InBareChoice,
+> = Open extends '('
+  ? [...Depth, 0]
+  : true extends Choice | InBareChoice | HasBareChoice<Tail>
+    ? [...Depth, 0]
+    : Depth;
+
+/**
+ * A required group can also be skipped by a surrounding bare alternative.
+ * Look ahead only within the current run; nested groups hide their own slashes.
+ */
+type HasBareChoice<S extends string> = S extends `\\${infer _Escaped}${infer Rest}`
+  ? HasBareChoice<Rest>
+  : S extends `${infer Open extends '(' | '['}${infer Rest}`
+    ? ReadGroup<Rest, Open extends '(' ? ')' : ']'> extends [
+        string,
+        infer Tail extends string,
+        boolean,
+      ]
+      ? HasBareChoice<Tail>
+      : false
+    : S extends `/${string}`
+      ? true
+      : S extends `${' ' | '{'}${string}` | `:${NameStart}${string}`
+        ? false
+        : S extends `${infer _First}${infer Rest}`
+          ? HasBareChoice<Rest>
+          : false;
+
+/**
+ * Reads a group's body and detects only its own alternative separators.
+ * Escapes and nested delimiters, including parameter braces, hide their slashes.
+ */
+type ReadGroup<
+  S extends string,
+  Close extends string,
+  Body extends string = '',
+  Nested extends string[] = [],
+  Choice extends boolean = false,
+> = S extends `\\${infer Escaped}${infer Rest}`
+  ? ReadGroup<Rest, Close, `${Body}\\${Escaped}`, Nested, Choice>
+  : S extends `${infer First}${infer Rest}`
+    ? First extends ')' | ']' | '}'
+      ? Nested extends [string, ...infer Tail extends string[]]
+        ? ReadGroup<Rest, Close, `${Body}${First}`, Tail, Choice>
+        : First extends Close
+          ? [Body, Rest, Choice]
+          : never
+      : First extends '(' | '[' | '{'
+        ? ReadGroup<Rest, Close, `${Body}${First}`, [First, ...Nested], Choice>
+        : ReadGroup<
+            Rest,
+            Close,
+            `${Body}${First}`,
+            Nested,
+            First extends '/' ? (Nested extends [] ? true : Choice) : Choice
+          >
+    : never;
 
 type Parameter<
   S extends string,
@@ -184,6 +303,7 @@ type Parameter<
   Custom extends object,
   Depth extends 0[],
   Params,
+  Pending extends GroupTail[],
 > = S extends `{${infer Rest}`
   ? ReadBraces<Rest> extends [
       infer Type extends string,
@@ -199,10 +319,19 @@ type Parameter<
           Name,
           [Choices] extends [never] ? ResolveType<Type, Custom> : Choices,
           Depth
-        >
+        >,
+        false,
+        Pending
       >
     : Record<string, unknown>
-  : Scan<S, Custom, Depth, AddParam<Params, Name, ResolveType<'string', Custom>, Depth>>;
+  : Scan<
+      S,
+      Custom,
+      Depth,
+      AddParam<Params, Name, ResolveType<'string', Custom>, Depth>,
+      false,
+      Pending
+    >;
 
 type ReadName<S extends string, Name extends string> = S extends `${infer First}${infer Rest}`
   ? First extends NameChar

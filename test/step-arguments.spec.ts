@@ -48,7 +48,7 @@ test('required step arguments, independent optionals and nested groups', () => {
 });
 
 test('alternatives retain argument slots and select branches by step argument kind', async () => {
-  const expression = new BddExpression('Create(table:{DataTable}/body:{DocString})', registry());
+  const expression = new BddExpression('Create[table:{DataTable}/body:{DocString}]', registry());
   assert.deepEqual(
     [...(await expression.matchAndResolve('Createtable:', { dataTable: table }))!],
     [table, undefined],
@@ -106,7 +106,7 @@ test('step argument metadata has no fabricated text positions and extra input ca
 });
 
 test('a supplied step argument cannot choose an alternative that leaves it unconsumed', () => {
-  const expression = new BddExpression('Create( plain/:{DataTable})', registry());
+  const expression = new BddExpression('Create[ plain/:{DataTable}]', registry());
   assert.ok(expression.match('Create plain'));
   assert.equal(expression.match('Create plain', { dataTable: table }), null);
   assert.ok(expression.match('Create:', { dataTable: table }));
@@ -212,4 +212,21 @@ test('parameter variants expose only their own fields and one working transform'
   const textType = types.lookupByTypeName('int')!;
   assert.ok('regexpStrings' in textType);
   assert.equal(textType.transform(undefined, ['42']), 42);
+});
+
+test('required and optional choice groups preserve step argument presence', async () => {
+  const required = new BddExpression('Create[:{DataTable}]', registry());
+  assert.equal(required.match('Create'), null);
+  assert.equal(required.match('Create:'), null);
+  assert.ok(required.match('Create:', { dataTable: table }));
+  const optional = new BddExpression('Create(:{DataTable}/:{DocString})', registry());
+  assert.ok(optional.match('Create'));
+  assert.ok(optional.match('Create:', { dataTable: table }));
+  assert.ok(optional.match('Create:', { docString: '' }));
+  assert.equal(optional.match('Create:', { dataTable: table, docString: '' }), null);
+  const empty = new BddExpression('Create[:{DataTable}/]', registry());
+  assert.ok(empty.match('Create'));
+  assert.ok(empty.match('Create:', { dataTable: table }));
+  assert.equal(empty.match('Create', { dataTable: table }), null);
+  assert.deepEqual([...(await empty.matchAndResolve('Create'))!], [undefined]);
 });

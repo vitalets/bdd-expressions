@@ -210,3 +210,27 @@ async function checkRequiredStepArgumentProperties() {
   };
 }
 void checkRequiredStepArgumentProperties;
+
+async function checkGroupedStepArgumentProperties() {
+  const required = await new BddExpression('[{DataTable}][{DocString}]', registry).matchAndResolve(
+    '',
+  );
+  const table: string[][] = required!.dataTable;
+  const body: string = required!.docString;
+  const choice = await new BddExpression('[{DataTable}/{DocString}]', registry).matchAndResolve('');
+  // @ts-expect-error Another required branch can omit the table.
+  const absentTable: string[][] = choice!.dataTable;
+  // @ts-expect-error Another required branch can omit the DocString.
+  const absentBody: string = choice!.docString;
+  const optional = await new BddExpression('([{DataTable}])', registry).matchAndResolve('');
+  // @ts-expect-error The enclosing optional can omit the required group.
+  const optionalTable: string[][] = optional!.dataTable;
+  const empty = await new BddExpression('[{DocString}/]', registry).matchAndResolve('');
+  // @ts-expect-error An empty branch can omit the DocString.
+  const emptyBody: string = empty!.docString;
+  const bare = await new BddExpression('a[{DataTable}]/b', registry).matchAndResolve('b');
+  // @ts-expect-error A surrounding bare alternative can omit the table.
+  const bareTable: string[][] = bare!.dataTable;
+  return { table, body, absentTable, absentBody, optionalTable, emptyBody, bareTable };
+}
+void checkGroupedStepArgumentProperties;

@@ -1,5 +1,5 @@
 - name: preserves parameter slots when the first branch matches
-  expression: '(create :item/delete :id{int}/nothing)'
+  expression: '[create :item/delete :id{int}/nothing]'
   text: 'create "x"'
   params:
     positional: [x, null]
@@ -8,7 +8,7 @@
       id: null
 
 - name: preserves parameter slots when the second branch matches
-  expression: '(create :item/delete :id{int}/nothing)'
+  expression: '[create :item/delete :id{int}/nothing]'
   text: 'delete 42'
   params:
     positional: [null, 42]
@@ -17,7 +17,7 @@
       id: 42
 
 - name: preserves parameter slots when a parameterless branch matches
-  expression: '(create :item/delete :id{int}/nothing)'
+  expression: '[create :item/delete :id{int}/nothing]'
   text: 'nothing'
   params:
     positional: [null, null]
@@ -26,7 +26,7 @@
       id: null
 
 - name: matches a single-word structural branch
-  expression: 'I (click/tap on/press and hold) :target'
+  expression: 'I [click/tap on/press and hold] :target'
   text: 'I click "x"'
   params:
     positional: [x]
@@ -42,7 +42,7 @@
       action: click
 
 - name: matches a multiword structural branch
-  expression: 'I (click/tap on/press and hold) :target'
+  expression: 'I [click/tap on/press and hold] :target'
   text: 'I tap on "x"'
   params:
     positional: [x]
@@ -58,7 +58,7 @@
       action: tap on
 
 - name: matches the final structural branch
-  expression: 'I (click/tap on/press and hold) :target'
+  expression: 'I [click/tap on/press and hold] :target'
   text: 'I press and hold "x"'
   params:
     positional: [x]
@@ -74,7 +74,7 @@
       action: press and hold
 
 - name: matches an absent optional choice
-  expression: 'I open :page(/ again/ once more)'
+  expression: 'I open :page( again/ once more)'
   text: 'I open "x"'
   params:
     positional: [x]
@@ -82,7 +82,7 @@
       page: x
 
 - name: matches a single-word optional suffix
-  expression: 'I open :page(/ again/ once more)'
+  expression: 'I open :page( again/ once more)'
   text: 'I open "x" again'
   params:
     positional: [x]
@@ -90,7 +90,7 @@
       page: x
 
 - name: matches a multiword optional suffix
-  expression: 'I open :page(/ again/ once more)'
+  expression: 'I open :page( again/ once more)'
   text: 'I open "x" once more'
   params:
     positional: [x]
@@ -117,106 +117,106 @@
     named: {}
 
 - name: leading empty branch matches empty input
-  expression: '(/again/once more)'
+  expression: '[/again/once more]'
   text: ''
   params:
     positional: []
     named: {}
 
 - name: leading empty branch matches the first nonempty branch
-  expression: '(/again/once more)'
+  expression: '[/again/once more]'
   text: 'again'
   params:
     positional: []
     named: {}
 
 - name: leading empty branch matches the last nonempty branch
-  expression: '(/again/once more)'
+  expression: '[/again/once more]'
   text: 'once more'
   params:
     positional: []
     named: {}
 
 - name: leading empty branch rejects unrelated input
-  expression: '(/again/once more)'
+  expression: '[/again/once more]'
   text: 'other'
   match: false
 
 - name: middle empty branch matches empty input
-  expression: '(again//once more)'
+  expression: '[again//once more]'
   text: ''
   params:
     positional: []
     named: {}
 
 - name: middle empty branch matches the first nonempty branch
-  expression: '(again//once more)'
+  expression: '[again//once more]'
   text: 'again'
   params:
     positional: []
     named: {}
 
 - name: middle empty branch matches the last nonempty branch
-  expression: '(again//once more)'
+  expression: '[again//once more]'
   text: 'once more'
   params:
     positional: []
     named: {}
 
 - name: middle empty branch rejects unrelated input
-  expression: '(again//once more)'
+  expression: '[again//once more]'
   text: 'other'
   match: false
 
 - name: trailing empty branch matches empty input
-  expression: '(again/once more/)'
+  expression: '[again/once more/]'
   text: ''
   params:
     positional: []
     named: {}
 
 - name: trailing empty branch matches the first nonempty branch
-  expression: '(again/once more/)'
+  expression: '[again/once more/]'
   text: 'again'
   params:
     positional: []
     named: {}
 
 - name: trailing empty branch matches the last nonempty branch
-  expression: '(again/once more/)'
+  expression: '[again/once more/]'
   text: 'once more'
   params:
     positional: []
     named: {}
 
 - name: trailing empty branch rejects unrelated input
-  expression: '(again/once more/)'
+  expression: '[again/once more/]'
   text: 'other'
   match: false
 
 - name: repeated empty branch matches empty input
-  expression: '(/again///once more/)'
+  expression: '[/again///once more/]'
   text: ''
   params:
     positional: []
     named: {}
 
 - name: repeated empty branch matches the first nonempty branch
-  expression: '(/again///once more/)'
+  expression: '[/again///once more/]'
   text: 'again'
   params:
     positional: []
     named: {}
 
 - name: repeated empty branch matches the last nonempty branch
-  expression: '(/again///once more/)'
+  expression: '[/again///once more/]'
   text: 'once more'
   params:
     positional: []
     named: {}
 
 - name: repeated empty branch rejects unrelated input
-  expression: '(/again///once more/)'
+  expression: '[/again///once more/]'
   text: 'other'
   match: false
 
@@ -297,7 +297,7 @@
     named: {}
 
 - name: earlier literal branch leaves a later parameter absent
-  expression: '(a/)(:value{word}/)'
+  expression: '[a/][:value{word}/]'
   text: 'a'
   params:
     positional: [null]
@@ -305,7 +305,7 @@
       value: null
 
 - name: earlier empty branch leaves input for a later parameter
-  expression: '(/a)(:value{word}/)'
+  expression: '[/a][:value{word}/]'
   text: 'a'
   params:
     positional: [a]
@@ -313,7 +313,7 @@
       value: a
 
 - name: later empty branch wins after an earlier literal consumes input
-  expression: '(a/)(/:value{word})'
+  expression: '[a/][/:value{word}]'
   text: 'a'
   params:
     positional: [null]
@@ -349,21 +349,21 @@
     named: {}
 
 - name: nested choice matches its outer branch
-  expression: '(a/(b/c))'
+  expression: '[a/[b/c]]'
   text: 'a'
   params:
     positional: []
     named: {}
 
 - name: nested choice matches its first inner branch
-  expression: '(a/(b/c))'
+  expression: '[a/[b/c]]'
   text: 'b'
   params:
     positional: []
     named: {}
 
 - name: nested choice matches its last inner branch
-  expression: '(a/(b/c))'
+  expression: '[a/[b/c]]'
   text: 'c'
   params:
     positional: []
@@ -384,7 +384,7 @@
     named: {}
 
 - name: preserves slots with an empty branch
-  expression: '(:first//:second{int}/)'
+  expression: '[:first//:second{int}/]'
   text: ''
   params:
     positional: [null, null]
@@ -393,7 +393,7 @@
       second: null
 
 - name: preserves slots with the first parameter branch
-  expression: '(:first//:second{int}/)'
+  expression: '[:first//:second{int}/]'
   text: '"abc"'
   params:
     positional: [abc, null]
@@ -402,10 +402,177 @@
       second: null
 
 - name: preserves slots with the second parameter branch
-  expression: '(:first//:second{int}/)'
+  expression: '[:first//:second{int}/]'
   text: '2'
   params:
     positional: [null, 2]
     named:
       first: null
       second: 2
+
+- name: ASCII space alternative boundary with "a"
+  expression: a/b c
+  text: a
+  match: false
+- name: ASCII space alternative boundary with "a c"
+  expression: a/b c
+  text: a c
+  params:
+    positional: []
+    named: {}
+- name: ASCII space alternative boundary with "b c"
+  expression: a/b c
+  text: b c
+  params:
+    positional: []
+    named: {}
+- name: tab alternative boundary with "a"
+  expression: a/b	c
+  text: a
+  params:
+    positional: []
+    named: {}
+- name: tab alternative boundary with "a\tc"
+  expression: a/b	c
+  text: a	c
+  match: false
+- name: tab alternative boundary with "b\tc"
+  expression: a/b	c
+  text: b	c
+  params:
+    positional: []
+    named: {}
+- name: newline alternative boundary with "a"
+  expression: |-
+    a/b
+    c
+  text: a
+  params:
+    positional: []
+    named: {}
+- name: newline alternative boundary with "a\nc"
+  expression: |-
+    a/b
+    c
+  text: |-
+    a
+    c
+  match: false
+- name: newline alternative boundary with "b\nc"
+  expression: |-
+    a/b
+    c
+  text: |-
+    b
+    c
+  params:
+    positional: []
+    named: {}
+- name: nonbreaking space alternative boundary with "a"
+  expression: a/b c
+  text: a
+  params:
+    positional: []
+    named: {}
+- name: nonbreaking space alternative boundary with "a c"
+  expression: a/b c
+  text: a c
+  match: false
+- name: nonbreaking space alternative boundary with "b c"
+  expression: a/b c
+  text: b c
+  params:
+    positional: []
+    named: {}
+- name: ideographic space alternative boundary with "a"
+  expression: a/b　c
+  text: a
+  params:
+    positional: []
+    named: {}
+- name: ideographic space alternative boundary with "a　c"
+  expression: a/b　c
+  text: a　c
+  match: false
+- name: ideographic space alternative boundary with "b　c"
+  expression: a/b　c
+  text: b　c
+  params:
+    positional: []
+    named: {}
+
+- name: required rejects omission [a/b]
+  expression: '[a/b]'
+  text: ''
+  match: false
+
+- name: required rejects omission [a]
+  expression: '[a]'
+  text: ''
+  match: false
+
+- name: required first branch [a]
+  expression: '[a]'
+  text: a
+  params:
+    positional: []
+    named: {}
+
+- name: required rejects omission a/b
+  expression: a/b
+  text: ''
+  match: false
+
+- name: required rejects omission [a/[b/c]]
+  expression: '[a/[b/c]]'
+  text: ''
+  match: false
+
+- name: single required phrase
+  expression: '[to my boss]'
+  text: to my boss
+  params:
+    positional: []
+    named: {}
+
+- name: empty required group
+  expression: '[]'
+  text: ''
+  params:
+    positional: []
+    named: {}
+
+- name: empty required group rejects text
+  expression: '[]'
+  text: x
+  match: false
+
+- name: all empty required branches
+  expression: '[//]'
+  text: ''
+  params:
+    positional: []
+    named: {}
+
+- name: single required parameter
+  expression: '[:count{int}]'
+  text: '42'
+  params:
+    positional:
+      - 42
+    named:
+      count: 42
+
+- name: required parameter omitted
+  expression: '[:count{int}]'
+  text: ''
+  match: false
+
+- name: required group inside bare alternative
+  expression: a[:count{int}]/b
+  text: b
+  params:
+    positional:
+      - null
+    named:
+      count: null

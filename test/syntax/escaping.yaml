@@ -34,7 +34,7 @@
     named: {}
 
 - name: preserves literal regexp metacharacters
-  expression: '[a].*+?$^'
+  expression: '\[a\].*+?$^'
   text: '[a].*+?$^'
   params:
     positional: []
@@ -149,3 +149,25 @@
   expression: 'x'
   text: 'no'
   match: false
+
+- name: escaped slash inside required group
+  expression: "[a\\/b]"
+  text: a/b
+  params:
+    positional: []
+    named: {}
+
+- name: escaped bracket inside required group
+  expression: "[a\\]/b]"
+  text: a]
+  params:
+    positional: []
+    named: {}
+
+- name: inline brackets escaped
+  expression: "{=\\[x\\]}"
+  text: '[x]'
+  params:
+    positional:
+      - '[x]'
+    named: {}

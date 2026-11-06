@@ -10,9 +10,9 @@ import type { TypeResult } from './type-worker.ts';
  */
 const examples = [
   ['I have :count{int} cucumber(s)', 'I have 2 cucumbers'],
-  ['I (search for/look up) {string}', 'I search for "red shoes"'],
   ['I create :item( as :owner)', 'I create "report" as "admin"'],
   ['Set :status{pending/approved/rejected} status', 'Set approved status'],
+  ['I [search for/look up] {string}', 'I search for "red shoes"'],
 ] as const;
 
 /**

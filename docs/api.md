@@ -159,13 +159,15 @@ Localization restrictions:
 - Parameter names follow `[A-Za-z_$][A-Za-z0-9_$]*`; registered type names additionally
   allow `.` and `-` after the first character. For example, `:café` means parameter
   `caf` followed by literal `é`, while `:árbol` is entirely literal text.
-- Syntax uses ASCII `:`, `{}`, `()`, and `/`. Fullwidth variants are literal text.
+- Syntax uses ASCII `:`, `{}`, `()`, `[]`, and `/`. Fullwidth variants are literal text.
 - Built-in numeric types use ASCII digits and a decimal point, not localized digits
   or decimal commas. Default string parameters require ASCII single or double quotes.
   Custom parameter types can support localized value formats.
 - Matching does not normalize Unicode: composed and decomposed accents remain distinct.
 - The 256-character inference limit still applies. Combining marks and joined emoji
   can consume multiple characters even when displayed as one symbol.
+
+Single-branch required groups preserve required parameter types: `[:count{int}]` infers `{ count: number }`. Parameters in optional groups or unselected choice branches include `undefined`: `[:count{int}/none]` infers `{ count: number | undefined }`.
 
 Inference assumes valid syntax and does not model correlations between alternative
 branches.

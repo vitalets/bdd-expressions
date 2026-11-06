@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- **Breaking:** Parentheses are always optional, including alternatives. Use square brackets for required groups (`[a/b]` or `[a]`), with empty branches allowing explicit omission (`[a/]`). Migrate required `(a/b)` groups to `[a/b]` and escape literal brackets as `\[` and `\]`. Bare alternative boundaries and whitespace escapes now use only ASCII space, matching Cucumber Expressions.
+
 - **Breaking:** Replace the separate world and step argument parameters of `matchAndResolve` with one options object: `{ world, docString, dataTable }`.
 
 - Support built-in trailing DataTable and DocString parameters with typed step argument inputs and result properties, optional groups, and step argument flags for custom parameter types.

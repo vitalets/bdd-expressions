@@ -2,10 +2,11 @@
  * Parses BDD expression syntax independently of parameter type registration.
  *
  * Grammar overview (language rules and examples: docs/syntax.md):
- *   expression = { parameter | whitespace | run }
+ *   expression = { parameter | space | run }
  *   run        = rootBranch, { "/", rootBranch }
  *   rootBranch = { rootLiteral | group }
  *   group      = "(", sequence, { "/", sequence }, ")"
+ *              | "[", sequence, { "/", sequence }, "]"
  *   sequence   = { literal | parameter | group }
  *   parameter  = [ ":", identifier ], braces | ":", identifier
  *   braces     = "{", [ "=" ], braceText, { "/", braceText }, "}"
@@ -65,7 +66,7 @@ export function parseExpression(source: string) {
   const fail = (message: string, start = pos) => {
     throw new ExpressionError(message, source, start, Math.min(source.length, start + 1));
   };
-  const items = parts(false);
+  const items = parts();
   const children: Node[] = [];
   let run: Part[] = [];
   for (const item of items) {
@@ -82,20 +83,20 @@ export function parseExpression(source: string) {
     run = [];
   }
 
-  function parts(inGroup: boolean) {
+  function parts(close?: string) {
     const result: Part[] = [];
-    while (pos < source.length && !(inGroup && source[pos] === ')')) {
+    while (pos < source.length && source[pos] !== close) {
       const start = pos;
       const char = source[pos]!;
-      if (char === '(') result.push(group());
+      if (char === '(' || char === '[') result.push(group());
       else if (char === '{' || (char === ':' && nameStart(source[pos + 1] ?? '')))
         result.push(parameter());
-      else if (char === ')' || char === '}') fail(`Unexpected "${char}"`);
+      else if (char === ')' || char === ']' || char === '}') fail(`Unexpected "${char}"`);
       else if (char === '\\') result.push({ kind: 'literal', value: escaped(), start, end: pos });
       else {
         pos++;
         result.push({
-          kind: char === '/' ? 'slash' : /\s/.test(char) ? 'space' : 'literal',
+          kind: char === '/' ? 'slash' : char === ' ' ? 'space' : 'literal',
           value: char,
           start,
           end: pos,
@@ -107,14 +108,15 @@ export function parseExpression(source: string) {
 
   function group() {
     const start = pos++;
-    const items = parts(true);
-    if (source[pos] !== ')') fail('Unclosed group', start);
+    const optional = source[start] === '(';
+    const close = optional ? ')' : ']';
+    const items = parts(close);
+    if (source[pos] !== close) fail('Unclosed group', start);
     const endContent = pos++;
     const body = split(items, start + 1, endContent, true);
-    const node: Node =
-      body.kind === 'choice'
-        ? { ...body, start, end: pos }
-        : { kind: 'optional', body, start, end: pos };
+    const node: Node = optional
+      ? { kind: 'optional', body, start, end: pos }
+      : { ...body, start, end: pos };
     return node;
   }
 
@@ -142,7 +144,7 @@ export function parseExpression(source: string) {
           branches.push('');
           pos++;
         } else if (char === '\\') branches[branches.length - 1] += escaped();
-        else if ('{()'.includes(char)) fail('Escape literal delimiters inside braces');
+        else if ('{()[]'.includes(char)) fail('Escape literal delimiters inside braces');
         else {
           branches[branches.length - 1] += char;
           pos++;
@@ -202,7 +204,7 @@ export function parseExpression(source: string) {
   function escaped() {
     const start = pos++;
     const char = source[pos++];
-    if (char === undefined || !/[\\/:(){}\s]/.test(char)) fail('Invalid escape', start);
+    if (char === undefined || !/[\\/:(){}[\] ]/.test(char)) fail('Invalid escape', start);
     return char!;
   }
 }
