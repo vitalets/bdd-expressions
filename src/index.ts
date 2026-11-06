@@ -71,9 +71,6 @@ export class BddExpression<
   readonly source: string;
   readonly ast: Node;
   readonly regexp: RegExp;
-  private readonly slots: ReturnType<
-    typeof compileExpressionVariants
-  >['withoutStepArguments']['slots'];
   private readonly variants: ReturnType<typeof compileExpressionVariants>;
 
   constructor(pattern: Source, parameterTypeRegistry: ParameterTypeRegistry<Table>) {
@@ -83,7 +80,6 @@ export class BddExpression<
     const compiled = this.variants.withoutStepArguments;
     this.ast = compiled.ast;
     this.regexp = compiled.regexp;
-    this.slots = compiled.slots;
   }
 
   /**
