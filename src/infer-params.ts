@@ -20,6 +20,63 @@ export type InferBddParams<
     : Record<string, unknown>
   : never;
 
+/**
+ * Infers original attachment values from required built-in parameters.
+ * Custom attachment names and dynamic sources conservatively allow absence.
+ */
+export type InferBddAttachments<Source extends string, Table = IDataTable> = Source extends unknown
+  ? {
+      readonly dataTable:
+        | Table
+        | (RequiredAttachments<Source> extends infer Required
+            ? 'DataTable' extends Required
+              ? never
+              : undefined
+            : undefined);
+      readonly docString:
+        | string
+        | (RequiredAttachments<Source> extends infer Required
+            ? 'DocString' extends Required
+              ? never
+              : undefined
+            : undefined);
+    }
+  : never;
+
+type RequiredAttachments<Source extends string> =
+  WithinBudget<Source> extends true ? ScanAttachments<Source> : never;
+
+type ScanAttachments<
+  S extends string,
+  Depth extends 0[] = [],
+  Required extends string = never,
+> = S extends `\\${infer _Escaped}${infer Rest}`
+  ? ScanAttachments<Rest, Depth, Required>
+  : S extends `(${infer Rest}`
+    ? ScanAttachments<Rest, [...Depth, 0], Required>
+    : S extends `)${infer Rest}`
+      ? ScanAttachments<Rest, Depth extends [0, ...infer Tail extends 0[]] ? Tail : [], Required>
+      : S extends `{${infer Rest}`
+        ? ReadBraces<Rest> extends [
+            infer Type extends string,
+            infer Choices,
+            infer Tail extends string,
+          ]
+          ? ScanAttachments<
+              Tail,
+              Depth,
+              | Required
+              | (Depth extends []
+                  ? [Choices] extends [never]
+                    ? Extract<Type, 'DataTable' | 'DocString'>
+                    : never
+                  : never)
+            >
+          : Required
+        : S extends `${infer _First}${infer Rest}`
+          ? ScanAttachments<Rest, Depth, Required>
+          : Required;
+
 type Builtins = {
   DataTable: IDataTable;
   DocString: string;

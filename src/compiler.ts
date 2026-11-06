@@ -27,11 +27,15 @@ import { escapeRegexp } from './utils/regexp.ts';
 import { captureTree, type Capture } from './cucumber-expressions/capture-tree.ts';
 import { buildArgument, buildGroup, type Argument } from './cucumber-expressions/matching.ts';
 import { resolveParams } from './resolve-params.ts';
-import type { InferBddParams } from './infer-params.ts';
+import type { InferBddParams, InferBddAttachments } from './infer-params.ts';
 
-export type BddExpressionResult<Params extends object = Record<string, unknown>> = unknown[] & {
+export type BddExpressionResult<
+  Params extends object = Record<string, unknown>,
+  Table = IDataTable,
+  Source extends string = string,
+> = unknown[] & {
   readonly params: Params;
-};
+} & InferBddAttachments<Source, Table>;
 
 type Slot = {
   name?: string;
@@ -127,8 +131,12 @@ export class BddExpression<
     const args = this.match(text, inputs);
     if (args === null) return null;
     const { positional, named } = await resolveParams(args, world);
-    Object.defineProperty(positional, 'params', { value: named, enumerable: false });
-    return positional as BddExpressionResult<Values>;
+    Object.defineProperties(positional, {
+      params: { value: named, enumerable: false },
+      docString: { value: inputs.docString, enumerable: false },
+      dataTable: { value: inputs.dataTable, enumerable: false },
+    });
+    return positional as BddExpressionResult<Values, Table, Source>;
   }
 }
 

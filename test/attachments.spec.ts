@@ -30,6 +30,9 @@ test('four variants bind both attachments in expression order, including empty d
   ] as const) {
     const result = await expression.matchAndResolve(text, undefined, inputs);
     assert.deepEqual([...result!], expected);
+    assert.equal(result!.dataTable, expected[0]);
+    assert.equal(result!.docString, expected[1]);
+    assert.deepEqual(Object.keys(result!), ['0', '1']);
   }
   assert.equal(expression.match('Create:', {}), null);
 });
@@ -77,6 +80,7 @@ test('custom attachment transformers preserve world and skip absent values', asy
     { dataTable: table },
   );
   assert.equal(result!.params.users, 'Hello Alice');
+  assert.equal(result!.dataTable, table);
   assert.equal(calls, 1);
 });
 

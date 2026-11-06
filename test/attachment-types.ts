@@ -45,9 +45,19 @@ async function checkInferredAttachmentResults() {
   });
   const users: string[][] | undefined = result!.params.users;
   const body: string | undefined = result!.params.body;
+  const dataTable: string[][] | undefined = result!.dataTable;
+  const docString: string | undefined = result!.docString;
+  // @ts-expect-error Table attachments retain the registry's table type.
+  const invalidTable: number = result!.dataTable;
+  // @ts-expect-error DocString attachments are strings, when present.
+  const invalidDocString: number = result!.docString;
+  // @ts-expect-error Attachment properties are readonly.
+  result!.dataTable = [];
+  // @ts-expect-error Attachment properties are readonly.
+  result!.docString = '';
   // @ts-expect-error The optional table result is not numeric.
   const invalid: number = result!.params.users;
-  return { users, body, invalid };
+  return { users, body, dataTable, docString, invalidTable, invalidDocString, invalid };
 }
 void checkInferredAttachmentResults;
 
@@ -120,11 +130,12 @@ async function checkDefaultTableShape() {
   const expression = new BddExpression(':table{DataTable}', defaultRegistry);
   const result = await expression.matchAndResolve('', undefined, { dataTable: new RunnerTable() });
   const hashes: Record<string, string>[] = result!.params.table.transpose().hashes();
+  const attachmentHashes: Record<string, string>[] | undefined = result!.dataTable?.hashes();
   // @ts-expect-error Arrays require an explicit registry generic override.
   expression.match('', { dataTable: [['Alice']] });
   // @ts-expect-error The default table shape requires every method.
   expression.match('', { dataTable: { raw: () => [['Alice']] } });
-  return hashes;
+  return { hashes, attachmentHashes };
 }
 void checkDefaultTableShape;
 
@@ -164,3 +175,38 @@ function checkBuiltinRegistrationBoundary(
   builtins.lookupByTypeName('DataTable');
 }
 void checkBuiltinRegistrationBoundary;
+
+async function checkRequiredAttachmentProperties() {
+  const required = await new BddExpression('{DataTable}{DocString}', registry).matchAndResolve('');
+  const dataTable: string[][] = required!.dataTable;
+  const docString: string = required!.docString;
+  const named = await new BddExpression(
+    ':table{DataTable}:body{DocString}',
+    registry,
+  ).matchAndResolve('');
+  const namedTable: string[][] = named!.dataTable;
+  const namedBody: string = named!.docString;
+  const optional = await new BddExpression('({DataTable})({DocString})', registry).matchAndResolve(
+    '',
+  );
+  // @ts-expect-error Optional tables may be absent.
+  const optionalTable: string[][] = optional!.dataTable;
+  // @ts-expect-error Optional DocStrings may be absent.
+  const optionalBody: string = optional!.docString;
+  const literal = await new BddExpression('{=DataTable}{=DocString}', registry).matchAndResolve('');
+  // @ts-expect-error Inline literals do not require attachments.
+  const literalTable: string[][] = literal!.dataTable;
+  // @ts-expect-error Inline literals do not require attachments.
+  const literalBody: string = literal!.docString;
+  return {
+    dataTable,
+    docString,
+    namedTable,
+    namedBody,
+    optionalTable,
+    optionalBody,
+    literalTable,
+    literalBody,
+  };
+}
+void checkRequiredAttachmentProperties;
