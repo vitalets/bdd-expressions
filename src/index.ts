@@ -3,12 +3,18 @@
  */
 
 import type { IDataTable } from './parameter-types/data-table.ts';
+import type { Slot } from './compiler.ts';
+import type { ParameterType, TextParameterType } from './parameter-types/create-type.ts';
 import type { StepArguments } from './step-arguments.ts';
 import { parseExpression, type Node } from './parser.ts';
 import type { ParameterTypeRegistry } from './parameter-types/registry.ts';
 import { compileExpressionVariants, selectExpressionVariant } from './variants.ts';
-import { buildArgument, buildGroup, type Argument } from './cucumber-expressions/matching.ts';
-import { resolveParams } from './resolve-params.ts';
+import {
+  buildArgument,
+  buildGroup,
+  type Argument,
+  type Group,
+} from './cucumber-expressions/matching.ts';
 import type { InferBddParams, InferBddStepArguments } from './infer-params.ts';
 
 export type BddExpressionResult<
@@ -47,7 +53,7 @@ export type { StepArguments } from './step-arguments.ts';
 
 /**
  * Matches a parsed expression using a compiled regexp and source-ordered parameters.
- * Table is inferred from the registry so match inputs and table transformers agree
+ * Table is inferred from the registry so step arguments and table transformers agree
  * without requiring the library to import or construct a runner's DataTable class.
  * Infers named values from expression literals unless a Params contract is supplied.
  * An explicit Params type bypasses inference and must match the expression and registry.
@@ -83,55 +89,95 @@ export class BddExpression<
   /**
    * Matches the whole input and retains metadata for absent parameters.
    */
-  match(text: string, inputs: StepArguments<Table> = {}) {
-    const variant = selectExpressionVariant(this.variants, inputs);
+  match(text: string, stepArguments: StepArguments<Table> = {}) {
+    const variant = selectExpressionVariant(this.variants, stepArguments);
     if (!variant) return null;
     const result = variant.regexp.exec(text);
-    const args: readonly Argument[] | null = result
-      ? variant.slots.map((slot) => {
-          const group = buildGroup(slot.capture, result);
-          const type = slot.type;
-          if ('regexpStrings' in type) return buildArgument(group, type, slot.name);
-          return {
-            name: slot.name,
-            parameterType: type,
-            getParameterType: () => type,
-            group: {
-              value: undefined,
-              start: undefined,
-              end: undefined,
-              children: undefined,
-              values: [undefined],
-            },
-            getValue(world?: unknown) {
-              if (group.value === undefined) return undefined;
-              if ('dataTable' in type) {
-                return inputs.dataTable === undefined
-                  ? undefined
-                  : type.transform(world, inputs.dataTable);
-              }
-              return inputs.docString === undefined
-                ? undefined
-                : type.transform(world, inputs.docString);
-            },
-          };
-        })
-      : null;
+    if (!result) return null;
+    const args: readonly Argument[] = variant.slots.map((slot) =>
+      buildArgumentForSlot(slot, result, stepArguments),
+    );
     return args;
   }
 
   /**
    * Resolves positional and named values with the supplied transformer context.
    */
-  async matchAndResolve(text: string, world?: unknown, inputs: StepArguments<Table> = {}) {
-    const args = this.match(text, inputs);
+  async matchAndResolve(text: string, options: StepArguments<Table> & { world?: unknown } = {}) {
+    const args = this.match(text, options);
     if (args === null) return null;
-    const { positional, named } = await resolveParams(args, world);
+    const { positional, named } = await this.resolveParams(args, options.world);
     Object.defineProperties(positional, {
       params: { value: named, enumerable: false },
-      docString: { value: inputs.docString, enumerable: false },
-      dataTable: { value: inputs.dataTable, enumerable: false },
+      docString: { value: options.docString, enumerable: false },
+      dataTable: { value: options.dataTable, enumerable: false },
     });
     return positional as BddExpressionResult<Values, Table, Source>;
   }
+
+  /**
+   * Resolves named and unnamed parameters concurrently with the supplied world.
+   * The named parameter map has no prototype.
+   *
+   * Uses parallel resolution to follow the Cucumber.js implementation:
+   * https://github.com/cucumber/cucumber-js/blob/main/src/models/step_definition.ts#L26-L28
+   */
+  private async resolveParams(paramValues: readonly Argument[], world: unknown) {
+    const positional = await Promise.all(paramValues.map((argument) => argument.getValue(world)));
+    const named: Record<string, unknown> = Object.create(null);
+    for (const [index, argument] of paramValues.entries()) {
+      const name = argument.name;
+      if (name !== undefined) named[name] = positional[index];
+    }
+    return { positional, named };
+  }
+}
+
+function buildArgumentForSlot(
+  slot: Slot,
+  result: RegExpExecArray,
+  stepArguments: StepArguments<unknown>,
+) {
+  const group = buildGroup(slot.capture, result);
+  const { type, name } = slot;
+  if (isStepArgumentType(type)) {
+    return buildStepArgument(group, type, name, stepArguments);
+  }
+  return buildArgument(group, type, name);
+}
+
+function buildStepArgument(
+  group: Group,
+  type: Exclude<ParameterType, TextParameterType>,
+  name: string | undefined,
+  stepArguments: StepArguments<unknown>,
+) {
+  const argument: Argument = {
+    name,
+    parameterType: type,
+    getParameterType: () => type,
+    group: {
+      value: undefined,
+      start: undefined,
+      end: undefined,
+      children: undefined,
+      values: [undefined],
+    },
+    getValue(world?: unknown) {
+      if (group.value === undefined) return undefined;
+      if ('dataTable' in type) {
+        return stepArguments.dataTable === undefined
+          ? undefined
+          : type.transform(world, stepArguments.dataTable);
+      }
+      return stepArguments.docString === undefined
+        ? undefined
+        : type.transform(world, stepArguments.docString);
+    },
+  };
+  return argument;
+}
+
+function isStepArgumentType(type: ParameterType) {
+  return 'dataTable' in type || 'docString' in type;
 }

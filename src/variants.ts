@@ -54,10 +54,12 @@ export function compileExpressionVariants<Table>(
  */
 export function selectExpressionVariant(
   variants: ReturnType<typeof compileExpressionVariants>,
-  inputs: StepArguments<unknown>,
+  stepArguments: StepArguments<unknown>,
 ) {
-  if (inputs.dataTable !== undefined) {
-    return inputs.docString !== undefined ? variants.withBoth : variants.withDataTable;
+  if (stepArguments.dataTable !== undefined) {
+    return stepArguments.docString !== undefined ? variants.withBoth : variants.withDataTable;
   }
-  return inputs.docString !== undefined ? variants.withDocString : variants.withoutStepArguments;
+  return stepArguments.docString !== undefined
+    ? variants.withDocString
+    : variants.withoutStepArguments;
 }

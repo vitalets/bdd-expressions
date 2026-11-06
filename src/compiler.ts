@@ -19,7 +19,7 @@ import type { ParameterType, TextParameterType } from './parameter-types/create-
 import type { ParameterTypeRegistry } from './parameter-types/registry.ts';
 import { escapeRegexp } from './utils/regexp.ts';
 import { captureTree, type Capture } from './cucumber-expressions/capture-tree.ts';
-type Slot = {
+export type Slot = {
   name?: string;
   type: ParameterType;
   capture: Capture;

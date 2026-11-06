@@ -11,7 +11,7 @@ test('optional step argument couples colon and presence without exposing input t
   const types = registry();
   types.defineParameterType({ name: 'Everything', regexp: /[\s\S]*/ });
   const expression = new BddExpression('I create :name{Everything}(::users{DataTable})', types);
-  const result = await expression.matchAndResolve('I create Alice:', undefined, {
+  const result = await expression.matchAndResolve('I create Alice:', {
     dataTable: table,
   });
   assert.deepEqual([...result!], ['Alice', table]);
@@ -22,13 +22,13 @@ test('optional step argument couples colon and presence without exposing input t
 
 test('four variants bind both step arguments in expression order, including empty docstrings', async () => {
   const expression = new BddExpression('Create(::table{DataTable})(::body{DocString})', registry());
-  for (const [text, inputs, expected] of [
+  for (const [text, stepArguments, expected] of [
     ['Create', {}, [undefined, undefined]],
     ['Create:', { dataTable: table }, [table, undefined]],
     ['Create:', { docString: '' }, [undefined, '']],
     ['Create::', { dataTable: table, docString: 'body' }, [table, 'body']],
   ] as const) {
-    const result = await expression.matchAndResolve(text, undefined, inputs);
+    const result = await expression.matchAndResolve(text, stepArguments);
     assert.deepEqual([...result!], expected);
     assert.equal(result!.dataTable, expected[0]);
     assert.equal(result!.docString, expected[1]);
@@ -50,11 +50,11 @@ test('required step arguments, independent optionals and nested groups', () => {
 test('alternatives retain argument slots and select branches by step argument kind', async () => {
   const expression = new BddExpression('Create(table:{DataTable}/body:{DocString})', registry());
   assert.deepEqual(
-    [...(await expression.matchAndResolve('Createtable:', undefined, { dataTable: table }))!],
+    [...(await expression.matchAndResolve('Createtable:', { dataTable: table }))!],
     [table, undefined],
   );
   assert.deepEqual(
-    [...(await expression.matchAndResolve('Createbody:', undefined, { docString: '' }))!],
+    [...(await expression.matchAndResolve('Createbody:', { docString: '' }))!],
     [undefined, ''],
   );
   assert.equal(expression.match('Createtable:', { dataTable: table, docString: '' }), null);
@@ -72,13 +72,12 @@ test('custom step argument transformers preserve world and skip absent values', 
     },
   });
   const expression = new BddExpression('Create(::users{UsersDataTable})', types);
-  await expression.matchAndResolve('Create', { prefix: 'Hello ' });
+  await expression.matchAndResolve('Create', { world: { prefix: 'Hello ' } });
   assert.equal(calls, 0);
-  const result = await expression.matchAndResolve(
-    'Create:',
-    { prefix: 'Hello ' },
-    { dataTable: table },
-  );
+  const result = await expression.matchAndResolve('Create:', {
+    world: { prefix: 'Hello ' },
+    dataTable: table,
+  });
   assert.equal(result!.params.users, 'Hello Alice');
   assert.equal(result!.dataTable, table);
   assert.equal(calls, 1);
@@ -116,7 +115,7 @@ test('a supplied step argument cannot choose an alternative that leaves it uncon
 
 test('step argument order is independent of input object order and parameter slots stay stable', async () => {
   const expression = new BddExpression('Create :count{int}{DocString}{DataTable}', registry());
-  const result = await expression.matchAndResolve('Create 2', undefined, {
+  const result = await expression.matchAndResolve('Create 2', {
     dataTable: table,
     docString: 'body\ntext',
   });
@@ -132,12 +131,9 @@ test('step argument transformers can be asynchronous and failures propagate duri
   });
   const expression = new BddExpression('Read{JsonDocString}', types);
   assert.ok(expression.match('Read', { docString: 'invalid' }));
-  await assert.rejects(
-    expression.matchAndResolve('Read', undefined, { docString: 'invalid' }),
-    SyntaxError,
-  );
+  await assert.rejects(expression.matchAndResolve('Read', { docString: 'invalid' }), SyntaxError);
   assert.deepEqual(
-    [...(await expression.matchAndResolve('Read', undefined, { docString: '{"ok":true}' }))!],
+    [...(await expression.matchAndResolve('Read', { docString: '{"ok":true}' }))!],
     [{ ok: true }],
   );
 });
@@ -177,7 +173,7 @@ test('step argument flags provide identity defaults for custom names', async () 
   types.defineParameterType({ dataTable: true, name: 'UsersDataTable' });
   types.defineParameterType({ docString: true, name: 'BodyDocString' });
   const expression = new BddExpression('Create{UsersDataTable}{BodyDocString}', types);
-  const result = await expression.matchAndResolve('Create', undefined, {
+  const result = await expression.matchAndResolve('Create', {
     dataTable: table,
     docString: '',
   });
@@ -196,7 +192,7 @@ test('direct text options preserve captures and world context', async () => {
   });
   const expression = new BddExpression('Move {Point}', types);
   assert.deepEqual(
-    [...(await expression.matchAndResolve('Move 1,2', { prefix: 'point:' }))!],
+    [...(await expression.matchAndResolve('Move 1,2', { world: { prefix: 'point:' } }))!],
     ['point:1:2'],
   );
   assert.throws(() => types.defineParameterType({ name: 'Point', regexp: /x/ }), /Duplicate/);

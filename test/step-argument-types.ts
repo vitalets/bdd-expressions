@@ -39,7 +39,7 @@ registry.defineParameterType(createParameterType({ docString: true, name: 'Wrong
 
 async function checkInferredStepArgumentResults() {
   const expression = new BddExpression('Create(:users{DataTable})(:body{DocString})', registry);
-  const result = await expression.matchAndResolve('Create', undefined, {
+  const result = await expression.matchAndResolve('Create', {
     dataTable: [['Alice']],
     docString: '',
   });
@@ -128,7 +128,7 @@ async function checkDefaultTableShape() {
     }
   }
   const expression = new BddExpression(':table{DataTable}', defaultRegistry);
-  const result = await expression.matchAndResolve('', undefined, { dataTable: new RunnerTable() });
+  const result = await expression.matchAndResolve('', { dataTable: new RunnerTable() });
   const hashes: Record<string, string>[] = result!.params.table.transpose().hashes();
   const stepArgumentHashes: Record<string, string>[] | undefined = result!.dataTable?.hashes();
   // @ts-expect-error Arrays require an explicit registry generic override.

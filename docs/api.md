@@ -25,7 +25,7 @@ console.log(result.params);
 
 ## Matching API
 
-Use `matchAndResolve(text, world?)` to get transformed values by position and by name:
+Use `matchAndResolve(text, options?)` to get transformed values by position and by name. The optional options object accepts `world` as the transformer context and `docString` and `dataTable` as step arguments:
 
 ```ts
 const expression = new BddExpression('I buy :count{int} apples', registry);
@@ -38,7 +38,7 @@ console.log(result.params); // { count: 2 }
 The result has type `BddExpressionResult<Params, Table, Source>`: an array with readonly,
 nonenumerable `params`, `docString`, and `dataTable` properties. `params` has a null
 prototype and contains transformed named values. `docString` and `dataTable` contain
-the original step argument inputs, before transformation, or `undefined` when absent.
+the original step argument values, before transformation, or `undefined` when absent.
 A failed match returns `null`.
 
 Matching runs once. Transformers are invoked once per present parameter in source
@@ -241,14 +241,14 @@ url.match('Visit https://example.com label:value');
 const registry = createParameterTypeRegistry();
 const expression = new BddExpression('I send(::body{DocString})', registry);
 
-const result = await expression.matchAndResolve('I send:', undefined, {
+const result = await expression.matchAndResolve('I send:', {
   docString: 'Hello',
 });
 console.log(result!.params.body); // 'Hello'
 console.log(result!.docString); // 'Hello' (type: string | undefined)
 ```
 
-Use `match(text, { docString, dataTable })` for raw arguments, or `matchAndResolve(text, world, { docString, dataTable })` for resolved values. Both inputs can be supplied together. Missing optional values resolve to `undefined`; an empty DocString counts as present. Missing required values or unexpected supplied values prevent matching.
+Use `match(text, { docString, dataTable })` for raw arguments, or `matchAndResolve(text, { world, docString, dataTable })` for resolved values. Both step arguments can be supplied together. Missing optional values resolve to `undefined`; an empty DocString counts as present. Missing required values or unexpected supplied values prevent matching.
 
 The default table type supports `hashes()`, `raw()`, `rows()`, `rowsHash()`, and `transpose()`. Supply your runner's table instance. For another representation, override the generic—for example, `createParameterTypeRegistry<string[][]>()`.
 
@@ -258,7 +258,7 @@ their property types; step arguments inside groups include it:
 ```ts
 const registry = createParameterTypeRegistry<string[][]>();
 const expression = new BddExpression('I create{DataTable}(:{DocString})', registry);
-const result = await expression.matchAndResolve('I create', undefined, {
+const result = await expression.matchAndResolve('I create', {
   dataTable: [['Alice']],
 });
 

@@ -182,7 +182,7 @@ test('world context, PromiseLike, invocation order, no calls for absent paramete
     execs++;
     return originalExec(text);
   };
-  const result = (await expression.matchAndResolve('one two', { prefix: '!' }))!;
+  const result = (await expression.matchAndResolve('one two', { world: { prefix: '!' } }))!;
   assert.deepEqual([...result], ['!one', '!two', undefined]);
   assert.deepEqual(calls, ['one', 'two']);
   assert.equal(execs, 1);
