@@ -85,6 +85,7 @@ export class BddExpression<
    */
   match(text: string, inputs: StepArguments<Table> = {}) {
     const variant = selectExpressionVariant(this.variants, inputs);
+    if (!variant) return null;
     const result = variant.regexp.exec(text);
     const args: readonly Argument[] | null = result
       ? variant.slots.map((slot) => {

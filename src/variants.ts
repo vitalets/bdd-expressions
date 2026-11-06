@@ -18,8 +18,8 @@ const EXPRESSION_VARIANTS = {
 } as const;
 
 /**
- * Compiles the four step argument combinations during expression construction.
- * Expressions without step argument parameters reject all supplied step arguments.
+ * Compiles supported step argument combinations during expression construction.
+ * Always compiles the baseline for metadata; unavailable variants remain undefined.
  */
 export function compileExpressionVariants<Table>(
   source: string,
@@ -27,22 +27,24 @@ export function compileExpressionVariants<Table>(
   ast: Node,
 ) {
   const plan = analyzeStepArguments(ast, registry, source);
-  const withoutStepArguments = compileExpression(
-    source,
-    registry,
-    ast,
-    plan,
-    EXPRESSION_VARIANTS.withoutStepArguments,
-  );
+  const withoutStepArguments = compileVariant(EXPRESSION_VARIANTS.withoutStepArguments);
+  // Check combinations along individual expression paths, including optional groups.
+  const containsDataTableOnly = plan.masks.get(ast)!.has(1);
+  const containsDocStringOnly = plan.masks.get(ast)!.has(2);
+  const containsBoth = plan.masks.get(ast)!.has(3);
+
   return {
     withoutStepArguments,
-    withDataTable: compileWithStepArguments(EXPRESSION_VARIANTS.withDataTable),
-    withDocString: compileWithStepArguments(EXPRESSION_VARIANTS.withDocString),
-    withBoth: compileWithStepArguments(EXPRESSION_VARIANTS.withBoth),
+    withDataTable: containsDataTableOnly
+      ? compileVariant(EXPRESSION_VARIANTS.withDataTable)
+      : undefined,
+    withDocString: containsDocStringOnly
+      ? compileVariant(EXPRESSION_VARIANTS.withDocString)
+      : undefined,
+    withBoth: containsBoth ? compileVariant(EXPRESSION_VARIANTS.withBoth) : undefined,
   };
 
-  function compileWithStepArguments(stepArguments: { dataTable?: boolean; docString?: boolean }) {
-    if (!plan.all) return { ...withoutStepArguments, regexp: /(?!)/ };
+  function compileVariant(stepArguments: { dataTable: boolean; docString: boolean }) {
     return compileExpression(source, registry, ast, plan, stepArguments);
   }
 }
