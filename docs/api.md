@@ -300,4 +300,4 @@ step arguments: for `UsersDataTable` above, `result.params.users` contains the h
 while `result.dataTable` retains the supplied table instance. Likewise,
 `result.docString` retains the original string when using `JsonDocString`.
 
-DocString and DataTable arguments have no text positions in `group`. Use `match()` rather than the public `regexp` to check their presence. See the [syntax rules](syntax.md#docstring-and-datatable-types) for placement and optionality.
+DocString and DataTable arguments have no text positions in `group`. Use `match()` rather than the public `regexp` to check their presence. See the [syntax rules](syntax.md#docstring-and-datatable-in-the-expression) for placement and optionality.

@@ -18,10 +18,10 @@ Expressions match the entire input and are case sensitive. Ordinary text and whi
   - [Consecutive optional text](#consecutive-optional-text)
 - [Alternatives](#alternatives)
   - [Single-word alternatives](#single-word-alternatives)
-  - [Required alternatives without escaping](#required-alternatives-without-escaping)
-  - [Optional alternative](#optional-alternative)
+  - [Multi-word alternatives without escaping](#multi-word-alternatives-without-escaping)
   - [Alternatives with parameters](#alternatives-with-parameters)
 - [Escaping](#escaping)
+- [DocString and DataTable in the expression](#docstring-and-datatable-in-the-expression)
 
 ## Parameters
 
@@ -248,14 +248,16 @@ With an owner:
 
 ### Nested optional text
 
-Nest optional groups to make one phrase depend on another. Here, the workspace phrase can appear only when the owner phrase is present.
+Nest optional groups to make a suffix depend on an optional phrase. In `I send a message( with attachment(s))`, the outer group makes the attachment phrase optional, and the inner `(s)` allows its plural form.
 
-|                              |                                                                                                                                                                          |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Expression                   | `I create :item( as :owner( in :workspace))`                                                                                                                             |
-| Input                        | `I create "document" as "Alice" in "Team"`                                                                                                                               |
-| Captured params (positional) | `['document', 'Alice', 'Team']`                                                                                                                                          |
-| Captured params (named)      | <code>{</code><br>&nbsp;&nbsp;<code>item: "document",</code><br>&nbsp;&nbsp;<code>owner: "Alice",</code><br>&nbsp;&nbsp;<code>workspace: "Team"</code><br><code>}</code> |
+The expression accepts `I send a message`, `I send a message with attachment`, and `I send a message with attachments`.
+
+|                              |                                         |
+| ---------------------------- | --------------------------------------- |
+| Expression                   | `I send a message( with attachment(s))` |
+| Input                        | `I send a message with attachments`     |
+| Captured params (positional) | —                                       |
+| Captured params (named)      | —                                       |
 
 ### Consecutive optional text
 
@@ -332,9 +334,51 @@ Paying by cash:
 
 A direct parameter ends a bare alternative: `a/b:count{int}` requires a count after either letter. Prefer `[a/b]:count{int}` to make this shared scope explicit. Inside brackets, branches can include parameters: `[a:count{int}/b]` requires a count only after `a`, and `[a/b:count{int}]` requires one only after `b`. An adjacent group stays within its bare branch: `a/b[:count{int}]` also requires a count only after `b`.
 
-### Required alternatives without escaping
+### Multi-word alternatives without escaping
 
-Put slash-separated phrases in square brackets to require one of them. The selected phrase is not captured as a parameter. Spaces are literal and need no escaping. Only slashes at the current nesting level separate branches; slashes inside nested groups or braces do not affect the enclosing group. A single-branch group such as `[click]` is also required. Bare single-word choices such as `click/tap` remain required.
+Put slash-separated phrases in a group to avoid escaping spaces. Parentheses make the choice optional; square brackets require a choice. The selected phrase is not captured as a parameter.
+
+| Choice   | Expression                               |
+| -------- | ---------------------------------------- |
+| Optional | `I send message( to my boss/ later)`     |
+| Required | `I [click/tap on/press and hold] button` |
+
+Spaces are literal. Only slashes at the current nesting level separate branches; slashes inside nested groups or braces do not affect the enclosing group.
+
+#### Optional alternatives
+
+Use parentheses to allow no text or one of the listed phrases. Adding another alternative preserves omission: both `I send message( to my boss)` and `I send message( to my boss/ later)` accept `I send message`.
+
+With the group omitted:
+
+|                              |                                      |
+| ---------------------------- | ------------------------------------ |
+| Expression                   | `I send message( to my boss/ later)` |
+| Input                        | `I send message`                     |
+| Captured params (positional) | —                                    |
+| Captured params (named)      | —                                    |
+
+With the first branch:
+
+|                              |                                      |
+| ---------------------------- | ------------------------------------ |
+| Expression                   | `I send message( to my boss/ later)` |
+| Input                        | `I send message to my boss`          |
+| Captured params (positional) | —                                    |
+| Captured params (named)      | —                                    |
+
+With the second branch:
+
+|                              |                                      |
+| ---------------------------- | ------------------------------------ |
+| Expression                   | `I send message( to my boss/ later)` |
+| Input                        | `I send message later`               |
+| Captured params (positional) | —                                    |
+| Captured params (named)      | —                                    |
+
+#### Required alternatives
+
+Use square brackets to require one of the phrases. A single-branch group such as `[click]` is also required. Bare single-word choices such as `click/tap` remain required.
 
 With the `click` branch:
 
@@ -363,29 +407,9 @@ With the `press and hold` branch:
 | Captured params (positional) | —                                        |
 | Captured params (named)      | —                                        |
 
-### Optional alternative
-
-Use parentheses to allow no text or one of the listed phrases: `( again/ once more)`. Both `I send message( to my boss)` and `I send message( to my boss/ later)` accept `I send message`.
+#### Empty branches and nested groups
 
 Square brackets can explicitly include an empty branch anywhere: `[/again]`, `[again/]`, and `[again//once more]` all allow omission. `[again]` requires `again`, while `[again/]` accepts either `again` or the empty string. Optional parentheses may also contain empty branches, but these are redundant.
-
-With the optional group omitted (no suffix):
-
-|                              |                                                                               |
-| ---------------------------- | ----------------------------------------------------------------------------- |
-| Expression                   | `I open :page( again/ once more)`                                             |
-| Input                        | `I open "Settings"`                                                           |
-| Captured params (positional) | `['Settings']`                                                                |
-| Captured params (named)      | <code>{</code><br>&nbsp;&nbsp;<code>page: "Settings"</code><br><code>}</code> |
-
-With the `again` suffix:
-
-|                              |                                                                               |
-| ---------------------------- | ----------------------------------------------------------------------------- |
-| Expression                   | `I open :page( again/ once more)`                                             |
-| Input                        | `I open "Settings" again`                                                     |
-| Captured params (positional) | `['Settings']`                                                                |
-| Captured params (named)      | <code>{</code><br>&nbsp;&nbsp;<code>page: "Settings"</code><br><code>}</code> |
 
 Repeated empty branches are allowed. `[/]`, `[]`, `(/)`, and `()` match empty text without capturing parameters. Groups can nest: `I send( [email/SMS])` makes the required choice optional as a whole, while `[send( now)/wait]` requires a branch with an optional suffix in the first branch.
 
@@ -430,12 +454,13 @@ Colons in `12:30` and `https:` are already literal; URL slashes still need escap
 
 For escaping expression strings in TypeScript, see [Escaping in string literals](api.md#escaping-in-string-literals).
 
-## DocString and DataTable types
+## DocString and DataTable in the expression
 
 `{DocString}` and `{DataTable}` receive values supplied separately from the step text. Both support names and optional groups.
 
 | Expression                                | Meaning                                          |
 | ----------------------------------------- | ------------------------------------------------ |
+| `I send a message:{DocString}`            | DocString required after a literal colon         |
 | `I create users{DataTable}`               | Table required; no literal colon                 |
 | `I create users(:{DataTable})`            | Colon and table present together, or both absent |
 | `I create users(:)({DataTable})`          | Colon and table independently optional           |
