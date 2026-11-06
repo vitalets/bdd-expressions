@@ -65,14 +65,16 @@ export class BddExpression<
   readonly source: string;
   readonly ast: Node;
   readonly regexp: RegExp;
-  private readonly slots: ReturnType<typeof compileExpressionVariants>['textOnly']['slots'];
+  private readonly slots: ReturnType<
+    typeof compileExpressionVariants
+  >['withoutStepArguments']['slots'];
   private readonly variants: ReturnType<typeof compileExpressionVariants>;
 
   constructor(pattern: Source, parameterTypeRegistry: ParameterTypeRegistry<Table>) {
     this.source = pattern;
     const ast = parseExpression(pattern);
     this.variants = compileExpressionVariants(pattern, parameterTypeRegistry, ast);
-    const compiled = this.variants.textOnly;
+    const compiled = this.variants.withoutStepArguments;
     this.ast = compiled.ast;
     this.regexp = compiled.regexp;
     this.slots = compiled.slots;
