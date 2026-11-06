@@ -12,8 +12,8 @@ const libraries = new Map(
   ]),
 );
 libraries.set(
-  '/parameter-types/data-table.ts',
-  readFileSync(new URL('../src/parameter-types/data-table.ts', import.meta.url), 'utf8'),
+  '/param-types/data-table.ts',
+  readFileSync(new URL('../src/param-types/data-table.ts', import.meta.url), 'utf8'),
 );
 const inferenceSource = readFileSync(new URL('../src/infer-params.ts', import.meta.url), 'utf8');
 

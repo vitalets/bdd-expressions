@@ -161,7 +161,7 @@ function checkParameterUnion(type: import('../src/index.ts').ParameterType<unkno
 void checkParameterUnion;
 
 function checkBuiltinRegistrationBoundary(
-  builtins: Parameters<typeof import('../src/parameter-types/built-ins.ts').defineBuiltins>[0],
+  builtins: Parameters<typeof import('../src/param-types/built-ins.ts').defineBuiltins>[0],
 ) {
   builtins.defineParameterType({ name: 'IdentityDataTable', dataTable: true });
   builtins.defineParameterType({ name: 'Text', regexp: /text/ });

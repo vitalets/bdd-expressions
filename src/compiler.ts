@@ -14,9 +14,9 @@
 
 import type { StepArgumentPlan } from './step-arguments.ts';
 import { ExpressionError, type Node } from './parser.ts';
-import { normalizeParameterPattern } from './parameter-types/normalize-pattern.ts';
-import type { ParameterType, TextParameterType } from './parameter-types/create-type.ts';
-import type { ParameterTypeRegistry } from './parameter-types/registry.ts';
+import { normalizeParameterPattern } from './param-types/normalize-pattern.ts';
+import type { ParameterType, TextParameterType } from './param-types/create-type.ts';
+import type { ParameterTypeRegistry } from './param-types/registry.ts';
 import { escapeRegexp } from './utils/regexp.ts';
 import { captureTree, type Capture } from './cucumber-expressions/capture-tree.ts';
 export type Slot = {

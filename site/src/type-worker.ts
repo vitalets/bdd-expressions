@@ -5,7 +5,7 @@
 import es5 from 'typescript/lib/lib.es5.d.ts?raw';
 import decorators from 'typescript/lib/lib.decorators.d.ts?raw';
 import legacyDecorators from 'typescript/lib/lib.decorators.legacy.d.ts?raw';
-import dataTableSource from '../../src/parameter-types/data-table.ts?raw';
+import dataTableSource from '../../src/param-types/data-table.ts?raw';
 import inferenceSource from '../../src/infer-params.ts?raw';
 import { createTypePreview } from './type-preview.ts';
 
@@ -13,7 +13,7 @@ import { createTypePreview } from './type-preview.ts';
  * Standard declarations required by the inference types, bundled with the compiler version.
  */
 const libraries = new Map([
-  ['/parameter-types/data-table.ts', dataTableSource],
+  ['/param-types/data-table.ts', dataTableSource],
   ['/lib.es5.d.ts', es5],
   ['/lib.decorators.d.ts', decorators],
   ['/lib.decorators.legacy.d.ts', legacyDecorators],

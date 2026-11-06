@@ -47,4 +47,4 @@ DocString and DataTable parameters must be last, with at most one of each kind p
 - **One regexp plus validation:** rejecting a completed match does not trigger backtracking to another valid capture allocation. Variants enforce requirements during matching.
 - **Step options alone:** cannot express the relationship between optional punctuation and DocString or DataTable parameters.
 
-Implementation: [presence analysis](../src/step-arguments.ts), [compiler](../src/compiler.ts), [registry](../src/parameter-types/registry.ts), and [tests](../test/step-arguments.spec.ts).
+Implementation: [presence analysis](../src/step-arguments.ts), [compiler](../src/compiler.ts), [registry](../src/param-types/registry.ts), and [tests](../test/step-arguments.spec.ts).

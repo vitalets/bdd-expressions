@@ -3,7 +3,7 @@
  * Bounded input length keeps compiler work predictable.
  */
 
-import type { IDataTable } from './parameter-types/data-table.ts';
+import type { IDataTable } from './param-types/data-table.ts';
 
 /**
  * Named parameter inference for literals up to 256 characters.

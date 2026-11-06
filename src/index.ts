@@ -2,12 +2,12 @@
  * Provides expression matching and value resolution through the public package API.
  */
 
-import type { IDataTable } from './parameter-types/data-table.ts';
+import type { IDataTable } from './param-types/data-table.ts';
 import type { Slot } from './compiler.ts';
-import type { ParameterType, TextParameterType } from './parameter-types/create-type.ts';
+import type { ParameterType, TextParameterType } from './param-types/create-type.ts';
 import type { StepArguments } from './step-arguments.ts';
 import { parseExpression, type Node } from './parser.ts';
-import type { ParameterTypeRegistry } from './parameter-types/registry.ts';
+import type { ParameterTypeRegistry } from './param-types/registry.ts';
 import { compileExpressionVariants, selectExpressionVariant } from './variants.ts';
 import {
   buildArgument,
@@ -27,26 +27,26 @@ export type BddExpressionResult<
 
 export { parseExpression, ExpressionError } from './parser.ts';
 export type { Node, SourceRange } from './parser.ts';
-export { createParameterType } from './parameter-types/create-type.ts';
-export { createParameterTypeRegistry } from './parameter-types/registry.ts';
+export { createParameterType } from './param-types/create-type.ts';
+export { createParameterTypeRegistry } from './param-types/registry.ts';
 export type {
   ParameterType,
   ParameterTypeOptions,
   TextParameterType,
   TextParameterTypeOptions,
-} from './parameter-types/create-type.ts';
+} from './param-types/create-type.ts';
 export type {
   DataTableParameterType,
   DataTableParameterTypeOptions,
-} from './parameter-types/data-table.ts';
+} from './param-types/data-table.ts';
 export type {
   DocStringParameterType,
   DocStringParameterTypeOptions,
-} from './parameter-types/doc-string.ts';
+} from './param-types/doc-string.ts';
 export type {
   ParameterTypeRegistry,
   MutableParameterTypeRegistry,
-} from './parameter-types/registry.ts';
+} from './param-types/registry.ts';
 export type { Argument, Group } from './cucumber-expressions/matching.ts';
 export type { InferBddParams } from './infer-params.ts';
 export type { StepArguments } from './step-arguments.ts';

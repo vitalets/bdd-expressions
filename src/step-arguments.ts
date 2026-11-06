@@ -3,9 +3,9 @@
  * mixing external values into the text matched by regular expressions.
  */
 
-import type { IDataTable } from './parameter-types/data-table.ts';
+import type { IDataTable } from './param-types/data-table.ts';
 import { ExpressionError, type Node } from './parser.ts';
-import type { ParameterTypeRegistry } from './parameter-types/registry.ts';
+import type { ParameterTypeRegistry } from './param-types/registry.ts';
 
 /**
  * Carries external step argument values; the table generic supports runner-specific

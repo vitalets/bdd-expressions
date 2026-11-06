@@ -5,7 +5,7 @@
 import { analyzeStepArguments, type StepArguments } from './step-arguments.ts';
 import { compileExpression } from './compiler.ts';
 import type { Node } from './parser.ts';
-import type { ParameterTypeRegistry } from './parameter-types/registry.ts';
+import type { ParameterTypeRegistry } from './param-types/registry.ts';
 
 /**
  * Defines the step argument presence required by each expression variant.

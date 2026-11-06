@@ -1,6 +1,6 @@
 # Third-party notices
 
-Built-in patterns and conversions in src/parameter-types/built-ins.ts are ported from
+Built-in patterns and conversions in src/param-types/built-ins.ts are ported from
 @cucumber/cucumber-expressions version 20.1.0. The capture-tree scanner in
 src/cucumber-expressions/capture-tree.ts adapts the TreeRegexp/GroupBuilder mechanism; Argument and Group
 contracts in src/cucumber-expressions/matching.ts follow the same upstream version.

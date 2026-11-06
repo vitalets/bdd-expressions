@@ -4,7 +4,7 @@
  * See THIRD_PARTY_NOTICES.md for attribution.
  */
 
-import type { ParameterType, TextParameterType } from '../parameter-types/create-type.ts';
+import type { ParameterType, TextParameterType } from '../param-types/create-type.ts';
 import type { Capture } from './capture-tree.ts';
 
 export type Group = {
