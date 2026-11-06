@@ -2,7 +2,7 @@
  * Prepares and selects named expression variants for external step arguments.
  */
 
-import { analyzeStepArguments, type StepArguments } from './step-arguments.ts';
+import { analyzeStepArguments, type StepArguments } from './step-argument.ts';
 import { compileExpression } from './compiler.ts';
 import type { Node } from './parser.ts';
 import type { ParameterTypeRegistry } from './param-types/registry.ts';

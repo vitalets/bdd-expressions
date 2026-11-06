@@ -1,8 +1,11 @@
 /**
- * Analyzes step argument presence and validates trailing step argument sections without
+ * Builds step arguments and validates trailing step argument sections without
  * mixing external values into the text matched by regular expressions.
  */
 
+import type { Argument } from './argument.ts';
+import type { Group } from './cucumber-expressions/group.ts';
+import type { ParameterType, TextParameterType } from './param-types/create-type.ts';
 import type { IDataTable } from './param-types/data-table.ts';
 import { ExpressionError, type Node } from './parser.ts';
 import type { ParameterTypeRegistry } from './param-types/registry.ts';
@@ -20,6 +23,41 @@ export type StepArgumentPlan = {
   kinds: ReadonlyMap<Node, number>;
   all: number;
 };
+
+/**
+ * Connects an external step value to its type while preserving absent parameters.
+ */
+export function buildStepArgument(
+  group: Group,
+  type: Exclude<ParameterType, TextParameterType>,
+  name: string | undefined,
+  stepArguments: StepArguments<unknown>,
+) {
+  const argument: Argument = {
+    name,
+    parameterType: type,
+    getParameterType: () => type,
+    group: {
+      value: undefined,
+      start: undefined,
+      end: undefined,
+      children: undefined,
+      values: [undefined],
+    },
+    getValue(world?: unknown) {
+      if (group.value === undefined) return undefined;
+      if ('dataTable' in type) {
+        return stepArguments.dataTable === undefined
+          ? undefined
+          : type.transform(world, stepArguments.dataTable);
+      }
+      return stepArguments.docString === undefined
+        ? undefined
+        : type.transform(world, stepArguments.docString);
+    },
+  };
+  return argument;
+}
 
 /**
  * Resolves step argument types and computes possible input-presence masks per AST node.

@@ -12,7 +12,7 @@
  *   }
  */
 
-import type { StepArgumentPlan } from './step-arguments.ts';
+import type { StepArgumentPlan } from './step-argument.ts';
 import { ExpressionError, type Node } from './parser.ts';
 import { normalizeParameterPattern } from './param-types/normalize-pattern.ts';
 import type { ParameterType, TextParameterType } from './param-types/create-type.ts';

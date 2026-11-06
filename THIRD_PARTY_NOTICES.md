@@ -3,7 +3,7 @@
 Built-in patterns and conversions in src/param-types/built-ins.ts are ported from
 @cucumber/cucumber-expressions version 20.1.0. The capture-tree scanner in
 src/cucumber-expressions/capture-tree.ts adapts the TreeRegexp/GroupBuilder mechanism; Argument and Group
-contracts in src/cucumber-expressions/matching.ts follow the same upstream version.
+contracts in src/cucumber-expressions/group.ts follow the same upstream version.
 
 Differential test cases also draw on upstream alternative/escaping fixture
 categories; the originally inspected upstream commit is
