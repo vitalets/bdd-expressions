@@ -85,10 +85,3 @@ export function analyzeAttachments<Table>(
     return states;
   }
 }
-
-/**
- * Selects a matching variant by presence, retaining empty DocStrings as present.
- */
-export function attachmentMask(inputs: AttachmentInputs<unknown>) {
-  return (inputs.dataTable !== undefined ? 1 : 0) | (inputs.docString !== undefined ? 2 : 0);
-}

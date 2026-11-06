@@ -1,6 +1,6 @@
 /**
- * Compiles expression syntax into whole-input regexps and connects matches to values.
- * Parses the source, resolves parameter types, and maps captures to argument slots.
+ * Compiles parsed expression syntax into whole-input regexps.
+ * Resolves parameter types and maps captures to argument slots.
  *
  * Input:  I have :count{int} cucumbers + a parameter type registry
  * Compiled output (abbreviated):
@@ -12,31 +12,13 @@
  *   }
  */
 
-import type { IDataTable } from './parameter-types/data-table.ts';
-import {
-  analyzeAttachments,
-  attachmentMask,
-  type AttachmentInputs,
-  type AttachmentPlan,
-} from './attachments.ts';
-import { parseExpression, ExpressionError, type Node } from './parser.ts';
+import type { AttachmentPlan } from './attachments.ts';
+import { ExpressionError, type Node } from './parser.ts';
 import { normalizeParameterPattern } from './parameter-types/normalize-pattern.ts';
 import type { ParameterType, TextParameterType } from './parameter-types/create-type.ts';
 import type { ParameterTypeRegistry } from './parameter-types/registry.ts';
 import { escapeRegexp } from './utils/regexp.ts';
 import { captureTree, type Capture } from './cucumber-expressions/capture-tree.ts';
-import { buildArgument, buildGroup, type Argument } from './cucumber-expressions/matching.ts';
-import { resolveParams } from './resolve-params.ts';
-import type { InferBddParams, InferBddAttachments } from './infer-params.ts';
-
-export type BddExpressionResult<
-  Params extends object = Record<string, unknown>,
-  Table = IDataTable,
-  Source extends string = string,
-> = unknown[] & {
-  readonly params: Params;
-} & InferBddAttachments<Source, Table>;
-
 type Slot = {
   name?: string;
   type: ParameterType;
@@ -44,109 +26,16 @@ type Slot = {
 };
 
 /**
- * Matches a parsed expression using a compiled regexp and source-ordered parameters.
- * Table is inferred from the registry so match inputs and table transformers agree
- * without requiring the library to import or construct a runner's DataTable class.
- * Infers named values from expression literals unless a Params contract is supplied.
- * An explicit Params type bypasses inference and must match the expression and registry.
- * Values resolves that choice once, keeping instances assignable to BddExpression
- * without requiring their source literal in type annotations.
+ * Compiles an expression for a specific combination of available attachments.
  */
-export class BddExpression<
-  Params extends object = never,
-  Source extends string = string,
-  Table = IDataTable,
-  Values extends object = [Params] extends [never]
-    ? InferBddParams<Source, { DataTable: Table }>
-    : Params,
-> {
-  readonly source: string;
-  readonly ast: Node;
-  readonly regexp: RegExp;
-  private readonly slots: readonly Slot[];
-  private readonly variants: ReturnType<typeof compileExpression>[];
-
-  constructor(pattern: Source, parameterTypeRegistry: ParameterTypeRegistry<Table>) {
-    this.source = pattern;
-    const ast = parseExpression(pattern);
-    const plan = analyzeAttachments(ast, parameterTypeRegistry, pattern);
-    const base = compileExpression(pattern, parameterTypeRegistry, ast, plan, 0);
-    this.variants = plan.all
-      ? [
-          base,
-          ...[1, 2, 3].map((mask) =>
-            compileExpression(pattern, parameterTypeRegistry, ast, plan, mask),
-          ),
-        ]
-      : [base, ...[1, 2, 3].map(() => ({ ...base, regexp: /(?!)/ }))];
-    const compiled = this.variants[0]!;
-    this.ast = compiled.ast;
-    this.regexp = compiled.regexp;
-    this.slots = compiled.slots;
-  }
-
-  /**
-   * Matches the whole input and retains metadata for absent parameters.
-   */
-  match(text: string, inputs: AttachmentInputs<Table> = {}) {
-    const variant = this.variants[attachmentMask(inputs)]!;
-    const result = variant.regexp.exec(text);
-    const args: readonly Argument[] | null = result
-      ? variant.slots.map((slot) => {
-          const group = buildGroup(slot.capture, result);
-          const type = slot.type;
-          if ('regexpStrings' in type) return buildArgument(group, type, slot.name);
-          return {
-            name: slot.name,
-            parameterType: type,
-            getParameterType: () => type,
-            group: {
-              value: undefined,
-              start: undefined,
-              end: undefined,
-              children: undefined,
-              values: [undefined],
-            },
-            getValue(world?: unknown) {
-              if (group.value === undefined) return undefined;
-              if ('dataTable' in type) {
-                return inputs.dataTable === undefined
-                  ? undefined
-                  : type.transform(world, inputs.dataTable);
-              }
-              return inputs.docString === undefined
-                ? undefined
-                : type.transform(world, inputs.docString);
-            },
-          };
-        })
-      : null;
-    return args;
-  }
-
-  /**
-   * Resolves positional and named values with the supplied transformer context.
-   */
-  async matchAndResolve(text: string, world?: unknown, inputs: AttachmentInputs<Table> = {}) {
-    const args = this.match(text, inputs);
-    if (args === null) return null;
-    const { positional, named } = await resolveParams(args, world);
-    Object.defineProperties(positional, {
-      params: { value: named, enumerable: false },
-      docString: { value: inputs.docString, enumerable: false },
-      dataTable: { value: inputs.dataTable, enumerable: false },
-    });
-    return positional as BddExpressionResult<Values, Table, Source>;
-  }
-}
-
-function compileExpression<Table>(
+export function compileExpression<Table>(
   source: string,
   registry: ParameterTypeRegistry<Table>,
   ast: Node,
   plan: AttachmentPlan,
-  mask: number,
+  attachments: { dataTable?: boolean; docString?: boolean },
 ) {
+  const mask = (attachments.dataTable ? 1 : 0) | (attachments.docString ? 2 : 0);
   const slots: Slot[] = [];
   let captureCount = 0;
   const regexp = new RegExp(`^(?:${compile(ast)})(?![\\s\\S])`, 'd');
