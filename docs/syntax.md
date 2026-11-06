@@ -21,25 +21,27 @@ Expressions match the entire input and are case sensitive. Ordinary text and whi
   - [Single-word alternatives](#single-word-alternatives)
   - [Multi-word alternatives without escaping](#multi-word-alternatives-without-escaping)
   - [Alternatives with parameters](#alternatives-with-parameters)
+- [DocString and DataTable](#docstring-and-datatable)
+  - [DocString](#docstring)
+  - [DataTable](#datatable)
 - [Escaping](#escaping)
-- [DocString and DataTable in the expression](#docstring-and-datatable-in-the-expression)
 
 ## Cheatsheet
 
-| Syntax        | Quick meaning                                | Example                         |
-| ------------- | -------------------------------------------- | ------------------------------- |
-| `{type}`      | Capture a typed value                        | `I have {int} cucumbers`        |
-| `:name{type}` | Capture a typed value by name                | `I have :count{int} cucumbers`  |
-| `:name`       | Capture a quoted string by name              | `I open :page`                  |
-| `{a/b}`       | Capture one of the listed choices            | `Set {pending/approved}`        |
-| `:name{a/b}`  | Capture one of the listed choices by name    | `Set :status{pending/approved}` |
-| `{=text}`     | Capture a fixed literal                      | `Delete {=permanently}`         |
-| `{}`          | Capture arbitrary text, including empty text | `I send {}`                     |
-| `(text)`      | Optional text                                | `cucumber(s)`                   |
-| `a/b`         | Single-word alternatives                     | `I pay by card/cash`            |
-| `[a/b]`       | Multi-word alternatives                      | `I [sign in/log out]`           |
-| `(a/b)`       | Optional multi-word alternatives             | `I send message( now/ later)`   |
-| `\`           | Escape a special character                   | `I open \[draft\]`              |
+| Syntax        | Quick meaning                                | Expression                          | Example                |
+| ------------- | -------------------------------------------- | ----------------------------------- | ---------------------- |
+| `{type}`      | Capture a typed value                        | `I have {int} cucumbers`            | `I have 2 cucumbers`   |
+| `:name{type}` | Capture a typed value by name                | `I have :count{int} cucumbers`      | `I have 2 cucumbers`   |
+| `:name`       | Capture a quoted string by name              | `I open :page`                      | `I open "Settings"`    |
+| `{a/b}`       | Capture one of the listed choices            | `Set {pending/approved}`            | `Set approved`         |
+| `:name{a/b}`  | Capture one of the listed choices by name    | `Set :status{pending/approved}`     | `Set approved`         |
+| `{=text}`     | Capture a fixed literal                      | `Delete {=permanently}`             | `Delete permanently`   |
+| `{}`          | Capture arbitrary text, including empty text | `I send {}`                         | `I send hello there`   |
+| `(text)`      | Optional text                                | `cucumber(s)`                       | `cucumbers`            |
+| `a/b`         | Single-word alternatives                     | `I pay by card/cash`                | `I pay by cash`        |
+| `[a/b]`       | Multi-word alternatives                      | `I pay [by credit card/with cash]`  | `I pay with cash`      |
+| `(a/b)`       | Optional multi-word alternatives             | `I log in( with Google/ via email)` | `I log in with Google` |
+| `\`           | Escape a special character                   | `I open \[draft\]`                  | `I open [draft]`       |
 
 Only parameters capture values; parentheses and square brackets group text without capturing it. Spaces match literally, so include a space inside an optional group when it should be optional too.
 
@@ -674,6 +676,140 @@ Each choice branch can declare its own parameters. Positional slots follow sourc
   </tbody>
 </table>
 
+## DocString and DataTable
+
+`{DocString}` and `{DataTable}` receive values supplied separately from the step text. Both support names and optional groups.
+
+### DocString
+
+**`I send a message:{DocString}`**
+
+Supply the message body as a multiline DocString.
+
+✅ **Matches — message body provided**
+
+```gherkin
+When I send a message:
+  """
+  Hello Alice,
+  Your order is ready.
+  """
+```
+
+❌ **Does not match — required message body missing**
+
+```gherkin
+When I send a message:
+```
+
+#### Optional DocString
+
+Make the colon and DocString optional together to check that a notification appears, optionally checking its full text.
+
+**`the notification is shown(:{DocString})`**
+
+✅ **Matches — check that a notification appears**
+
+```gherkin
+Then the notification is shown
+```
+
+✅ **Matches — also check its text**
+
+```gherkin
+Then the notification is shown:
+  """
+  Your order is confirmed.
+  We will email you when it ships.
+  """
+```
+
+### DataTable
+
+**`I have {int} product(s) in the cart:{DataTable}`**
+
+Capture the expected count and supply the products to check as a DataTable. The optional suffix allows singular and plural phrasing.
+
+✅ **Matches — one expected product**
+
+```gherkin
+Then I have 1 product in the cart:
+  | name     | price |
+  | Keyboard | 50    |
+```
+
+✅ **Matches — two expected products**
+
+```gherkin
+Then I have 2 products in the cart:
+  | name     | price |
+  | Keyboard | 50    |
+  | Mouse    | 25    |
+```
+
+❌ **Does not match — required products table missing**
+
+```gherkin
+Then I have 2 products in the cart:
+```
+
+#### Optional DataTable
+
+**`I have {int} product(s) in the cart(:{DataTable})`**
+
+Make the colon and table optional together to reuse the same expression for a count-only assertion or a check of specific products.
+
+✅ **Matches — zero products, no table needed**
+
+```gherkin
+Then I have 0 products in the cart
+```
+
+✅ **Matches — one product with expected details**
+
+```gherkin
+Then I have 1 product in the cart:
+  | name     | price |
+  | Keyboard | 50    |
+```
+
+✅ **Matches — two products with expected details**
+
+```gherkin
+Then I have 2 products in the cart:
+  | name     | price |
+  | Keyboard | 50    |
+  | Mouse    | 25    |
+```
+
+✅ **Matches — check only the count**
+
+```gherkin
+Then I have 2 products in the cart
+```
+
+The expression captures the count by position and the optional table; the step handler checks the actual products and whether the table agrees with the count. Omitting the table is allowed for any count.
+
+❌ **Does not match — colon provided without a table**
+
+```gherkin
+Then I have 1 product in the cart:
+```
+
+❌ **Does not match — table provided without the colon**
+
+```gherkin
+Then I have 1 product in the cart
+  | name     | price |
+  | Keyboard | 50    |
+```
+
+Use `I have {int} product(s) in the cart(:)({DataTable})` when the colon and table should be independently optional. Named parameters and custom table types are also supported.
+
+DocString and DataTable parameters must be last, and each kind can occur only once, including across alternatives. Whitespace and colons may introduce the next parameter but cannot trail the final one. Missing required values or unexpected supplied values prevent matching. Resolved arguments follow expression order.
+
+See [DocString and DataTable types](api.md#docstring-and-datatable-types) for passing values and registering custom types.
+
 ## Escaping
 
 Use a backslash to make special characters literal. Expression-language escapes support `\\`, `\/`, `\:`, `\(`, `\)`, `\[`, `\]`, `\{`, `\}`, and ASCII space. Other whitespace is written literally, without a backslash. Other escapes and a trailing backslash are errors. Unmatched closing delimiters are errors too.
@@ -692,20 +828,3 @@ An unescaped colon starts a parameter only when followed by a valid name-start c
 Colons in `12:30` and `https:` are already literal; URL slashes still need escaping. Inside braces, colons are literal, and literal parentheses, square brackets, or opening braces must be escaped. Braces cannot be nested.
 
 For escaping expression strings in TypeScript, see [Escaping in string literals](api.md#escaping-in-string-literals).
-
-## DocString and DataTable in the expression
-
-`{DocString}` and `{DataTable}` receive values supplied separately from the step text. Both support names and optional groups.
-
-| Expression                                | Meaning                                          |
-| ----------------------------------------- | ------------------------------------------------ |
-| `I send a message:{DocString}`            | DocString required after a literal colon         |
-| `I create users{DataTable}`               | Table required; no literal colon                 |
-| `I create users(:{DataTable})`            | Colon and table present together, or both absent |
-| `I create users(:)({DataTable})`          | Colon and table independently optional           |
-| `I create users(::users{UsersDataTable})` | Optional colon and named custom table together   |
-| `I create users(:){DataTable}{DocString}` | Optional colon; both values required             |
-
-DocString and DataTable parameters must be last, and each kind can occur only once, including across alternatives. Whitespace and colons may introduce the next parameter but cannot trail the final one. Missing required values or unexpected supplied values prevent matching. Resolved arguments follow expression order.
-
-See [DocString and DataTable types](api.md#docstring-and-datatable-types) for passing values and registering custom types.

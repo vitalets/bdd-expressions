@@ -217,6 +217,14 @@ summary {
   margin: 22px 0;
   font-size: 14px;
 }
+.prose pre:has(> code.language-gherkin) {
+  padding: 18px 20px;
+  border: 1px solid #d8cbea;
+  border-left: 4px solid var(--accent);
+  background: var(--accent-soft);
+  white-space: pre;
+  overflow-x: auto;
+}
 .prose td,
 .prose th {
   padding: 10px 14px;

@@ -23,11 +23,11 @@ _Avoid_: Captured parameter type
 
 **Step argument**:
 A DocString or DataTable supplied separately from step text, or its declaration in an expression. Use step argument for both; clarify which is meant only when context is insufficient.
-_Avoid_: Attachment, input argument, step argument placeholder
+_Avoid_: input argument, step argument placeholder
 
 **Step argument type**:
 The rules identifying a step argument as a DocString or DataTable and transforming its value.
-_Avoid_: Attachment type, input argument type
+_Avoid_: input argument type
 
 **Step argument value**:
 The value of a DocString or DataTable after transformation, or the original value when no transformation is applied.
