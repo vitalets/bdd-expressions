@@ -2,6 +2,7 @@
 
 Expressions match the entire input and are case sensitive. Ordinary text and whitespace match literally. Parameters capture arguments; optional groups and structural alternatives do not add arguments themselves.
 
+- [Cheatsheet](#cheatsheet)
 - [Parameters](#parameters)
   - [Anonymous parameters](#anonymous-parameters)
   - [Named parameters with type](#named-parameters-with-type)
@@ -22,6 +23,25 @@ Expressions match the entire input and are case sensitive. Ordinary text and whi
   - [Alternatives with parameters](#alternatives-with-parameters)
 - [Escaping](#escaping)
 - [DocString and DataTable in the expression](#docstring-and-datatable-in-the-expression)
+
+## Cheatsheet
+
+| Syntax        | Quick meaning                                | Example                         |
+| ------------- | -------------------------------------------- | ------------------------------- |
+| `{type}`      | Capture a typed value                        | `I have {int} cucumbers`        |
+| `:name{type}` | Capture a typed value by name                | `I have :count{int} cucumbers`  |
+| `:name`       | Capture a quoted string by name              | `I open :page`                  |
+| `{a/b}`       | Capture one of the listed choices            | `Set {pending/approved}`        |
+| `:name{a/b}`  | Capture one of the listed choices by name    | `Set :status{pending/approved}` |
+| `{=text}`     | Capture a fixed literal                      | `Delete {=permanently}`         |
+| `{}`          | Capture arbitrary text, including empty text | `I send {}`                     |
+| `(text)`      | Optional text                                | `cucumber(s)`                   |
+| `a/b`         | Single-word alternatives                     | `I pay by card/cash`            |
+| `[a/b]`       | Multi-word alternatives                      | `I [sign in/log out]`           |
+| `(a/b)`       | Optional multi-word alternatives             | `I send message( now/ later)`   |
+| `\`           | Escape a special character                   | `I open \[draft\]`              |
+
+Only parameters capture values; parentheses and square brackets group text without capturing it. Spaces match literally, so include a space inside an optional group when it should be optional too.
 
 ## Parameters
 
@@ -184,7 +204,7 @@ Parentheses always make their contents optional, including when they contain sla
 
 Wrap a suffix in parentheses to accept a word with or without that suffix. The optional text does not create a captured parameter.
 
-Without the optional suffix:
+Input without the suffix:
 
 |                              |                            |
 | ---------------------------- | -------------------------- |
@@ -193,7 +213,7 @@ Without the optional suffix:
 | Captured params (positional) | `[1]`                      |
 | Captured params (named)      | —                          |
 
-With the optional suffix:
+Input with the suffix:
 
 |                              |                            |
 | ---------------------------- | -------------------------- |
