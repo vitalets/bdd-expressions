@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- Support built-in trailing DataTable and DocString parameters with typed attachment inputs, optional groups, and attachment flags for custom parameter types.
+
 - Support explicit inline literals with `{=value}` and empty inline choice alternatives, with inferred literal types.
 
 - Show compiler-inferred parameter types in the playground using the library’s actual TypeScript definitions.

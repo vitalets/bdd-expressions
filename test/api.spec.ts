@@ -24,7 +24,7 @@ test('public expression members and TypeScript return contracts', async () => {
   const astContract: Equal<BddExpression['ast'], Node> = true;
   const constructorContract: Equal<
     ConstructorParameters<typeof BddExpression>,
-    [string, ParameterTypeRegistry]
+    [string, ParameterTypeRegistry<unknown>]
   > = true;
   assert.ok(matchContract && valuesContract && astContract && constructorContract);
   const nameContract: Equal<Pick<Argument, 'name'>, { readonly name?: string }> = true;
@@ -85,11 +85,12 @@ test('nested optional parameters retain absent capture metadata', () => {
 test('backtracking skips transformers and clears all abandoned capture positions', async () => {
   const registry = createParameterTypeRegistry();
   const stringType = registry.lookupByTypeName('string')!;
+  assert.ok('regexpStrings' in stringType);
   let calls = 0;
   const expression = new BddExpression('I send( :message)( :recipient confirmed)', {
     lookupByTypeName: () => ({
       ...stringType,
-      transform(world, captures) {
+      transform(world: unknown, captures: (string | undefined)[] | null) {
         calls++;
         return stringType.transform(world, captures);
       },
@@ -294,3 +295,20 @@ function assertAbsent(group: Group) {
   assert.equal(group.end, undefined);
   group.children?.forEach(assertAbsent);
 }
+
+test('prebuilt types are validated before registration', () => {
+  const registry = createParameterTypeRegistry();
+  const valid = createParameterType({ name: 'External', regexp: /a/ });
+  for (const type of [
+    { ...valid, name: undefined },
+    { ...valid, name: 'inline-choice' },
+    { ...valid, regexpStrings: [] },
+    { ...valid, regexpStrings: ['['] },
+    { ...valid, regexpStrings: ['(a)\\1'] },
+  ]) {
+    assert.throws(() => registry.defineParameterType(type));
+  }
+  assert.equal(registry.lookupByTypeName('External'), undefined);
+  registry.defineParameterType(valid);
+  assert.equal(registry.lookupByTypeName('External'), valid);
+});

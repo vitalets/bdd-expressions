@@ -4,7 +4,7 @@
  * See THIRD_PARTY_NOTICES.md for attribution.
  */
 
-import type { ParameterType } from './parameter-types.ts';
+import type { ParameterType, TextParameterType } from '../parameter-types/create-type.ts';
 import type { Capture } from './capture-tree.ts';
 
 export type Group = {
@@ -43,7 +43,7 @@ export function buildGroup(capture: Capture, match: RegExpExecArray): Group {
 /**
  * Connects capture metadata to its type, skipping transformation for absent parameters.
  */
-export function buildArgument(group: Group, parameterType: ParameterType, name?: string) {
+export function buildArgument(group: Group, parameterType: TextParameterType, name?: string) {
   const argument: Argument = {
     name,
     group,

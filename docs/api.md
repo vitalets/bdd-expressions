@@ -169,19 +169,16 @@ branches.
 
 ## Custom parameter types
 
-Custom types are plain structural objects produced by a factory:
+Define custom parameter types by passing options directly to the registry:
 
 ```ts
-import { createParameterType } from 'bdd-expressions';
-registry.defineParameterType(
-  createParameterType({
-    name: 'Point',
-    regexp: /(-?\d+),(-?\d+)/,
-    transformer(x, y) {
-      return { x: Number(x), y: Number(y) };
-    },
-  }),
-);
+registry.defineParameterType({
+  name: 'Point',
+  regexp: /(-?\d+),(-?\d+)/,
+  transformer(x, y) {
+    return { x: Number(x), y: Number(y) };
+  },
+});
 
 const point = new BddExpression('Move to :point{Point}', registry);
 const result = (await point.matchAndResolve('Move to 3,-2'))!;
@@ -205,6 +202,8 @@ console.log(result.params);
 ```
 
 Use a regular function to access `this` from the `world` argument. Transformers may return asynchronous or PromiseLike results. A type with capture groups receives its immediate child capture values; deeper groups remain available in metadata. Without a transformer, the type returns the first immediate capture value.
+
+For compatibility, `defineParameterType()` also accepts already-created parameter-type objects, including objects returned by the exported `createParameterType()` factory. Direct options are the usual registration API.
 
 Custom patterns may be strings, flagless RegExp objects, or nonempty arrays of either. Captures, noncapturing groups, lookarounds, and named captures are supported. Native capture labels are removed during compilation while preserving their capture structure. Flags, backreferences, and legacy numeric escapes outside character classes are rejected. Type names use ASCII letters, digits, `_`, `$`, `.`, and `-`, starting with a letter, `_`, or `$`; duplicate registrations are rejected.
 
@@ -230,3 +229,43 @@ url.match('Visit https://example.com label:value');
 []
 */
 ```
+
+## DocString and DataTable types
+
+`{DocString}` and `{DataTable}` are built in. Pass their values separately from the step text; they are returned unchanged by default.
+
+```ts
+const registry = createParameterTypeRegistry();
+const expression = new BddExpression('I send(::body{DocString})', registry);
+
+const result = await expression.matchAndResolve('I send:', undefined, {
+  docString: 'Hello',
+});
+console.log(result!.params.body); // 'Hello'
+```
+
+Use `match(text, { docString, dataTable })` for raw arguments, or `matchAndResolve(text, world, { docString, dataTable })` for resolved values. Both inputs can be supplied together. Missing optional values resolve to `undefined`; an empty DocString counts as present. Missing required values or unexpected supplied values prevent matching.
+
+The default table type supports `hashes()`, `raw()`, `rows()`, `rowsHash()`, and `transpose()`. Supply your runner's table instance. For another representation, override the generic—for example, `createParameterTypeRegistry<string[][]>()`.
+
+### Custom DocString and DataTable types
+
+Set one flag and omit `regexp`. Transformers are optional; table inputs infer from the registry generic and DocString inputs are strings.
+
+```ts
+registry.defineParameterType({
+  name: 'UsersDataTable',
+  dataTable: true,
+  transformer: (table) => table.hashes(),
+});
+
+registry.defineParameterType({
+  name: 'JsonDocString',
+  docString: true,
+  transformer: (text) => JSON.parse(text),
+});
+```
+
+Use custom types by name: `I create users(::users{UsersDataTable})`. The first colon is literal; the second names the parameter. Custom result types default to `unknown`; see [named parameter inference](#named-parameter-inference) for explicit types. Transformers do not run for absent optional values.
+
+DocString and DataTable arguments have no text positions in `group`. Use `match()` rather than the public `regexp` to check their presence. See the [syntax rules](syntax.md#docstring-and-datatable-types) for placement and optionality.

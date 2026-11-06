@@ -11,6 +11,10 @@ const libraries = new Map(
     readFileSync(require.resolve(`typescript/lib/${name}`), 'utf8'),
   ]),
 );
+libraries.set(
+  '/parameter-types/data-table.ts',
+  readFileSync(new URL('../src/parameter-types/data-table.ts', import.meta.url), 'utf8'),
+);
 const inferenceSource = readFileSync(new URL('../src/infer-params.ts', import.meta.url), 'utf8');
 
 test('compiler preview resolves types and updates the same language service', () => {
@@ -22,6 +26,7 @@ test('compiler preview resolves types and updates the same language service', ()
   );
   assert.equal(preview(':status{pending/approved}'), '{\n  status: "pending" | "approved";\n}');
   assert.equal(preview(':value{biginteger}'), '{\n  value: bigint;\n}');
+  assert.equal(preview(':table{DataTable}'), '{\n  table: IDataTable;\n}');
   assert.equal(preview('No named parameters'), '{}');
   assert.equal(preview('x'.repeat(257)), 'Record<string, unknown>');
   assert.equal(preview('x'.repeat(245) + ':count{int}'), '{\n  count: number;\n}');

@@ -424,3 +424,19 @@ An unescaped colon starts a parameter only when followed by a valid name-start c
 Colons in `12:30` and `https:` are already literal; URL slashes still need escaping. Inside braces, colons are literal, and literal parentheses or opening braces must be escaped. Braces cannot be nested.
 
 For escaping expression strings in TypeScript, see [Escaping in string literals](api.md#escaping-in-string-literals).
+
+## DocString and DataTable types
+
+`{DocString}` and `{DataTable}` receive values supplied separately from the step text. Both support names and optional groups.
+
+| Expression                                | Meaning                                          |
+| ----------------------------------------- | ------------------------------------------------ |
+| `I create users{DataTable}`               | Table required; no literal colon                 |
+| `I create users(:{DataTable})`            | Colon and table present together, or both absent |
+| `I create users(:)({DataTable})`          | Colon and table independently optional           |
+| `I create users(::users{UsersDataTable})` | Optional colon and named custom table together   |
+| `I create users(:){DataTable}{DocString}` | Optional colon; both values required             |
+
+DocString and DataTable parameters must be last, and each kind can occur only once, including across alternatives. Whitespace and colons may introduce the next parameter but cannot trail the final one. Missing required values or unexpected supplied values prevent matching. Resolved arguments follow expression order.
+
+See [DocString and DataTable types](api.md#docstring-and-datatable-types) for passing values and registering custom types.

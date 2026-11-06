@@ -29,6 +29,9 @@ Extended syntax for BDD steps, a superset of [Cucumber Expressions](https://gith
   - `I (click/tap on/press and hold) button`
 - Alternatives with parameters
   - `I choose (page :page/label :label)`
+- DocString and DataTable in the expression
+  - `I send a message:{DocString}`
+  - `I create users(:{DataTable})` (optional table)
 - Full support for Cucumber Expressions syntax
   - `I have {int} cucumber(s) in my belly/stomach`
 
@@ -46,6 +49,8 @@ const result = await expression.matchAndResolve('I buy 2 apples');
 }
 */
 ```
+
+Built-in `{DocString}` and `{DataTable}` types support required and optional values. See [DocString and DataTable types](docs/api.md#docstring-and-datatable-types).
 
 See the [API guide](docs/api.md#named-parameter-inference) for details and how to supply manual types or disable inference.
 

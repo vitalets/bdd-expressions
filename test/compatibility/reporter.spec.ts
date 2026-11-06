@@ -67,3 +67,12 @@ test('reporter distinguishes absent optional parameters from empty matches', () 
     { group: { start: 2, value: '' }, parameterTypeName: '' },
   ]);
 });
+
+test('local registry accepts an upstream prebuilt type without replacing it', async () => {
+  const registry = createParameterTypeRegistry();
+  const type = new CucumberType('External', /\d+/, Number, (value) => Number(value), false, false);
+  registry.defineParameterType(type);
+  assert.equal(registry.lookupByTypeName('External'), type);
+  const result = await new BddExpression('Value {External}', registry).matchAndResolve('Value 42');
+  assert.deepEqual([...result!], [42]);
+});

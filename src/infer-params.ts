@@ -3,6 +3,8 @@
  * Bounded input length keeps compiler work predictable.
  */
 
+import type { IDataTable } from './parameter-types/data-table.ts';
+
 /**
  * Named parameter inference for literals up to 256 characters.
  * Custom maps describe resolved transformer results and override built-in types.
@@ -19,6 +21,8 @@ export type InferBddParams<
   : never;
 
 type Builtins = {
+  DataTable: IDataTable;
+  DocString: string;
   int: number;
   byte: number;
   short: number;

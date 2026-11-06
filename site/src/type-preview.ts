@@ -29,7 +29,7 @@ export function createTypePreview(inferenceSource: string, libraries: Map<string
   return (expression: string) => {
     environment.updateFile(
       queryPath,
-      `import type { InferBddParams } from './infer-params';\ndeclare const params: InferBddParams<${JSON.stringify(expression)}>;`,
+      `import type { InferBddParams } from './infer-params';\nimport type { IDataTable } from './parameter-types/data-table';\ndeclare const params: InferBddParams<${JSON.stringify(expression)}>;`,
     );
     const diagnostics = [
       ...environment.languageService.getSyntacticDiagnostics(queryPath),
