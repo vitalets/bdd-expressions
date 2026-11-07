@@ -25,6 +25,7 @@ Expressions match the entire input and are case sensitive. Ordinary text and whi
   - [DocString](#docstring)
   - [DataTable](#datatable)
 - [Escaping](#escaping)
+- [Localization](#localization)
 
 ## Cheatsheet
 
@@ -58,8 +59,8 @@ For example, `{int}` captures an integer:
 <table>
   <tbody>
     <tr>
-      <td></td>
-      <td align="center"><strong><code>I have {int} cucumbers</code></strong></td>
+      <th scope="row">Expression</th>
+      <td align="left"><strong><code>I have {int} cucumbers</code></strong></td>
     </tr>
     <tr>
       <th scope="row">Input</th>
@@ -81,8 +82,8 @@ Use `{string}` to capture a single- or double-quoted string. The surrounding quo
 <table>
   <tbody>
     <tr>
-      <td></td>
-      <td align="center"><strong><code>I open {string}</code></strong></td>
+      <th scope="row">Expression</th>
+      <td align="left"><strong><code>I open {string}</code></strong></td>
     </tr>
     <tr>
       <th scope="row">Input</th>
@@ -108,8 +109,8 @@ For example, `:count{int}` captures an integer as `count`:
 <table>
   <tbody>
     <tr>
-      <td></td>
-      <td align="center"><strong><code>I have :count{int} cucumbers</code></strong></td>
+      <th scope="row">Expression</th>
+      <td align="left"><strong><code>I have :count{int} cucumbers</code></strong></td>
     </tr>
     <tr>
       <th scope="row">Input</th>
@@ -138,8 +139,8 @@ Untyped `:name` parameters default to `{string}` and require single or double qu
 <table>
   <tbody>
     <tr>
-      <td></td>
-      <td align="center"><strong><code>I open :page</code></strong></td>
+      <th scope="row">Expression</th>
+      <td align="left"><strong><code>I open :page</code></strong></td>
     </tr>
     <tr>
       <th scope="row">Input</th>
@@ -170,8 +171,8 @@ Put slash-separated literals inside curly braces to capture the selected text. N
 <table>
   <tbody>
     <tr>
-      <td></td>
-      <td align="center"><strong><code>Set {pending/approved/rejected}</code></strong></td>
+      <th scope="row">Expression</th>
+      <td align="left"><strong><code>Set {pending/approved/rejected}</code></strong></td>
     </tr>
     <tr>
       <th scope="row">Input</th>
@@ -191,8 +192,8 @@ Put slash-separated literals inside curly braces to capture the selected text. N
 <table>
   <tbody>
     <tr>
-      <td></td>
-      <td align="center"><strong><code>Set :status{pending/approved/rejected}</code></strong></td>
+      <th scope="row">Expression</th>
+      <td align="left"><strong><code>Set :status{pending/approved/rejected}</code></strong></td>
     </tr>
     <tr>
       <th scope="row">Input</th>
@@ -216,8 +217,8 @@ Inline choice parameters can contain whole phrases. Spaces inside each branch ar
 <table>
   <tbody>
     <tr>
-      <td></td>
-      <td align="center"><strong><code>I :action{click/tap on/press and hold}</code></strong></td>
+      <th scope="row">Expression</th>
+      <td align="left"><strong><code>I :action{click/tap on/press and hold}</code></strong></td>
     </tr>
     <tr>
       <th scope="row">Input</th>
@@ -255,8 +256,8 @@ Use `{}` or `:name{}` to capture arbitrary text, including an empty string, with
 <table>
   <tbody>
     <tr>
-      <td></td>
-      <td align="center"><strong><code>I send {}</code></strong></td>
+      <th scope="row">Expression</th>
+      <td align="left"><strong><code>I send {}</code></strong></td>
     </tr>
     <tr>
       <th scope="row">Input</th>
@@ -276,8 +277,8 @@ Use `{}` or `:name{}` to capture arbitrary text, including an empty string, with
 <table>
   <tbody>
     <tr>
-      <td></td>
-      <td align="center"><strong><code>I send :message{}</code></strong></td>
+      <th scope="row">Expression</th>
+      <td align="left"><strong><code>I send :message{}</code></strong></td>
     </tr>
     <tr>
       <th scope="row">Input</th>
@@ -307,8 +308,8 @@ These examples use the `Point` transformer defined in [Custom parameter types](a
 <table>
   <tbody>
     <tr>
-      <td></td>
-      <td align="center"><strong><code>Move to {Point}</code></strong></td>
+      <th scope="row">Expression</th>
+      <td align="left"><strong><code>Move to {Point}</code></strong></td>
     </tr>
     <tr>
       <th scope="row">Input</th>
@@ -328,8 +329,8 @@ These examples use the `Point` transformer defined in [Custom parameter types](a
 <table>
   <tbody>
     <tr>
-      <td></td>
-      <td align="center"><strong><code>Move to :point{Point}</code></strong></td>
+      <th scope="row">Expression</th>
+      <td align="left"><strong><code>Move to :point{Point}</code></strong></td>
     </tr>
     <tr>
       <th scope="row">Input</th>
@@ -375,7 +376,7 @@ Wrap a suffix in parentheses to accept a word with or without that suffix. The o
 <table>
   <tbody>
     <tr>
-      <td></td>
+      <th scope="row">Expression</th>
       <td colspan="2" align="center"><strong><code>I have {int} cucumber(s)</code></strong></td>
     </tr>
     <tr>
@@ -403,7 +404,7 @@ Wrap text in parentheses to make it optional. Include its leading space inside t
 <table>
   <tbody>
     <tr>
-      <td></td>
+      <th scope="row">Expression</th>
       <td colspan="2" align="center"><strong><code>I open :page( again)</code></strong></td>
     </tr>
     <tr>
@@ -435,7 +436,7 @@ An optional group can contain parameters. When the group is absent, those parame
 <table>
   <tbody>
     <tr>
-      <td></td>
+      <th scope="row">Expression</th>
       <td colspan="2" align="center"><strong><code>I create :item( as :owner)</code></strong></td>
     </tr>
     <tr>
@@ -471,7 +472,7 @@ The expression accepts `I send a message`, `I send a message with attachment`, a
 <table>
   <tbody>
     <tr>
-      <td></td>
+      <th scope="row">Expression</th>
       <td colspan="2" align="center"><strong><code>I send a message( with attachment(s))</code></strong></td>
     </tr>
     <tr>
@@ -494,7 +495,7 @@ Place optional groups next to each other to allow either, both, or neither. Dist
 <table>
   <tbody>
     <tr>
-      <td></td>
+      <th scope="row">Expression</th>
       <td colspan="4" align="center"><strong><code>I send( message :message)( to :recipient)</code></strong></td>
     </tr>
     <tr>
@@ -551,7 +552,7 @@ Separate words with `/` to accept either spelling without capturing it as a para
 <table>
   <tbody>
     <tr>
-      <td></td>
+      <th scope="row">Expression</th>
       <td colspan="3" align="center"><strong><code>I pay by card/cash</code></strong></td>
     </tr>
     <tr>
@@ -589,7 +590,7 @@ Use parentheses to allow no text or one of the listed phrases. Adding another al
 <table>
   <tbody>
     <tr>
-      <td></td>
+      <th scope="row">Expression</th>
       <td colspan="4" align="center"><strong><code>I send message( to my boss/ later)</code></strong></td>
     </tr>
     <tr>
@@ -616,7 +617,7 @@ Use square brackets to require one of the phrases. A single-branch group such as
 <table>
   <tbody>
     <tr>
-      <td></td>
+      <th scope="row">Expression</th>
       <td colspan="4" align="center"><strong><code>I [click/tap on/press and hold] button</code></strong></td>
     </tr>
     <tr>
@@ -649,7 +650,7 @@ Each choice branch can declare its own parameters. Positional slots follow sourc
 <table>
   <tbody>
     <tr>
-      <td></td>
+      <th scope="row">Expression</th>
       <td colspan="2" align="center"><strong><code>I choose [number :count{int}/label :label]</code></strong></td>
     </tr>
     <tr>
@@ -808,7 +809,7 @@ Use `I have {int} product(s) in the cart(:)({DataTable})` when the colon and tab
 
 DocString and DataTable parameters must be last, and each kind can occur only once, including across alternatives. Whitespace and colons may introduce the next parameter but cannot trail the final one. Missing required values or unexpected supplied values prevent matching. Resolved arguments follow expression order.
 
-See [DocString and DataTable types](docstring-datatable.md) for passing values and registering custom types.
+See [DocString and DataTable types](api.md#docstring-and-datatable) for passing values and registering custom types.
 
 ## Escaping
 
@@ -828,3 +829,44 @@ An unescaped colon starts a parameter only when followed by a valid name-start c
 Colons in `12:30` and `https:` are already literal; URL slashes still need escaping. Inside braces, colons are literal, and literal parentheses, square brackets, or opening braces must be escaped. Braces cannot be nested.
 
 For escaping expression strings in TypeScript, see [Escaping in string literals](api.md#escaping-in-string-literals).
+
+## Localization
+
+Expression text and inline choice values may use any language.
+
+**`Compro :count{int} manzanas( para :owner)`**
+
+✅ **Matches — with an owner**
+
+```gherkin
+Cuando Compro 2 manzanas para "Ana"
+```
+
+|                         |                              |
+| ----------------------- | ---------------------------- |
+| Captured params (named) | `count: 2`<br>`owner: 'Ana'` |
+
+✅ **Matches — without an owner**
+
+```gherkin
+Cuando Compro 2 manzanas
+```
+
+|                         |                                  |
+| ----------------------- | -------------------------------- |
+| Captured params (named) | `count: 2`<br>`owner: undefined` |
+
+Localization restrictions:
+
+- Parameter names follow `[A-Za-z_$][A-Za-z0-9_$]*`; registered type names additionally
+  allow `.` and `-` after the first character. For example, `:café` means parameter
+  `caf` followed by literal `é`, while `:árbol` is entirely literal text.
+- Syntax uses ASCII `:`, `{}`, `()`, `[]`, and `/`. Fullwidth variants are literal text.
+- Built-in numeric types use ASCII digits and a decimal point, not localized digits
+  or decimal commas. Default string parameters require ASCII single or double quotes.
+  Custom parameter types can support localized value formats.
+- Matching does not normalize Unicode: composed and decomposed accents remain distinct.
+- The 256-character inference limit still applies. Combining marks and joined emoji
+  can consume multiple characters even when displayed as one symbol.
+
+See [named parameter inference](api.md#named-parameter-inference) for inference rules and [custom parameter types](api.md#custom-parameter-types) for localized value formats.

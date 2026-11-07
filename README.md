@@ -51,7 +51,7 @@ const result = await expression.matchAndResolve('I buy 2 apples');
 */
 ```
 
-Built-in `{DocString}` and `{DataTable}` types support required and optional values. See [DocString and DataTable types](docs/docstring-datatable.md).
+Built-in `{DocString}` and `{DataTable}` types support required and optional values. See [DocString and DataTable types](docs/api.md#docstring-and-datatable).
 
 See the [API guide](docs/api.md#named-parameter-inference) for details and how to supply manual types or disable inference.
 
