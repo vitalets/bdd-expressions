@@ -6,7 +6,7 @@
 
 - **Breaking:** Replace the separate world and step argument parameters of `matchAndResolve` with one options object: `{ world, docString, dataTable }`.
 
-- Support built-in trailing DataTable and DocString parameters with typed step argument inputs and result properties, optional groups, and step argument flags for custom parameter types.
+- Support built-in trailing DataTable and DocString parameters with typed step argument inputs and result properties, optional groups, step argument flags for custom parameter types, and `expression.hasDocString` / `expression.hasDataTable` for runner integrations.
 
 - Support explicit inline literals with `{=value}` and empty inline choice alternatives, with inferred literal types.
 

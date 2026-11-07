@@ -77,6 +77,22 @@ export class BddExpression<
   }
 
   /**
+   * Whether the expression declares a DocString parameter anywhere,
+   * including optional groups, alternatives, and custom types.
+   */
+  get hasDocString() {
+    return Boolean(this.variants.withDocString || this.variants.withBoth);
+  }
+
+  /**
+   * Whether the expression declares a DataTable parameter anywhere,
+   * including optional groups, alternatives, and custom types.
+   */
+  get hasDataTable() {
+    return Boolean(this.variants.withDataTable || this.variants.withBoth);
+  }
+
+  /**
    * Matches the whole input and retains metadata for absent parameters.
    */
   match(text: string, stepArguments: StepArguments<Table> = {}) {

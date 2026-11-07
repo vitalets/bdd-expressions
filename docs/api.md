@@ -252,6 +252,8 @@ console.log(result!.docString); // 'Hello' (type: string | undefined)
 
 Use `match(text, { docString, dataTable })` for raw arguments, or `matchAndResolve(text, { world, docString, dataTable })` for resolved values. Both step arguments can be supplied together. Missing optional values resolve to `undefined`; an empty DocString counts as present. Missing required values or unexpected supplied values prevent matching.
 
+The readonly `expression.hasDocString` and `expression.hasDataTable` flags indicate whether the expression declares the corresponding parameter anywhere, including optional groups, alternatives, and custom step argument types. They describe declarations, not requiredness or the values supplied to a match; `match()` validates allowed combinations. Runners can use `expression.hasDocString || expression.hasDataTable` to pass all supplied attachments into matching when either kind is declared, preserving their existing attachment handling otherwise.
+
 The default table type supports `hashes()`, `raw()`, `rows()`, `rowsHash()`, and `transpose()`. Supply your runner's table instance. For another representation, override the generic—for example, `createParameterTypeRegistry<string[][]>()`.
 
 On a successful result, required built-in step arguments exclude `undefined` from

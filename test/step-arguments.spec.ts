@@ -7,6 +7,42 @@ function registry() {
   return createParameterTypeRegistry<string[][]>();
 }
 
+test('attachment flags identify declarations independently of requiredness and type names', () => {
+  const types = registry();
+  types.defineParameterType({ name: 'Users', dataTable: true });
+  types.defineParameterType({ name: 'Body', docString: true });
+  for (const [pattern, hasDocString, hasDataTable] of [
+    ['Create{DataTable}', false, true],
+    ['Create{DocString}', true, false],
+    ['Create{DataTable}{DocString}', true, true],
+    ['Create(:{DataTable})', false, true],
+    ['Create(:{DocString})', true, false],
+    ['Create(:{DataTable}(:{DocString}))', true, true],
+    ['Create[table:{DataTable}/body:{DocString}]', true, true],
+    ['Create[plain/table:{DataTable}]', false, true],
+    ['Create[plain/body:{DocString}]', true, false],
+    ['Create{Users}', false, true],
+    ['Create(:{Users})', false, true],
+    ['Create{Body}', true, false],
+    ['Create(:{Body})', true, false],
+  ] as const) {
+    const expression = new BddExpression(pattern, types);
+    assert.equal(expression.hasDocString, hasDocString, pattern);
+    assert.equal(expression.hasDataTable, hasDataTable, pattern);
+  }
+  for (const pattern of [
+    '',
+    'Create',
+    'Create :count{int}',
+    'Create \\{DataTable\\}',
+    '{=DocString}',
+  ]) {
+    const expression = new BddExpression(pattern, types);
+    assert.equal(expression.hasDocString, false, pattern);
+    assert.equal(expression.hasDataTable, false, pattern);
+  }
+});
+
 test('optional step argument couples colon and presence without exposing input to text captures', async () => {
   const types = registry();
   types.defineParameterType({ name: 'Everything', regexp: /[\s\S]*/ });
