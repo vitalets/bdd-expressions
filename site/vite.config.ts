@@ -34,9 +34,9 @@ export default defineConfig({
         );
         return html.replace(
           '<!-- syntax -->',
-          anchored.replaceAll(
-            'href="api.md',
-            'href="https://github.com/vitalets/bdd-expressions/blob/main/docs/api.md',
+          anchored.replace(
+            /href="(api|docstring-datatable|localization)\.md/g,
+            'href="https://github.com/vitalets/bdd-expressions/blob/main/docs/$1.md',
           ),
         );
       },

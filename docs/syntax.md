@@ -808,7 +808,7 @@ Use `I have {int} product(s) in the cart(:)({DataTable})` when the colon and tab
 
 DocString and DataTable parameters must be last, and each kind can occur only once, including across alternatives. Whitespace and colons may introduce the next parameter but cannot trail the final one. Missing required values or unexpected supplied values prevent matching. Resolved arguments follow expression order.
 
-See [DocString and DataTable types](api.md#docstring-and-datatable-types) for passing values and registering custom types.
+See [DocString and DataTable types](docstring-datatable.md) for passing values and registering custom types.
 
 ## Escaping
 
