@@ -29,7 +29,7 @@ Expressions match the entire input and are case sensitive. Ordinary text and whi
 
 ## Cheatsheet
 
-| Syntax        | Quick meaning                                | Expression                          | Example                |
+| Syntax        | Quick meaning                                | Expression                          | Step                   |
 | ------------- | -------------------------------------------- | ----------------------------------- | ---------------------- |
 | `{type}`      | Capture a typed value                        | `I have {int} cucumbers`            | `I have 2 cucumbers`   |
 | `:name{type}` | Capture a typed value by name                | `I have :count{int} cucumbers`      | `I have 2 cucumbers`   |
@@ -52,9 +52,7 @@ Named parameters also occupy positional slots. Each example shows captured param
 
 ### Anonymous parameters
 
-Put a type name in curly braces to capture a value by position, for example `{int}`, `{string}`, or `{word}`. See [Built-in parameter types](#built-in-parameter-types) for the full list and conversions.
-
-For example, `{int}` captures an integer:
+Put a registered type name in curly braces (`{type}`) to capture a value by position. See [Built-in parameter types](#built-in-parameter-types) for the full list and conversions.
 
 <table>
   <tbody>
@@ -102,9 +100,7 @@ Use `{string}` to capture a single- or double-quoted string. The surrounding quo
 
 ### Named parameters with type
 
-Add `:name` before the type in curly braces to give the captured value a name. The value remains available by position too.
-
-For example, `:count{int}` captures an integer as `count`:
+Use `:name{type}` to capture a typed value by name. The value remains available by position too.
 
 <table>
   <tbody>
@@ -130,7 +126,7 @@ For example, `:count{int}` captures an integer as `count`:
 </table>
 
 > [!NOTE]
-> No space is required before a parameter: `v:major{int}.:minor{int}` captures two integers. To include a literal colon followed by text, escape it with `\` (double `\\` in a JavaScript string, e.g. `'status\\:active'`). See [Escaping](#escaping).
+> Parameters can directly follow literal text without a separating space. Escape a literal colon when it would otherwise start a parameter; see [Escaping](#escaping).
 
 ### Named parameters without type
 
@@ -160,9 +156,6 @@ Untyped `:name` parameters default to `{string}` and require single or double qu
 </table>
 
 Parameter names use ASCII letters, digits, `_`, and `$`, and cannot start with a digit. They are case sensitive and must be unique across the entire expression, including mutually exclusive branches. `{page}` looks up a registered type named `page`; it never declares a named parameter. Unknown types are errors.
-
-> [!NOTE]
-> No space is required before a parameter: `foo:bar` contains the parameter `bar`. To match literal `foo:bar`, escape the colon with `\` (double `\\` in a JavaScript string, e.g. `'foo\\:bar'`). See [Escaping](#escaping).
 
 ### Inline choice parameters
 
@@ -243,7 +236,7 @@ Prefix the contents with `=` to capture a single literal instead of looking up a
 I delete the account( :permanent{=permanently})
 ```
 
-This infers `{ permanent: 'permanently' | undefined }`. The optional group includes the leading space, so it is not captured. Check `if (permanent)` in the handler to detect the suffix.
+A single-literal choice captures the literal when present and `undefined` when its optional group is omitted. Text outside the braces, including surrounding whitespace, is not part of the captured value.
 
 The explicit marker also supports multiple choices (`{=pending/approved}`), whole phrases (`{=for good}`), and the empty literal (`{=}`). It always takes an explicit value; it never reuses the parameter name. Existing escaping rules apply: `{=a\/b}` captures `a/b`. To capture a value beginning with `=`, put it after the marker: `{==pending}` captures `=pending`.
 
@@ -465,25 +458,23 @@ An optional group can contain parameters. When the group is absent, those parame
 
 ### Nested optional text
 
-Nest optional groups to make a suffix depend on an optional phrase. In `I send a message( with attachment(s))`, the outer group makes the attachment phrase optional, and the inner `(s)` allows its plural form.
+Put one parenthesized group inside another to create nested optionals. An inner group can match only when its enclosing group matches; omitting the outer group omits everything inside it.
 
-The expression accepts `I send a message`, `I send a message with attachment`, and `I send a message with attachments`.
-
-<table>
+<table class="match-examples">
   <tbody>
     <tr>
       <th scope="row">Expression</th>
-      <td colspan="2" align="center"><strong><code>I send a message( with attachment(s))</code></strong></td>
+      <td colspan="2" align="left"><strong><code>I send a message( with attachment(s))</code></strong></td>
     </tr>
     <tr>
-      <th scope="row">Input</th>
+      <th scope="row">Input #1</th>
       <td><code>I send a message with attachments</code></td>
-      <td><code>I send a message with</code></td>
+      <td class="match-status"><span role="img" aria-label="Matches">✅</span></td>
     </tr>
     <tr>
-      <th scope="row">Matched</th>
-      <td>✅</td>
-      <td>❌</td>
+      <th scope="row">Input #2</th>
+      <td><code>I send a message with</code></td>
+      <td class="match-status"><span role="img" aria-label="Does not match">❌</span></td>
     </tr>
   </tbody>
 </table>
@@ -536,7 +527,7 @@ Place optional groups next to each other to allow either, both, or neither. Dist
 
 Put optional spaces **inside** the group. `I create :item (as :owner)` always requires a space after the item, even when the group is absent. Whitespace is never trimmed or normalized.
 
-Absent parameters retain their positional slots and have `undefined` values and capture positions. Their transformers are not called. In a nested group, the inner text can appear only when its enclosing group appears.
+Absent parameters retain their positional slots and have `undefined` values and capture positions. Their transformers are not called.
 
 > [!CAUTION]
 > Consecutive optionals use native greedy matching and backtracking. For `I send( :message)( :recipient)`, input `I send "Alice"` fills `message`. For `I send( :message)( :recipient confirmed)`, input `I send "Alice" confirmed` fills `recipient` instead. Distinguishing literal text, such as `message` and `to` in the examples, makes the intended assignment clear.
@@ -549,23 +540,26 @@ Use `/` to choose between words or phrases. Structural choices match text withou
 
 Separate words with `/` to accept either spelling without capturing it as a parameter. Outside groups, alternatives are bounded by unescaped ASCII spaces (`U+0020`), direct parameters, or the expression edges. Tabs, newlines, and Unicode whitespace remain literal branch text; punctuation and adjacent groups do not end a bare alternative. A space can be escaped to include it in a branch, for example `click/tap\ on`.
 
-<table>
+<table class="match-examples">
   <tbody>
     <tr>
       <th scope="row">Expression</th>
-      <td colspan="3" align="center"><strong><code>I pay by card/cash</code></strong></td>
+      <td colspan="2" align="left"><strong><code>I pay by card/cash</code></strong></td>
     </tr>
     <tr>
-      <th scope="row">Input</th>
+      <th scope="row">Input #1</th>
       <td><code>I pay by card</code></td>
-      <td><code>I pay by cash</code></td>
-      <td><code>I pay by cheque</code></td>
+      <td class="match-status"><span role="img" aria-label="Matches">✅</span></td>
     </tr>
     <tr>
-      <th scope="row">Matched</th>
-      <td>✅</td>
-      <td>✅</td>
-      <td>❌</td>
+      <th scope="row">Input #2</th>
+      <td><code>I pay by cash</code></td>
+      <td class="match-status"><span role="img" aria-label="Matches">✅</span></td>
+    </tr>
+    <tr>
+      <th scope="row">Input #3</th>
+      <td><code>I pay by cheque</code></td>
+      <td class="match-status"><span role="img" aria-label="Does not match">❌</span></td>
     </tr>
   </tbody>
 </table>
@@ -585,63 +579,75 @@ Spaces are literal. Only slashes at the current nesting level separate branches;
 
 #### Optional alternatives
 
-Use parentheses to allow no text or one of the listed phrases. Adding another alternative preserves omission: both `I send message( to my boss)` and `I send message( to my boss/ later)` accept `I send message`.
+Use `(a/b)` to allow one branch or omit the entire group. Adding branches does not make the group required.
 
-<table>
+<table class="match-examples">
   <tbody>
     <tr>
       <th scope="row">Expression</th>
-      <td colspan="4" align="center"><strong><code>I send message( to my boss/ later)</code></strong></td>
+      <td colspan="2" align="left"><strong><code>I send message( to my boss/ later)</code></strong></td>
     </tr>
     <tr>
-      <th scope="row">Input</th>
+      <th scope="row">Input #1</th>
       <td><code>I send message</code></td>
-      <td><code>I send message to my boss</code></td>
-      <td><code>I send message later</code></td>
-      <td><code>I send message to my boss later</code></td>
+      <td class="match-status"><span role="img" aria-label="Matches">✅</span></td>
     </tr>
     <tr>
-      <th scope="row">Matched</th>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>❌</td>
+      <th scope="row">Input #2</th>
+      <td><code>I send message to my boss</code></td>
+      <td class="match-status"><span role="img" aria-label="Matches">✅</span></td>
+    </tr>
+    <tr>
+      <th scope="row">Input #3</th>
+      <td><code>I send message later</code></td>
+      <td class="match-status"><span role="img" aria-label="Matches">✅</span></td>
+    </tr>
+    <tr>
+      <th scope="row">Input #4</th>
+      <td><code>I send message to my boss later</code></td>
+      <td class="match-status"><span role="img" aria-label="Does not match">❌</span></td>
     </tr>
   </tbody>
 </table>
 
 #### Required alternatives
 
-Use square brackets to require one of the phrases. A single-branch group such as `[click]` is also required. Bare single-word choices such as `click/tap` remain required.
+Use `[a/b]` to require one branch. A bracketed group remains required even with a single branch. Bare alternatives outside groups are also required.
 
-<table>
+<table class="match-examples">
   <tbody>
     <tr>
       <th scope="row">Expression</th>
-      <td colspan="4" align="center"><strong><code>I [click/tap on/press and hold] button</code></strong></td>
+      <td colspan="2" align="left"><strong><code>I [click/tap on/press and hold] button</code></strong></td>
     </tr>
     <tr>
-      <th scope="row">Input</th>
+      <th scope="row">Input #1</th>
       <td><code>I click button</code></td>
-      <td><code>I tap on button</code></td>
-      <td><code>I press and hold button</code></td>
-      <td><code>I hover over the button</code></td>
+      <td class="match-status"><span role="img" aria-label="Matches">✅</span></td>
     </tr>
     <tr>
-      <th scope="row">Matched</th>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>❌</td>
+      <th scope="row">Input #2</th>
+      <td><code>I tap on button</code></td>
+      <td class="match-status"><span role="img" aria-label="Matches">✅</span></td>
+    </tr>
+    <tr>
+      <th scope="row">Input #3</th>
+      <td><code>I press and hold button</code></td>
+      <td class="match-status"><span role="img" aria-label="Matches">✅</span></td>
+    </tr>
+    <tr>
+      <th scope="row">Input #4</th>
+      <td><code>I hover over the button</code></td>
+      <td class="match-status"><span role="img" aria-label="Does not match">❌</span></td>
     </tr>
   </tbody>
 </table>
 
 #### Empty branches and nested groups
 
-Square brackets can explicitly include an empty branch anywhere: `[/again]`, `[again/]`, and `[again//once more]` all allow omission. `[again]` requires `again`, while `[again/]` accepts either `again` or the empty string. Optional parentheses may also contain empty branches, but these are redundant.
+An empty branch lets a required group match empty text. It can appear before, after, or between other branches: `[/again]`, `[again/]`, and `[again//once more]`. Empty branches in optional groups are redundant, since parentheses already allow omission.
 
-Repeated empty branches are allowed. `[/]`, `[]`, `(/)`, and `()` match empty text without capturing parameters. Groups can nest: `I send( [email/SMS])` makes the required choice optional as a whole, while `[send( now)/wait]` requires a branch with an optional suffix in the first branch.
+Repeated empty branches are allowed. `[/]`, `[]`, `(/)`, and `()` match empty text without capturing parameters. Required and optional groups can nest inside each other. The enclosing group controls whether a nested choice is reached; each nested group keeps its own required or optional behavior.
 
 ### Alternatives with parameters
 
@@ -685,7 +691,7 @@ Each choice branch can declare its own parameters. Positional slots follow sourc
 
 **`I send a message:{DocString}`**
 
-Supply the message body as a multiline DocString.
+Use `{DocString}` to require a separately supplied string, which may span multiple lines.
 
 ✅ **Matches — message body provided**
 
@@ -705,7 +711,7 @@ When I send a message:
 
 #### Optional DocString
 
-Make the colon and DocString optional together to check that a notification appears, optionally checking its full text.
+Wrap `{DocString}` and any punctuation that introduces it in the same optional group. The punctuation must be present exactly when the DocString is supplied.
 
 **`the notification is shown(:{DocString})`**
 
@@ -729,7 +735,7 @@ Then the notification is shown:
 
 **`I have {int} product(s) in the cart:{DataTable}`**
 
-Capture the expected count and supply the products to check as a DataTable. The optional suffix allows singular and plural phrasing.
+Use `{DataTable}` to require a separately supplied table. It can follow text parameters in the same expression.
 
 ✅ **Matches — one expected product**
 
@@ -758,7 +764,7 @@ Then I have 2 products in the cart:
 
 **`I have {int} product(s) in the cart(:{DataTable})`**
 
-Make the colon and table optional together to reuse the same expression for a count-only assertion or a check of specific products.
+Wrap `{DataTable}` and its introducing punctuation in the same optional group to require or omit them together.
 
 ✅ **Matches — zero products, no table needed**
 
@@ -789,7 +795,7 @@ Then I have 2 products in the cart:
 Then I have 2 products in the cart
 ```
 
-The expression captures the count by position and the optional table; the step handler checks the actual products and whether the table agrees with the count. Omitting the table is allowed for any count.
+Matching checks whether the table is present, not whether its contents agree with other parameters. Validate those relationships in the step handler.
 
 ❌ **Does not match — colon provided without a table**
 
@@ -805,7 +811,7 @@ Then I have 1 product in the cart
   | Keyboard | 50    |
 ```
 
-Use `I have {int} product(s) in the cart(:)({DataTable})` when the colon and table should be independently optional. Named parameters and custom table types are also supported.
+Use separate optional groups, `(:)({DataTable})`, to make punctuation and table presence independent. Named parameters and custom table types are also supported.
 
 DocString and DataTable parameters must be last, and each kind can occur only once, including across alternatives. Whitespace and colons may introduce the next parameter but cannot trail the final one. Missing required values or unexpected supplied values prevent matching. Resolved arguments follow expression order.
 

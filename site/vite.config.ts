@@ -1,8 +1,11 @@
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
-import { marked, Renderer } from 'marked';
+import { Marked, Renderer } from 'marked';
+import markedAlert from 'marked-alert';
 import { createHighlighter } from 'shiki';
 import { defineConfig } from 'vite';
+
+const markdownParser = new Marked(markedAlert());
 
 const highlighter = createHighlighter({ themes: ['github-light'], langs: ['typescript'] });
 
@@ -37,7 +40,7 @@ export default defineConfig({
           const code = highlight.codeToHtml(text, { lang: 'typescript', theme: 'github-light' });
           return `<div class="code-sample"><div class="code-sample-label">TypeScript</div>${code}</div>`;
         };
-        const markdown = await marked.parse(source, { renderer });
+        const markdown = await markdownParser.parse(source, { renderer });
         const rendered = renderNamedParams(markdown).replace(
           /<h([1-6])>(.*?)<\/h\1>/g,
           (_, level: string, title: string) => {

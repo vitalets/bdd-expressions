@@ -693,3 +693,120 @@ header {
 #cheatsheet + table :is(th, td):first-child {
   white-space: nowrap;
 }
+
+.syntax-prose table {
+  width: fit-content;
+  max-width: 100%;
+  margin: 28px 0 32px;
+  border: 1px solid #d8dee4;
+  border-radius: 8px;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: #fff;
+}
+.syntax-prose table :is(th, td) {
+  padding: 13px 16px;
+  border: 0;
+  border-right: 1px solid #e8ebef;
+  border-bottom: 1px solid #e8ebef;
+}
+.syntax-prose table tr > :last-child {
+  border-right: 0;
+}
+.syntax-prose table tbody tr:last-child > * {
+  border-bottom: 0;
+}
+.syntax-prose table thead th,
+.syntax-prose table th[scope='row'] {
+  background: #f6f8fa;
+  color: #57606a;
+}
+.syntax-prose table:has(th[scope='row']) tbody tr:first-child > * {
+  background: var(--accent-soft);
+  border-bottom-color: #cfc0e3;
+}
+.syntax-prose table:has(th[scope='row']) tbody tr:first-child th {
+  color: #57606a;
+  vertical-align: middle;
+  border-right-color: #cfc0e3;
+}
+.syntax-prose table:has(th[scope='row']) tbody tr:first-child code {
+  display: inline-block;
+  max-width: 100%;
+  border: 1px solid #d8cbea;
+  border-radius: 5px;
+  padding: 6px 10px;
+  background: #fff;
+  color: #49316f;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.syntax-prose table pre {
+  padding: 0;
+  background: transparent;
+}
+
+.syntax-prose table th[scope='row'] {
+  min-width: 10rem;
+  overflow-wrap: normal;
+}
+.syntax-prose table:has(th[scope='row']) td {
+  min-width: 10rem;
+}
+
+.markdown-alert {
+  --alert-color: #0969da;
+  --alert-background: #eef6ff;
+  margin: 24px 0;
+  padding: 16px 20px;
+  border: 1px solid color-mix(in srgb, var(--alert-color) 20%, white);
+  border-left: 4px solid var(--alert-color);
+  border-radius: 8px;
+  background: var(--alert-background);
+}
+.markdown-alert-tip {
+  --alert-color: #1a7f37;
+  --alert-background: #effaf2;
+}
+.markdown-alert-important {
+  --alert-color: var(--accent);
+  --alert-background: var(--accent-soft);
+}
+.markdown-alert-warning {
+  --alert-color: #9a6700;
+  --alert-background: #fff8e6;
+}
+.markdown-alert-caution {
+  --alert-color: #cf222e;
+  --alert-background: #fff1f2;
+}
+.markdown-alert-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 8px;
+  color: var(--alert-color);
+  font-weight: 600;
+}
+.markdown-alert-title svg {
+  flex: none;
+  fill: currentColor;
+}
+.markdown-alert > :nth-child(2) {
+  margin-top: 0;
+}
+.markdown-alert > :last-child {
+  margin-bottom: 0;
+}
+
+.syntax-prose table.match-examples th[scope='row'] {
+  min-width: 7rem;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+.syntax-prose table.match-examples td.match-status {
+  min-width: 3rem;
+  width: 3rem;
+  text-align: center;
+  vertical-align: middle;
+}
