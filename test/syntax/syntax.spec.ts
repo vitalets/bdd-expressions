@@ -53,6 +53,11 @@ async function runTestCase(testCase: TestCase) {
   assert.ok(args);
   assert.ok(result);
   assert.equal(args.length, testCase.params.positional.length);
+  assert.equal(args.length, expression.slots.length);
+  args.forEach((arg, index) => {
+    assert.equal(arg.name, expression.slots[index]!.name);
+    assert.equal(arg.parameterType, expression.slots[index]!.type);
+  });
   assertParams(result, testCase.params);
 }
 

@@ -2,6 +2,7 @@
  * Provides expression matching and value resolution through the public package API.
  */
 
+import type { Slot } from './compiler.ts';
 import type { IDataTable } from './param-types/data-table.ts';
 import type { StepArguments } from './step-argument.ts';
 import { parseExpression, type Node } from './parser.ts';
@@ -65,6 +66,7 @@ export class BddExpression<
   readonly source: string;
   readonly ast: Node;
   readonly regexp: RegExp;
+  readonly slots: readonly Slot[];
   private readonly variants: ReturnType<typeof compileExpressionVariants>;
 
   constructor(pattern: Source, parameterTypeRegistry: ParameterTypeRegistry<Table>) {
@@ -74,6 +76,7 @@ export class BddExpression<
     const compiled = this.variants.withoutStepArguments;
     this.ast = compiled.ast;
     this.regexp = compiled.regexp;
+    this.slots = compiled.slots;
   }
 
   /**
