@@ -4,12 +4,12 @@
 
 import type { Slot } from './compiler.ts';
 import type { IDataTable } from './param-types/data-table.ts';
-import type { StepArguments } from './step-argument.ts';
+import type { BlockArguments } from './block-argument.ts';
 import { parseExpression, type Node } from './parser.ts';
 import type { ParameterTypeRegistry } from './param-types/registry.ts';
 import { compileExpressionVariants, selectExpressionVariant } from './variants/index.ts';
 import { buildArgumentForSlot, resolveParams, type Argument } from './argument.ts';
-import type { InferBddParams, InferBddStepArguments } from './infer-params.ts';
+import type { InferBddParams, InferBddBlockArguments } from './infer-params.ts';
 
 export type BddExpressionResult<
   Params extends object = Record<string, unknown>,
@@ -17,7 +17,7 @@ export type BddExpressionResult<
   Source extends string = string,
 > = unknown[] & {
   readonly params: Params;
-} & InferBddStepArguments<Source, Table>;
+} & InferBddBlockArguments<Source, Table>;
 
 export { parseExpression, ExpressionError } from './parser.ts';
 export type { Node, SourceRange } from './parser.ts';
@@ -44,11 +44,11 @@ export type {
 export type { Argument } from './argument.ts';
 export type { Group } from './cucumber-expressions/group.ts';
 export type { InferBddParams } from './infer-params.ts';
-export type { StepArguments } from './step-argument.ts';
+export type { BlockArguments } from './block-argument.ts';
 
 /**
  * Matches a parsed expression using a compiled regexp and source-ordered parameters.
- * Table is inferred from the registry so step arguments and table transformers agree
+ * Table is inferred from the registry so block arguments and table transformers agree
  * without requiring the library to import or construct a runner's DataTable class.
  * Infers named values from expression literals unless a Params contract is supplied.
  * An explicit Params type bypasses inference and must match the expression and registry.
@@ -73,7 +73,7 @@ export class BddExpression<
     this.source = pattern;
     const ast = parseExpression(pattern);
     this.variants = compileExpressionVariants(pattern, parameterTypeRegistry, ast);
-    const compiled = this.variants.withoutStepArguments;
+    const compiled = this.variants.withoutBlockArguments;
     this.ast = compiled.ast;
     this.regexp = compiled.regexp;
     this.slots = compiled.slots;
@@ -98,13 +98,13 @@ export class BddExpression<
   /**
    * Matches the whole input and retains metadata for absent parameters.
    */
-  match(text: string, stepArguments: StepArguments<Table> = {}) {
-    const variant = selectExpressionVariant(this.variants, stepArguments);
+  match(text: string, blockArguments: BlockArguments<Table> = {}) {
+    const variant = selectExpressionVariant(this.variants, blockArguments);
     if (!variant) return null;
     const result = variant.regexp.exec(text);
     if (!result) return null;
     const args: readonly Argument[] = variant.slots.map((slot) =>
-      buildArgumentForSlot(slot, result, stepArguments),
+      buildArgumentForSlot(slot, result, blockArguments),
     );
     return args;
   }
@@ -112,7 +112,7 @@ export class BddExpression<
   /**
    * Resolves positional and named values with the supplied transformer context.
    */
-  async matchAndResolve(text: string, options: StepArguments<Table> & { world?: unknown } = {}) {
+  async matchAndResolve(text: string, options: BlockArguments<Table> & { world?: unknown } = {}) {
     const args = this.match(text, options);
     if (args === null) return null;
     const { positional, named } = await resolveParams(args, options.world);

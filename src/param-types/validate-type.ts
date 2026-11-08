@@ -29,13 +29,11 @@ export function validateParameterTypeName(name: string | undefined): asserts nam
  * Keeps DocString and DataTable definitions mutually exclusive and free of text patterns.
  */
 export function validateParameterTypeKind(value: object) {
-  if ('dataTable' in value || 'docString' in value) {
-    if (
-      ('dataTable' in value && 'docString' in value) ||
-      'regexp' in value ||
-      'regexpStrings' in value
-    ) {
-      throw new Error('Step argument types require exactly one step argument flag and no regexp');
-    }
+  if ('docString' in value && 'dataTable' in value) {
+    throw new Error('docString and dataTable are mutually exclusive');
+  }
+  if ('regexp' in value || 'regexpStrings' in value) {
+    if ('docString' in value) throw new Error('DocString types cannot define a regexp');
+    if ('dataTable' in value) throw new Error('DataTable types cannot define a regexp');
   }
 }

@@ -1,5 +1,5 @@
 /**
- * Analyzes external step argument combinations and validates their placement.
+ * Analyzes external block argument combinations and validates their placement.
  */
 
 import { ExpressionError, type Node } from '../parser.ts';
@@ -10,31 +10,31 @@ import {
   type ExpressionVariant,
 } from './definitions.ts';
 
-export type StepArgumentKind = 'dataTable' | 'docString';
+export type BlockArgumentKind = 'dataTable' | 'docString';
 
-export type NodeStepArguments = {
-  parameterKind?: StepArgumentKind;
+export type NodeBlockArguments = {
+  parameterKind?: BlockArgumentKind;
   supportedVariants: ReadonlySet<ExpressionVariant>;
 };
 
-export type StepArgumentAnalysis = {
-  byNode: ReadonlyMap<Node, NodeStepArguments>;
+export type BlockArgumentAnalysis = {
+  byNode: ReadonlyMap<Node, NodeBlockArguments>;
 };
 
 /**
- * Resolves step argument types and determines supported expression variants per AST node.
+ * Resolves block argument types and determines supported expression variants per AST node.
  */
-export function analyzeStepArguments<Table>(
+export function analyzeBlockArguments<Table>(
   ast: Node,
   registry: ParameterTypeRegistry<Table>,
   source: string,
 ) {
-  const byNode = new Map<Node, NodeStepArguments>();
-  const declaredKinds = new Set<StepArgumentKind>();
+  const byNode = new Map<Node, NodeBlockArguments>();
+  const declaredKinds = new Set<BlockArgumentKind>();
   visit(ast);
   const endings = validate(ast, new Set([0]));
-  if (endings.has(2)) fail(ast, 'Text cannot follow a step argument parameter');
-  return { byNode } satisfies StepArgumentAnalysis;
+  if (endings.has(2)) fail(ast, 'Text cannot follow a DocString or DataTable parameter');
+  return { byNode } satisfies BlockArgumentAnalysis;
 
   function fail(node: Node, message: string): never {
     throw new ExpressionError(message, source, node.start, node.end);
@@ -42,7 +42,7 @@ export function analyzeStepArguments<Table>(
 
   function visit(node: Node): Set<ExpressionVariant> {
     let supportedVariants: Set<ExpressionVariant>;
-    let parameterKind: StepArgumentKind | undefined;
+    let parameterKind: BlockArgumentKind | undefined;
     if (node.kind === 'parameter') {
       const type = node.alternatives ? undefined : registry.lookupByTypeName(node.type);
       parameterKind =
@@ -53,7 +53,7 @@ export function analyzeStepArguments<Table>(
             : undefined;
       if (parameterKind) {
         if (declaredKinds.has(parameterKind))
-          fail(node, 'Each step argument kind may appear only once');
+          fail(node, 'DocString and DataTable parameters may each appear only once');
         declaredKinds.add(parameterKind);
       }
       supportedVariants = new Set([
@@ -63,21 +63,21 @@ export function analyzeStepArguments<Table>(
         }),
       ]);
     } else if (node.kind === 'sequence') {
-      supportedVariants = new Set(['withoutStepArguments']);
+      supportedVariants = new Set(['withoutBlockArguments']);
       for (const child of node.children) {
         supportedVariants = combineVariants(supportedVariants, visit(child));
       }
     } else if (node.kind === 'choice') {
       supportedVariants = new Set(node.branches.flatMap((branch) => [...visit(branch)]));
     } else if (node.kind === 'optional') {
-      supportedVariants = new Set(['withoutStepArguments', ...visit(node.body)]);
-    } else supportedVariants = new Set(['withoutStepArguments']);
+      supportedVariants = new Set(['withoutBlockArguments', ...visit(node.body)]);
+    } else supportedVariants = new Set(['withoutBlockArguments']);
     byNode.set(node, { parameterKind, supportedVariants });
     return supportedVariants;
   }
 
-  // State 0 is title text; 1 follows a step argument; 2 is punctuation awaiting
-  // another step argument. Validate every path, including omitted optional groups.
+  // State 0 is title text; 1 follows a block argument; 2 is punctuation awaiting
+  // another block argument. Validate every path, including omitted optional groups.
   function validate(node: Node, states: Set<number>): Set<number> {
     if (node.kind === 'sequence') {
       for (const child of node.children) states = validate(child, states);
@@ -90,7 +90,7 @@ export function analyzeStepArguments<Table>(
     if (node.kind === 'literal' && !node.value) return states;
     if ([...states].some((state) => state > 0)) {
       if (node.kind === 'parameter' || !/^[\s:]*$/.test(node.value))
-        fail(node, 'Step argument parameters must be last');
+        fail(node, 'DocString and DataTable parameters must be last');
       return new Set([...states].map((state) => (state === 0 ? 0 : 2)));
     }
     return states;

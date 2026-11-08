@@ -1,5 +1,5 @@
 /**
- * Defines DocString step argument options and resolves supplied string values.
+ * Defines DocString parameter type options and resolves supplied string values.
  */
 
 export type DocStringParameterType<T = unknown> = {
@@ -15,7 +15,7 @@ export type DocStringParameterTypeOptions<T = string, World = unknown> = {
 };
 
 /**
- * Creates a step argument binding that preserves the supplied string unless transformed.
+ * Creates a DocString binding that preserves the supplied string unless transformed.
  */
 export function createDocStringParameterType<T = string, World = unknown>(
   options: DocStringParameterTypeOptions<T, World>,

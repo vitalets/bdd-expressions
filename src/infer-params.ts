@@ -21,24 +21,24 @@ export type InferBddParams<
   : never;
 
 /**
- * Infers original step argument values from required built-in parameters.
- * Custom step argument names and dynamic sources conservatively allow absence.
+ * Infers original block argument values from required built-in parameters.
+ * Custom block argument names and dynamic sources conservatively allow absence.
  */
-export type InferBddStepArguments<
+export type InferBddBlockArguments<
   Source extends string,
   Table = IDataTable,
 > = Source extends unknown
   ? {
       readonly dataTable:
         | Table
-        | (RequiredStepArguments<Source> extends infer Required
+        | (RequiredBlockArguments<Source> extends infer Required
             ? 'DataTable' extends Required
               ? never
               : undefined
             : undefined);
       readonly docString:
         | string
-        | (RequiredStepArguments<Source> extends infer Required
+        | (RequiredBlockArguments<Source> extends infer Required
             ? 'DocString' extends Required
               ? never
               : undefined
@@ -46,10 +46,10 @@ export type InferBddStepArguments<
     }
   : never;
 
-type RequiredStepArguments<Source extends string> =
-  WithinBudget<Source> extends true ? ScanStepArguments<Source> : never;
+type RequiredBlockArguments<Source extends string> =
+  WithinBudget<Source> extends true ? ScanBlockArguments<Source> : never;
 
-type ScanStepArguments<
+type ScanBlockArguments<
   S extends string,
   Depth extends 0[] = [],
   Required extends string = never,
@@ -57,17 +57,17 @@ type ScanStepArguments<
   Pending extends GroupTail[] = [],
 > = S extends ''
   ? Pending extends [infer Next extends GroupTail, ...infer Rest extends GroupTail[]]
-    ? ScanStepArguments<Next[0], Next[1], Required, Next[2], Rest>
+    ? ScanBlockArguments<Next[0], Next[1], Required, Next[2], Rest>
     : Required
   : S extends `\\${infer _Escaped}${infer Rest}`
-    ? ScanStepArguments<Rest, Depth, Required, InBareChoice, Pending>
+    ? ScanBlockArguments<Rest, Depth, Required, InBareChoice, Pending>
     : S extends `${infer Open extends '(' | '['}${infer Rest}`
       ? ReadGroup<Rest, Open extends '(' ? ')' : ']'> extends [
           infer Body extends string,
           infer Tail extends string,
           infer Choice,
         ]
-        ? ScanStepArguments<
+        ? ScanBlockArguments<
             Body,
             GroupDepth<Open, Choice, Tail, Depth, InBareChoice>,
             Required,
@@ -78,16 +78,16 @@ type ScanStepArguments<
       : S extends `:${infer First}${infer Rest}`
         ? First extends NameStart
           ? ReadName<Rest, First> extends [string, infer Tail extends string]
-            ? ScanStepArguments<Tail, Depth, Required, false, Pending>
+            ? ScanBlockArguments<Tail, Depth, Required, false, Pending>
             : Required
-          : ScanStepArguments<`${First}${Rest}`, Depth, Required, InBareChoice, Pending>
+          : ScanBlockArguments<`${First}${Rest}`, Depth, Required, InBareChoice, Pending>
         : S extends `{${infer Rest}`
           ? ReadBraces<Rest> extends [
               infer Type extends string,
               infer Choices,
               infer Tail extends string,
             ]
-            ? ScanStepArguments<
+            ? ScanBlockArguments<
                 Tail,
                 Depth,
                 | Required
@@ -101,7 +101,7 @@ type ScanStepArguments<
               >
             : Required
           : S extends `${infer First}${infer Rest}`
-            ? ScanStepArguments<
+            ? ScanBlockArguments<
                 Rest,
                 Depth,
                 Required,

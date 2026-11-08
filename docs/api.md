@@ -45,13 +45,13 @@ The `Table` generic is inferred from the registry. See [named parameter inferenc
 
 ### Properties
 
-| Property       | Type      | Description                                                                                         |
-| -------------- | --------- | --------------------------------------------------------------------------------------------------- |
-| `source`       | `string`  | Original expression source.                                                                         |
-| `ast`          | `Node`    | Parsed expression tree.                                                                             |
-| `regexp`       | `RegExp`  | Compiled variant without supplied step arguments. Use `match()` to validate step argument presence. |
-| `hasDocString` | `boolean` | Whether the expression declares a DocString parameter.                                              |
-| `hasDataTable` | `boolean` | Whether the expression declares a DataTable parameter.                                              |
+| Property       | Type      | Description                                                                                                |
+| -------------- | --------- | ---------------------------------------------------------------------------------------------------------- |
+| `source`       | `string`  | Original expression source.                                                                                |
+| `ast`          | `Node`    | Parsed expression tree.                                                                                    |
+| `regexp`       | `RegExp`  | Compiled variant without supplied DocString or DataTable values. Use `match()` to validate their presence. |
+| `hasDocString` | `boolean` | Whether the expression declares a DocString parameter.                                                     |
+| `hasDataTable` | `boolean` | Whether the expression declares a DataTable parameter.                                                     |
 
 All properties are readonly. See [DocString and DataTable](#docstring-and-datatable) for declaration flags, matching rules, and runner integration.
 
@@ -59,13 +59,13 @@ All properties are readonly. See [DocString and DataTable](#docstring-and-datata
 
 Matches the whole step text and transforms the captured parameters.
 
-| Parameter           | Type                                         | Description                             |
-| ------------------- | -------------------------------------------- | --------------------------------------- |
-| `text`              | `string`                                     | Step text to match.                     |
-| `options`           | `StepArguments<Table> & { world?: unknown }` | Optional settings; defaults to `{}`.    |
-| `options.world`     | `unknown`                                    | Transformer `this` context.             |
-| `options.docString` | `string`                                     | Optional separately supplied DocString. |
-| `options.dataTable` | `Table`                                      | Optional separately supplied DataTable. |
+| Parameter           | Type                                          | Description                             |
+| ------------------- | --------------------------------------------- | --------------------------------------- |
+| `text`              | `string`                                      | Step text to match.                     |
+| `options`           | `BlockArguments<Table> & { world?: unknown }` | Optional settings; defaults to `{}`.    |
+| `options.world`     | `unknown`                                     | Transformer `this` context.             |
+| `options.docString` | `string`                                      | Optional separately supplied DocString. |
+| `options.dataTable` | `Table`                                       | Optional separately supplied DataTable. |
 
 **Returns:** `Promise<BddExpressionResult<Values, Table, Source> | null>`. A failed match returns `null`.
 
@@ -81,7 +81,7 @@ if (result) {
 
 The result is an array of transformed values in expression order with readonly,
 nonenumerable `params`, `docString`, and `dataTable` properties. `params` has a null
-prototype and contains transformed named values. The step argument properties retain
+prototype and contains transformed named values. The `docString` and `dataTable` properties retain
 the original supplied values; see [DocString and DataTable](#docstring-and-datatable)
 for their types and transformations.
 
@@ -92,14 +92,14 @@ order. The optional `world` argument supplies transformer context. Errors propag
 a synchronous throw stops further invocations, while an asynchronous rejection
 does not cancel transformers already started.
 
-### `match(text, stepArguments?)`
+### `match(text, blockArguments?)`
 
 Synchronously matches the whole step text and returns raw arguments without running transformers. Useful for integrations and reporters.
 
-| Parameter       | Type                   | Description                                                                                                             |
-| --------------- | ---------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| `text`          | `string`               | Step text to match.                                                                                                     |
-| `stepArguments` | `StepArguments<Table>` | Optional `docString` and `dataTable` inputs; defaults to `{}`. See [DocString and DataTable](#docstring-and-datatable). |
+| Parameter        | Type                    | Description                                                                                                             |
+| ---------------- | ----------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `text`           | `string`                | Step text to match.                                                                                                     |
+| `blockArguments` | `BlockArguments<Table>` | Optional `docString` and `dataTable` inputs; defaults to `{}`. See [DocString and DataTable](#docstring-and-datatable). |
 
 **Returns:** `readonly Argument[] | null`. A failed match returns `null`; a successful match without parameters returns `[]`.
 
@@ -185,7 +185,7 @@ Registers a custom parameter type. Returns `void`; invalid definitions and dupli
 | `options.regexp`      | `string`, `RegExp`, or a readonly array of either | Required text pattern(s); arrays must be nonempty and regexps flagless. |
 | `options.transformer` | function                                          | Optional capture transformer; may return a PromiseLike value.           |
 
-For step argument options, see [custom DocString and DataTable types](#custom-docstring-and-datatable-types).
+For DocString and DataTable options, see [custom DocString and DataTable types](#custom-docstring-and-datatable-types).
 
 ```ts
 registry.defineParameterType({
@@ -246,9 +246,9 @@ console.log(intType?.name); // 'int'
 
 Creates and validates a parameter type without registering it. Accepts the same options as `registry.defineParameterType()`.
 
-| Parameter | Type                   | Description                                                               |
-| --------- | ---------------------- | ------------------------------------------------------------------------- |
-| `options` | `ParameterTypeOptions` | Type name, input pattern or step argument flag, and optional transformer. |
+| Parameter | Type                   | Description                                                                           |
+| --------- | ---------------------- | ------------------------------------------------------------------------------------- |
+| `options` | `ParameterTypeOptions` | Type name, input pattern or `docString` / `dataTable` flag, and optional transformer. |
 
 **Returns:** `TextParameterType`, `DocStringParameterType`, or `DataTableParameterType`, depending on the options.
 
@@ -350,7 +350,7 @@ url.match('Visit https://example.com label:value');
 
 ## DocString and DataTable
 
-`{DocString}` and `{DataTable}` are built in. Pass their values separately from the step text; they are returned unchanged by default.
+`{DocString}` and `{DataTable}` are built-in types. Pass their values separately from the step text; they are returned unchanged by default.
 
 ```ts
 import { BddExpression, createParameterTypeRegistry } from 'bdd-expressions';
@@ -368,16 +368,16 @@ if (result) {
 }
 ```
 
-Use `match(text, { docString, dataTable })` for raw arguments, or `matchAndResolve(text, { world, docString, dataTable })` for resolved values. Both step arguments can be supplied together. Missing optional values resolve to `undefined`; an empty DocString counts as present. Missing required values or unexpected supplied values prevent matching.
+Use `match(text, { docString, dataTable })` for raw arguments, or `matchAndResolve(text, { world, docString, dataTable })` for resolved values. DocString and DataTable values can be supplied together. Missing optional values resolve to `undefined`; an empty DocString counts as present. Missing required values or unexpected supplied values prevent matching.
 
-The readonly `expression.hasDocString` and `expression.hasDataTable` flags indicate whether the expression declares the corresponding parameter anywhere, including optional groups, alternatives, and custom step argument types. They describe declarations, not requiredness or the values supplied to a match; `match()` validates allowed combinations. Runners can use `expression.hasDocString || expression.hasDataTable` to pass all supplied attachments into matching when either kind is declared, preserving their existing attachment handling otherwise.
+The readonly `expression.hasDocString` and `expression.hasDataTable` flags indicate whether the expression declares the corresponding parameter anywhere, including optional groups, alternatives, and custom DocString and DataTable types. They describe declarations, not requiredness or the values supplied to a match; `match()` validates allowed combinations. Runners can use `expression.hasDocString || expression.hasDataTable` to pass all supplied attachments into matching when either kind is declared, preserving their existing attachment handling otherwise.
 
 DocString and DataTable parameters must be last, with at most one of each kind per expression. Colons and whitespace may introduce another parameter, but cannot trail the final one. Runners supply the parsed values and must not append them again after expression resolution.
 
 The default table type supports `hashes()`, `raw()`, `rows()`, `rowsHash()`, and `transpose()`. Supply your runner's table instance. For another representation, override the generic—for example, `createParameterTypeRegistry<string[][]>()`.
 
-On a successful result, required built-in step arguments exclude `undefined` from
-their property types; step arguments inside groups include it:
+On a successful result, required built-in DocString and DataTable parameters exclude `undefined` from
+their property types; DocString and DataTable parameters inside groups include it:
 
 ```ts
 const registry = createParameterTypeRegistry<string[][]>();
@@ -392,10 +392,10 @@ if (result) {
 }
 ```
 
-Step argument presence inference uses expression literals up to 256 TypeScript string
-characters. Dynamic or longer expressions, and custom step argument type names, retain
+DocString and DataTable presence inference uses expression literals up to 256 TypeScript string
+characters. Dynamic or longer expressions, and custom DocString and DataTable type names, retain
 `undefined` in the property types. Supplying only an explicit `Params` generic also
-defaults `Source` to `string`, so step argument properties retain `undefined`.
+defaults `Source` to `string`, so `docString` and `dataTable` properties retain `undefined`.
 
 ### Custom DocString and DataTable types
 
@@ -418,7 +418,7 @@ registry.defineParameterType({
 Use custom types by name: `I create users(::users{UsersDataTable})`. The first colon is literal; the second names the parameter. Custom result types default to `unknown`; see [named parameter inference](#named-parameter-inference) for explicit types. Transformers do not run for absent optional values.
 
 Transformers affect positional values and `result.params`, but not the original
-step arguments: for `UsersDataTable` above, `result.params.users` contains the hashes,
+DocString and DataTable values: for `UsersDataTable` above, `result.params.users` contains the hashes,
 while `result.dataTable` retains the supplied table instance. Likewise,
 `result.docString` retains the original string when using `JsonDocString`.
 

@@ -17,7 +17,7 @@ import {
   getExpressionVariant,
   type ExpressionVariant,
 } from './variants/definitions.ts';
-import type { StepArgumentAnalysis } from './variants/analyze.ts';
+import type { BlockArgumentAnalysis } from './variants/analyze.ts';
 import { ExpressionError, type Node } from './parser.ts';
 import { normalizeParameterPattern } from './param-types/normalize-pattern.ts';
 import type { ParameterType, TextParameterType } from './param-types/create-type.ts';
@@ -31,16 +31,16 @@ export type Slot = {
 };
 
 /**
- * Compiles an expression for a specific combination of available step arguments.
+ * Compiles an expression for a specific combination of available block arguments.
  */
 export function compileExpression<Table>(
   source: string,
   registry: ParameterTypeRegistry<Table>,
   ast: Node,
-  analysis: StepArgumentAnalysis,
+  analysis: BlockArgumentAnalysis,
   variant: ExpressionVariant,
 ) {
-  const stepArguments = EXPRESSION_VARIANTS[variant];
+  const blockArguments = EXPRESSION_VARIANTS[variant];
   const slots: Slot[] = [];
   let captureCount = 0;
   const regexp = new RegExp(`^(?:${compile(ast)})(?![\\s\\S])`, 'd');
@@ -55,9 +55,9 @@ export function compileExpression<Table>(
         ? variant
         : getExpressionVariant({
             hasDataTable:
-              stepArguments.dataTable && possibleInputs.some((input) => input.dataTable),
+              blockArguments.dataTable && possibleInputs.some((input) => input.dataTable),
             hasDocString:
-              stepArguments.docString && possibleInputs.some((input) => input.docString),
+              blockArguments.docString && possibleInputs.some((input) => input.docString),
           }));
     const pattern = compileNode(node, wanted);
     return supportedVariants.has(wanted) ? pattern : `(?!)${pattern}`;
@@ -70,16 +70,16 @@ export function compileExpression<Table>(
       case 'sequence':
         return node.children.map((child) => compile(child)).join('');
       case 'optional':
-        return wanted !== 'withoutStepArguments'
+        return wanted !== 'withoutBlockArguments'
           ? `(?:${compile(node.body)})`
           : `(?:${compile(node.body)})?`;
       case 'choice':
         return `(?:${node.branches.map((branch) => compile(branch, wanted)).join('|')})`;
       case 'parameter': {
         const { type, pattern } = compileParameter(node, source, registry);
-        const stepArgument = analysis.byNode.get(node)!.parameterKind;
-        const resolvedPattern = stepArgument
-          ? stepArguments[stepArgument]
+        const blockArgument = analysis.byNode.get(node)!.parameterKind;
+        const resolvedPattern = blockArgument
+          ? blockArguments[blockArgument]
             ? '()'
             : '((?!))'
           : pattern;

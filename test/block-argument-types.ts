@@ -8,9 +8,9 @@ expression.match('Create', { docString: '' });
 expression.match('Create', { dataTable: 42 });
 // @ts-expect-error DocStrings are strings.
 expression.match('Create', { docString: 42 });
-// @ts-expect-error Step argument types cannot match text regexps.
+// @ts-expect-error Block argument types cannot match text regexps.
 createParameterType({ name: 'Invalid', dataTable: true, regexp: /x/ });
-// @ts-expect-error A step argument type cannot consume both kinds.
+// @ts-expect-error A block argument type cannot consume both kinds.
 createParameterType({ name: 'Invalid', dataTable: true, docString: true });
 
 registry.defineParameterType(
@@ -34,10 +34,10 @@ registry.defineParameterType(
   // @ts-expect-error The table transformer must accept the registry's table type.
   createParameterType({ dataTable: true, name: 'Wrong', transformer: (table: number) => table }),
 );
-// @ts-expect-error No regexp on step argument types.
+// @ts-expect-error No regexp on block argument types.
 registry.defineParameterType(createParameterType({ docString: true, name: 'Wrong', regexp: /x/ }));
 
-async function checkInferredStepArgumentResults() {
+async function checkInferredBlockArgumentResults() {
   const expression = new BddExpression('Create(:users{DataTable})(:body{DocString})', registry);
   const result = await expression.matchAndResolve('Create', {
     dataTable: [['Alice']],
@@ -47,19 +47,19 @@ async function checkInferredStepArgumentResults() {
   const body: string | undefined = result!.params.body;
   const dataTable: string[][] | undefined = result!.dataTable;
   const docString: string | undefined = result!.docString;
-  // @ts-expect-error Table step arguments retain the registry's table type.
+  // @ts-expect-error Table block arguments retain the registry's table type.
   const invalidTable: number = result!.dataTable;
-  // @ts-expect-error DocString step arguments are strings, when present.
+  // @ts-expect-error DocString block arguments are strings, when present.
   const invalidDocString: number = result!.docString;
-  // @ts-expect-error Step argument properties are readonly.
+  // @ts-expect-error Block argument properties are readonly.
   result!.dataTable = [];
-  // @ts-expect-error Step argument properties are readonly.
+  // @ts-expect-error Block argument properties are readonly.
   result!.docString = '';
   // @ts-expect-error The optional table result is not numeric.
   const invalid: number = result!.params.users;
   return { users, body, dataTable, docString, invalidTable, invalidDocString, invalid };
 }
-void checkInferredStepArgumentResults;
+void checkInferredBlockArgumentResults;
 
 registry.defineParameterType({
   name: 'DirectUsersDataTable',
@@ -82,7 +82,7 @@ registry.defineParameterType({
     return Number(capture);
   },
 });
-// @ts-expect-error Direct step argument options cannot include a regexp.
+// @ts-expect-error Direct block argument options cannot include a regexp.
 registry.defineParameterType({ name: 'Invalid', docString: true, regexp: /x/ });
 registry.defineParameterType({
   name: 'Invalid',
@@ -130,12 +130,12 @@ async function checkDefaultTableShape() {
   const expression = new BddExpression(':table{DataTable}', defaultRegistry);
   const result = await expression.matchAndResolve('', { dataTable: new RunnerTable() });
   const hashes: Record<string, string>[] = result!.params.table.transpose().hashes();
-  const stepArgumentHashes: Record<string, string>[] | undefined = result!.dataTable?.hashes();
+  const blockArgumentHashes: Record<string, string>[] | undefined = result!.dataTable?.hashes();
   // @ts-expect-error Arrays require an explicit registry generic override.
   expression.match('', { dataTable: [['Alice']] });
   // @ts-expect-error The default table shape requires every method.
   expression.match('', { dataTable: { raw: () => [['Alice']] } });
-  return { hashes, stepArgumentHashes };
+  return { hashes, blockArgumentHashes };
 }
 void checkDefaultTableShape;
 
@@ -176,7 +176,7 @@ function checkBuiltinRegistrationBoundary(
 }
 void checkBuiltinRegistrationBoundary;
 
-async function checkRequiredStepArgumentProperties() {
+async function checkRequiredBlockArgumentProperties() {
   const required = await new BddExpression('{DataTable}{DocString}', registry).matchAndResolve('');
   const dataTable: string[][] = required!.dataTable;
   const docString: string = required!.docString;
@@ -194,9 +194,9 @@ async function checkRequiredStepArgumentProperties() {
   // @ts-expect-error Optional DocStrings may be absent.
   const optionalBody: string = optional!.docString;
   const literal = await new BddExpression('{=DataTable}{=DocString}', registry).matchAndResolve('');
-  // @ts-expect-error Inline literals do not require step arguments.
+  // @ts-expect-error Inline literals do not require block arguments.
   const literalTable: string[][] = literal!.dataTable;
-  // @ts-expect-error Inline literals do not require step arguments.
+  // @ts-expect-error Inline literals do not require block arguments.
   const literalBody: string = literal!.docString;
   return {
     dataTable,
@@ -209,9 +209,9 @@ async function checkRequiredStepArgumentProperties() {
     literalBody,
   };
 }
-void checkRequiredStepArgumentProperties;
+void checkRequiredBlockArgumentProperties;
 
-async function checkGroupedStepArgumentProperties() {
+async function checkGroupedBlockArgumentProperties() {
   const required = await new BddExpression('[{DataTable}][{DocString}]', registry).matchAndResolve(
     '',
   );
@@ -233,4 +233,4 @@ async function checkGroupedStepArgumentProperties() {
   const bareTable: string[][] = bare!.dataTable;
   return { table, body, absentTable, absentBody, optionalTable, emptyBody, bareTable };
 }
-void checkGroupedStepArgumentProperties;
+void checkGroupedBlockArgumentProperties;

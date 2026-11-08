@@ -5,7 +5,7 @@
 import type { Slot } from './compiler.ts';
 import type { ParameterType, TextParameterType } from './param-types/create-type.ts';
 import { buildGroup, type Group } from './cucumber-expressions/group.ts';
-import { buildStepArgument, type StepArguments } from './step-argument.ts';
+import { buildBlockArgument, type BlockArguments } from './block-argument.ts';
 
 export type Argument = {
   readonly name?: string;
@@ -16,17 +16,17 @@ export type Argument = {
 };
 
 /**
- * Builds a regular or external step argument from a matched parameter slot.
+ * Builds a text or block argument from a matched parameter slot.
  */
 export function buildArgumentForSlot(
   slot: Slot,
   result: RegExpExecArray,
-  stepArguments: StepArguments<unknown>,
+  blockArguments: BlockArguments<unknown>,
 ) {
   const group = buildGroup(slot.capture, result);
   const { type, name } = slot;
-  if (isStepArgumentType(type)) {
-    return buildStepArgument(group, type, name, stepArguments);
+  if (isBlockArgumentType(type)) {
+    return buildBlockArgument(group, type, name, blockArguments);
   }
   return buildArgument(group, type, name);
 }
@@ -66,6 +66,6 @@ function buildArgument(group: Group, parameterType: TextParameterType, name?: st
   return argument;
 }
 
-function isStepArgumentType(type: ParameterType) {
+function isBlockArgumentType(type: ParameterType) {
   return 'dataTable' in type || 'docString' in type;
 }

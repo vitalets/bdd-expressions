@@ -5,10 +5,10 @@ Shared language for expressions, the step text they match, and the values suppli
 ## Language
 
 **Expression**:
-A pattern describing acceptable step text and step arguments.
+A pattern describing acceptable step text and separately supplied DocString and DataTable values.
 
 **Step text**:
-The text matched against an expression, excluding separately supplied step arguments.
+The text matched against an expression, excluding separately supplied DocString and DataTable values.
 
 **Param**:
 A placeholder in an expression for a value from step text, or the corresponding value when discussing a match. Param and parameter mean the same thing; prefer the shorter form, param.
@@ -21,20 +21,20 @@ The matched or transformed value of a param. Use this wording when distinguishin
 The rules for matching a param in step text and transforming its value.
 _Avoid_: Captured parameter type
 
-**Step argument**:
-A DocString or DataTable supplied separately from step text, or its declaration in an expression. Use step argument for both; clarify which is meant only when context is insufficient.
-_Avoid_: input argument, step argument placeholder
+**Block argument**:
+A DocString or DataTable supplied separately from step text, or its declaration in an expression. Unlike params, block arguments do not consume step text. Prefer the explicit names DocString and DataTable in documentation and error messages. Use block argument when a collective term is needed, including in code. The term can describe either the supplied input or its declaration; clarify which is meant when context is insufficient.
+_Avoid_: step argument, input argument, block argument placeholder
 
-**Step argument type**:
-The rules identifying a step argument as a DocString or DataTable and transforming its value.
+**Block argument type**:
+The rules identifying a DocString or DataTable and transforming its value.
 _Avoid_: input argument type
 
-**Step argument value**:
+**Block argument value**:
 The value of a DocString or DataTable after transformation, or the original value when no transformation is applied.
 _Avoid_: Param value
 
 **DocString**:
-A multiline text step argument.
+A string supplied separately from step text that may span multiple lines.
 
 **DataTable**:
-A tabular step argument consisting of rows and cells.
+A table supplied separately from step text, consisting of rows and cells.

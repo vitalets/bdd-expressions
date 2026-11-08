@@ -43,7 +43,7 @@ test('attachment flags identify declarations independently of requiredness and t
   }
 });
 
-test('optional step argument couples colon and presence without exposing input to text captures', async () => {
+test('optional block argument couples colon and presence without exposing input to text captures', async () => {
   const types = registry();
   types.defineParameterType({ name: 'Everything', regexp: /[\s\S]*/ });
   const expression = new BddExpression('I create :name{Everything}(::users{DataTable})', types);
@@ -56,15 +56,15 @@ test('optional step argument couples colon and presence without exposing input t
   assert.equal((await expression.matchAndResolve('I create Alice'))!.params.users, undefined);
 });
 
-test('four variants bind both step arguments in expression order, including empty docstrings', async () => {
+test('four variants bind both block arguments in expression order, including empty docstrings', async () => {
   const expression = new BddExpression('Create(::table{DataTable})(::body{DocString})', registry());
-  for (const [text, stepArguments, expected] of [
+  for (const [text, blockArguments, expected] of [
     ['Create', {}, [undefined, undefined]],
     ['Create:', { dataTable: table }, [table, undefined]],
     ['Create:', { docString: '' }, [undefined, '']],
     ['Create::', { dataTable: table, docString: 'body' }, [table, 'body']],
   ] as const) {
-    const result = await expression.matchAndResolve(text, stepArguments);
+    const result = await expression.matchAndResolve(text, blockArguments);
     assert.deepEqual([...result!], expected);
     assert.equal(result!.dataTable, expected[0]);
     assert.equal(result!.docString, expected[1]);
@@ -73,7 +73,7 @@ test('four variants bind both step arguments in expression order, including empt
   assert.equal(expression.match('Create:', {}), null);
 });
 
-test('required step arguments, independent optionals and nested groups', () => {
+test('required block arguments, independent optionals and nested groups', () => {
   const required = new BddExpression('Create(:){DataTable}{DocString}', registry());
   assert.equal(required.match('Create', { dataTable: table }), null);
   assert.ok(required.match('Create', { dataTable: table, docString: '' }));
@@ -83,7 +83,7 @@ test('required step arguments, independent optionals and nested groups', () => {
   assert.ok(nested.match('Create::', { dataTable: table, docString: '' }));
 });
 
-test('alternatives retain argument slots and select branches by step argument kind', async () => {
+test('alternatives retain argument slots and select branches by block argument kind', async () => {
   const expression = new BddExpression('Create[table:{DataTable}/body:{DocString}]', registry());
   assert.deepEqual(
     [...(await expression.matchAndResolve('Createtable:', { dataTable: table }))!],
@@ -96,7 +96,7 @@ test('alternatives retain argument slots and select branches by step argument ki
   assert.equal(expression.match('Createtable:', { dataTable: table, docString: '' }), null);
 });
 
-test('custom step argument transformers preserve world and skip absent values', async () => {
+test('custom block argument transformers preserve world and skip absent values', async () => {
   const types = registry();
   let calls = 0;
   types.defineParameterType({
@@ -119,7 +119,7 @@ test('custom step argument transformers preserve world and skip absent values', 
   assert.equal(calls, 1);
 });
 
-test('reject invalid placement and duplicate step argument kinds at construction', () => {
+test('reject invalid placement and duplicate block argument kinds at construction', () => {
   for (const pattern of [
     'Create {DataTable} now',
     'Create {DataTable}:name',
@@ -131,7 +131,7 @@ test('reject invalid placement and duplicate step argument kinds at construction
   }
 });
 
-test('step argument metadata has no fabricated text positions and extra input cannot be ignored', () => {
+test('block argument metadata has no fabricated text positions and extra input cannot be ignored', () => {
   const expression = new BddExpression('Create{DataTable}', registry());
   const [argument] = expression.match('Create', { dataTable: table })!;
   assert.equal(argument!.group.start, undefined);
@@ -141,7 +141,7 @@ test('step argument metadata has no fabricated text positions and extra input ca
   assert.equal(new BddExpression('Create', registry()).match('Create', { dataTable: table }), null);
 });
 
-test('a supplied step argument cannot choose an alternative that leaves it unconsumed', () => {
+test('a supplied block argument cannot choose an alternative that leaves it unconsumed', () => {
   const expression = new BddExpression('Create[ plain/:{DataTable}]', registry());
   assert.ok(expression.match('Create plain'));
   assert.equal(expression.match('Create plain', { dataTable: table }), null);
@@ -149,7 +149,7 @@ test('a supplied step argument cannot choose an alternative that leaves it uncon
   assert.equal(expression.match('Create:'), null);
 });
 
-test('step argument order is independent of input object order and parameter slots stay stable', async () => {
+test('block argument order is independent of input object order and parameter slots stay stable', async () => {
   const expression = new BddExpression('Create :count{int}{DocString}{DataTable}', registry());
   const result = await expression.matchAndResolve('Create 2', {
     dataTable: table,
@@ -158,7 +158,7 @@ test('step argument order is independent of input object order and parameter slo
   assert.deepEqual([...result!], [2, 'body\ntext', table]);
 });
 
-test('step argument transformers can be asynchronous and failures propagate during resolution only', async () => {
+test('block argument transformers can be asynchronous and failures propagate during resolution only', async () => {
   const types = registry();
   types.defineParameterType({
     docString: true,
@@ -174,21 +174,27 @@ test('step argument transformers can be asynchronous and failures propagate duri
   );
 });
 
-test('step argument registration validates options, names, and duplicate built-ins', () => {
+test('block argument registration validates options, names, and duplicate built-ins', () => {
   const types = registry();
   assert.throws(
     () =>
       types.defineParameterType(
-        // @ts-expect-error Step argument kinds are mutually exclusive.
+        // @ts-expect-error Block argument kinds are mutually exclusive.
         { dataTable: true, name: 'Bad', docString: true },
       ),
-    /exactly one step argument flag and no regexp/,
+    /docString and dataTable are mutually exclusive/,
   );
   assert.throws(
     () =>
-      // @ts-expect-error Step argument types do not accept regexps.
+      // @ts-expect-error Block argument types do not accept regexps.
       types.defineParameterType({ docString: true, name: 'Bad', regexp: /x/ }),
-    /exactly one step argument flag and no regexp/,
+    /DocString types cannot define a regexp/,
+  );
+  assert.throws(
+    () =>
+      // @ts-expect-error DataTable types do not accept regexps.
+      types.defineParameterType({ dataTable: true, name: 'Bad', regexp: /x/ }),
+    /DataTable types cannot define a regexp/,
   );
   assert.throws(
     () => types.defineParameterType({ dataTable: true, name: 'DataTable' }),
@@ -204,7 +210,7 @@ test('step argument registration validates options, names, and duplicate built-i
   );
 });
 
-test('step argument flags provide identity defaults for custom names', async () => {
+test('block argument flags provide identity defaults for custom names', async () => {
   const types = registry();
   types.defineParameterType({ dataTable: true, name: 'UsersDataTable' });
   types.defineParameterType({ docString: true, name: 'BodyDocString' });
@@ -250,7 +256,7 @@ test('parameter variants expose only their own fields and one working transform'
   assert.equal(textType.transform(undefined, ['42']), 42);
 });
 
-test('required and optional choice groups preserve step argument presence', async () => {
+test('required and optional choice groups preserve block argument presence', async () => {
   const required = new BddExpression('Create[:{DataTable}]', registry());
   assert.equal(required.match('Create'), null);
   assert.equal(required.match('Create:'), null);
