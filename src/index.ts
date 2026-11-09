@@ -43,7 +43,7 @@ export type {
 } from './param-types/registry.ts';
 export type { Argument } from './argument.ts';
 export type { Group } from './cucumber-expressions/group.ts';
-export type { InferBddParams } from './infer-params.ts';
+export type { InferBddParams, InferBddArgs } from './infer-params.ts';
 export type { BlockArguments } from './block-argument.ts';
 
 /**

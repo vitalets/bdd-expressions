@@ -1,5 +1,5 @@
 /**
- * Infers named values from valid expression literals without executing the parser.
+ * Infers parameter values from valid expression literals without executing the parser.
  * Bounded input length keeps compiler work predictable.
  */
 
@@ -18,6 +18,19 @@ export type InferBddParams<
   ? WithinBudget<Source> extends true
     ? Simplify<Scan<Source, Custom>>
     : Record<string, unknown>
+  : never;
+
+/**
+ * Positional parameter inference for literals up to 256 characters.
+ * Includes named, unnamed, and block parameters in source order. Absent values
+ * retain their tuple positions as undefined. Custom maps describe resolved values.
+ * Dynamic or longer expressions fall back to unknown[].
+ * This is not a syntax validator; runtime parsing remains authoritative.
+ */
+export type InferBddArgs<Source extends string, Custom extends object = {}> = Source extends unknown
+  ? WithinBudget<Source> extends true
+    ? Scan<Source, Custom, [], []>
+    : unknown[]
   : never;
 
 /**
@@ -211,12 +224,12 @@ type Scan<
             false,
             [[Tail, Depth, InBareChoice], ...Pending]
           >
-        : Record<string, unknown>
+        : InferenceFallback<Params>
       : S extends `:${infer First}${infer Rest}`
         ? First extends NameStart
           ? ReadName<Rest, First> extends [infer Name extends string, infer Tail extends string]
             ? Parameter<Tail, Name, Custom, Depth, Params, Pending>
-            : Record<string, unknown>
+            : InferenceFallback<Params>
           : Scan<`${First}${Rest}`, Custom, Depth, Params, InBareChoice, Pending>
         : S extends `{${string}`
           ? Parameter<S, never, Custom, Depth, Params, Pending>
@@ -229,7 +242,7 @@ type Scan<
                 First extends '/' ? true : First extends ' ' ? false : InBareChoice,
                 Pending
               >
-            : Record<string, unknown>;
+            : InferenceFallback<Params>;
 
 type GroupTail = [source: string, depth: 0[], inBareChoice: boolean];
 
@@ -323,7 +336,7 @@ type Parameter<
         false,
         Pending
       >
-    : Record<string, unknown>
+    : InferenceFallback<Params>
   : Scan<
       S,
       Custom,
@@ -372,9 +385,14 @@ type ResolveType<Name extends string, Custom extends object> = Name extends keyo
     ? Builtins[Name]
     : unknown;
 
-type AddParam<Params, Name extends string, Value, Depth extends 0[]> = Params & {
-  [Key in Name]: Value | (Depth extends [] ? never : undefined);
-};
+/**
+ * The accumulator selects named-object or positional-tuple inference.
+ */
+type AddParam<Params, Name extends string, Value, Depth extends 0[]> = Params extends unknown[]
+  ? [...Params, Value | (Depth extends [] ? never : undefined)]
+  : Params & { [Key in Name]: Value | (Depth extends [] ? never : undefined) };
+
+type InferenceFallback<Params> = Params extends unknown[] ? unknown[] : Record<string, unknown>;
 
 /**
  * The empty intersection makes editor hovers expand the mapped parameter object.
