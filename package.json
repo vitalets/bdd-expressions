@@ -34,7 +34,6 @@
     "test": "tsx --test test/*.spec.ts test/*/*.spec.ts",
     "build": "rm -rf ./dist && tsc -p tsconfig.build.json",
     "deps": "npx npm-check-updates -i --interactiveSelect none --format group,dep,repo --cooldown 3",
-    "update:rules": "cp ../agentic-dev/rules/ts-file-structure/ts-file-structure.md .agents/rules/",
     "update:compatibility": "node scripts/update-compatibility-testdata.mjs",
     "site:dev": "vite --config site/vite.config.ts",
     "site:build": "tsc -p site/tsconfig.json && vite build --config site/vite.config.ts",
