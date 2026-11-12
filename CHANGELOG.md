@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-11-12
+
 - **Breaking:** Parentheses are always optional, including alternatives. Use square brackets for required groups (`[a/b]` or `[a]`), with empty branches allowing explicit omission (`[a/]`). Migrate required `(a/b)` groups to `[a/b]` and escape literal brackets as `\[` and `\]`. Bare alternative boundaries and whitespace escapes now use only ASCII space, matching Cucumber Expressions.
 
 - **Breaking:** Replace the separate world, DocString, and DataTable parameters of `matchAndResolve` with one options object: `{ world, docString, dataTable }`.
@@ -22,6 +24,7 @@
 
 - Initial release.
 
-[unreleased]: https://github.com/vitalets/bdd-expressions/compare/v0.2.0...HEAD
+[unreleased]: https://github.com/vitalets/bdd-expressions/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/vitalets/bdd-expressions/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/vitalets/bdd-expressions/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/vitalets/bdd-expressions/releases/tag/v0.1.1
